@@ -279,6 +279,10 @@ package_install "dbus"
 print_line
 
 
+cecho "Install ssh - https://wiki.archlinux.de/title/SSH" 
+package_install "openssh" 
+
+print_line
 
 cecho "Install cronie - https://wiki.archlinux.org/index.php/Cron" 
 package_install "cronie" 
@@ -546,7 +550,7 @@ cecho "Install emacs - Best Editor"
 package_install "emacs" 
 
 cecho "Install sublime3 - Nice Editor"  
-package_install "sublime-text-dev" 
+aur_package_install "sublime-text-dev" 
 
 cecho "Install Android Studio"  
 package_install "sublime-text-dev" 
@@ -565,7 +569,7 @@ cecho "Install qtcreator"
 package_install "qtcreator"
 
 cecho "Install MySQL Workbench"  
-aur_package_install "mysql-workbench-gpl"
+package_install "mysql-workbench"
 
 
 cecho "Install OpenJDK"  
@@ -857,6 +861,14 @@ cecho "Install vlc"
 package_install "vlc"
 package_install "phonon-qt5-vlc"
 
+
+
+print_line
+cecho "Install Games" 
+
+
+cecho "Install ddnet"
+aur_package_install "ddnet"
 
 
 
