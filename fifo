@@ -1,0 +1,259 @@
+#!/bin/bash
+ 
+
+
+AUI_DIR=`pwd` #CURRENT DIRECTORY 
+LOG="${AUI_DIR}/`basename ${0}`.log" # LOG FILE
+
+[[ -f $LOG ]] && rm -f "$LOG"
+
+cecho() { 
+ echo -e "$1"
+ echo -e "$1" >>"$LOG"
+ tput sgr0;
+} 
+
+error_msg() {
+    local _msg="${1}"
+    echo -e "${_msg}"
+    echo -e "${_msg}" >>"$LOG"
+    exit 1
+} 
+
+check_root() {
+ if [[ "$(id -u)" != "0" ]]; then
+  error_msg "ERROR! You must execute the script as the root user."
+ fi
+} 
+
+
+print_line() {
+ printf "\n%$(tput cols)s\n\n"|tr ' ' '-'
+}
+
+arch_chroot() {
+ arch-chroot /mnt /bin/bash -c "${1}"
+}
+
+
+check_root
+
+print_line
+
+cecho "Load German Keymap [https://wiki.archlinux.org/index.php/Keyboard_configuration_in_console]"
+cecho "Be sure to load Keymap with loadkeys de-latin1"
+
+print_line
+
+cecho "Connect to wifi [https://wiki.archlinux.org/index.php/netctl]"
+cecho "Be sure to connect to Wifi with: wifi-menu"
+
+cecho "Or Connect to ethernet [https://bbs.archlinux.org/viewtopic.php?id=210679]"
+cecho "Be sure to connect to Ethernet with: "
+cecho "ip link set enpxxxx up  "
+cecho "dhcpcd" 
+print_line
+
+read -p "Press enter to continue"
+
+cecho "This Skript will install Arch Linux on /dev/sda"
+cecho "Be sure that /dev/sda is the correct device, to do this use: lsblk"
+
+print_line
+
+read -p "Press enter to continue"
+print_line
+
+#Mirrorlist
+cecho "Backup pacman mirrorlist and filter for German Servers [https://wiki.archlinux.org/index.php/mirrors]"
+cp /etc/pacman.d/mirrorlist /etc/pacman.d/mirrorlist.bak
+grep -E -A 1 ".*Germany.*$" /etc/pacman.d/mirrorlist.bak | sed '/--/d' > /etc/pacman.d/mirrorlist
+ 
+
+print_line
+
+cecho "Please create two partitions. [https://wiki.archlinux.de/title/GPT]"
+cecho "First: +500M Type: EF00"
+cecho "Second: 100%FREE"
+
+gdisk /dev/sda
+
+read -p "Press enter to continue [Be sure you created the partitions correct]"
+
+
+print_line
+
+cecho "Setup Luks [https://wiki.archlinux.org/index.php/Dm-crypt]"
+cecho "Confirm with YES"
+modprobe dm-crypt
+cryptsetup -c aes-xts-plain64 -y -s 512 luksFormat /dev/sda2
+
+
+read -p "Press enter to continue [be sure luks is setup]"
+
+cecho "Open Luks Partition"
+cryptsetup luksOpen /dev/sda2 lvm
+
+
+print_line
+
+cecho "Create LVM [https://wiki.archlinux.org/index.php/LVM]"
+pvcreate /dev/mapper/lvm
+vgcreate main /dev/mapper/lvm
+lvcreate -L 200GB -n root main
+lvcreate -L 8GB -n swap main
+lvcreate -l 100%FREE -n home main
+
+cecho "If something faild use following commands to remove the partitions."
+cecho "vgreduce main /dev/mapper/lvm"
+cecho "pvremove /dev/mapper/lvm"
+
+read -p "Press enter to continue [be sure partitions are created]"
+
+print_line
+
+cecho "Create Filesystem [https://wiki.archlinux.org/index.php/file_systems]"
+
+mkfs.ext4 -L root -O \^64bit /dev/mapper/main-root
+mkfs.ext4 -L home -O \^64bit /dev/mapper/main-home
+mkfs.fat -F32 -n BOOT /dev/sda1
+mkswap -L swap /dev/mapper/main-swap
+
+
+print_line
+
+cecho "Mount Filesystem [https://wiki.archlinux.de/title/Mounten]"
+ 
+mount /dev/mapper/main-root /mnt
+mkdir /mnt/home
+mount /dev/mapper/main-home /mnt/home
+mkdir /mnt/boot
+mount /dev/sda1 /mnt/boot
+
+cecho "Activate Swap [https://wiki.archlinux.org/index.php/swap]"
+ 
+swapon -L swap
+
+
+print_line
+
+read -p "Press enter to continue"
+
+cecho "Install System [https://wiki.archlinux.org/index.php/Install_from_existing_Linux]"
+
+pacstrap /mnt base base-devel intel-ucode parted btrfs-progs f2fs-tools ntp net-tools iw wireless_tools wpa_actiond wpa_supplicant dialog
+
+
+print_line
+
+cecho "Generate Fstab [https://wiki.archlinux.org/index.php/fstab]"
+ 
+genfstab -U /mnt >> /mnt/etc/fstab
+
+cecho "Generate vconsole [https://wiki.archlinux.org/index.php/Keyboard_configuration_in_console]"
+ 
+echo "KEYMAP=de-latin1" > /mnt/etc/vconsole.conf
+echo "FONT=lat9w-16" >> /mnt/etc/vconsole.conf
+
+cecho "Generate loacls [https://wiki.archlinux.org/index.php/locale]"
+ 
+echo "LANG=de_DE.UTF-8" > /mnt/etc/locale.conf
+echo "LC_COLLATE=C" >> /mnt/etc/locale.conf
+echo "LANGUAGE=de_DE" >> /mnt/etc/locale.conf
+
+
+cecho "Generate Hostname [https://wiki.archlinux.org/index.php/Network_configuration#Set_the_hostname]"
+ 
+echo DerGeraet > /mnt/etc/hostname
+
+cecho "Generate Timezone [https://wiki.archlinux.org/index.php/Time#Time_zone]"
+ 
+arch_chroot "ln -sf /usr/share/zoneinfo/Europe/Berlin /etc/localtime"
+
+cecho "Setup Hardware Clock [https://wiki.archlinux.org/index.php/Time]"
+
+arch_chroot "hwclock --systohc --localtime"
+
+
+print_line
+
+cecho "Setup Locals [https://wiki.archlinux.org/index.php/Locale]"
+
+sed -i "s/#de_DE.UTF-8 UTF-8/de_DE.UTF-8 UTF-8/" /mnt/etc/locale.gen
+sed -i "s/#de_DE ISO-8859-1/de_DE ISO-8859-1/" /mnt/etc/locale.gen
+sed -i "s/#de_DE@euro ISO-8859-15/de_DE@euro ISO-8859-15/" /mnt/etc/locale.gen
+sed -i "s/#en_US.UTF-8 UTF-8/en_US.UTF-8 UTF-8/" /mnt/etc/locale.gen
+sed -i "s/#en_US ISO-8859-1/en_US ISO-8859-1/" /mnt/etc/locale.gen
+ 
+arch_chroot "locale-gen"
+ 
+
+print_line
+
+cecho "Activate Multilib  [https://wiki.archlinux.org/index.php/multilib]"
+#SigLevel = PackageRequired TrustedOnly
+ 
+
+sed -i "/\[multilib\]/,/Include/"'s/^#//' /mnt/etc/pacman.conf
+
+#cecho "Please aktivate multilib by uncomment following lines: "
+#cecho "#[multilib]"
+#cecho "#Include = /etc/pacman.d/mirrorlist"
+
+#read -p "Press enter to get into editor"
+
+#nano /mnt/etc/pacman.conf
+
+cecho "Reaload Repos"
+
+#Mirrorlist
+cecho "Backup pacman mirrorlist and filter for German Servers [https://wiki.archlinux.org/index.php/mirrors]"
+cp /mnt/etc/pacman.d/mirrorlist /mnt/etc/pacman.d/mirrorlist.bak
+grep -E -A 1 ".*Germany.*$" /mnt/etc/pacman.d/mirrorlist.bak | sed '/--/d' > /mnt/etc/pacman.d/mirrorlist
+
+arch_chroot "pacman -Sy"
+ 
+
+print_line
+
+cecho "Change Linux Kernel Modules  [https://wiki.archlinux.org/index.php/mkinitcpio]"
+
+
+#MODULES="ext4"
+#HOOKS="base udev autodetect modconf block keyboard keymap encrypt lvm2 filesystems fsck shutdown"
+sed -i '/^HOOK/s/block/block keyboard keymap encrypt/' /mnt/etc/mkinitcpio.conf
+sed -i '/^HOOK/s/filesystems/lvm2 filesystems/' /mnt/etc/mkinitcpio.conf
+sed -i '/^HOOK/s/fsck/fsck shutdown/' /mnt/etc/mkinitcpio.conf
+sed -i 's/MODULES=""/MODULES="ext4"/' /mnt/etc/mkinitcpio.conf
+ 
+arch_chroot "mkinitcpio -p linux"
+
+
+print_line
+
+cecho "Set Root Password  [https://wiki.archlinux.org/index.php/users_and_groups]"
+
+arch_chroot "passwd"
+
+ 
+print_line
+
+cecho "Install Grub  [https://wiki.archlinux.org/index.php/GRUB]"
+
+pacstrap /mnt grub os-prober efibootmgr
+
+sed -i -e 's/GRUB_CMDLINE_LINUX="\(.\+\)"/GRUB_CMDLINE_LINUX="\1 cryptdevice=\/dev\/sda2:cryptolvm"/g' -e 's/GRUB_CMDLINE_LINUX=""/GRUB_CMDLINE_LINUX="cryptdevice=\/dev\/sda2:cryptolvm"/g' /mnt/etc/default/grub
+
+sed -i 's/#GRUB_ENABLE_CRYPTODISK=y/GRUB_ENABLE_CRYPTODISK=y/' /mnt/etc/default/grub
+
+arch_chroot "grub-mkconfig -o /boot/grub/grub.cfg" 
+
+arch_chroot "grub-install --target=x86_64-efi --efi-directory=/boot --bootloader-id=arch_grub" 
+
+
+
+cecho "Installation finished" 
+cecho "pls exct following comands:" 
+cecho "umount /mnt/home"
+cecho "umount /mnt/boot"
+cecho "umount /mnt"
