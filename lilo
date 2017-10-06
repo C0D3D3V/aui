@@ -551,6 +551,7 @@ package_install "emacs"
 
 cecho "Install sublime3 - Nice Editor"  
 aur_package_install "sublime-text-dev" 
+#aur_package_install "sublime-text" 
 
 cecho "Install Android Studio"  
 package_install "sublime-text-dev" 
@@ -574,10 +575,19 @@ package_install "mysql-workbench"
 
 cecho "Install OpenJDK"  
 package_install "jdk8-openjdk icedtea-web"
+archlinux-java set java-8-openjdk/jre
 
 cecho "Install nodejs"  
 package_install "nodejs"
  
+cecho "Install eclipse"  
+package_install "eclipse-jee"
+
+
+cecho "Install intellij - just more shit"  
+package_install "intellij-idea-community-edition"
+
+
 
 
 
@@ -665,7 +675,34 @@ package_install "netdata"
 systemctl enable netdata.service
 
 
+#alterrnative für yaourt 
+cecho "Install pacaur  - https://wiki.archlinux.org/index.php/AUR_helpers"
+run_as_user "gpg --recv-keys 1EB2638FF56C0C53"
+aur_package_install "pacaur"
+
+
+
+#Update erinnerung
+cecho "Install aarchup  - https://wiki.archlinux.org/index.php/AUR_helpers"
+aur_package_install "aarchup"
+
+
+cecho "Install wireshark  - https://wiki.archlinux.org/index.php/wireshark"
+package_install "wireshark-qt"
+add_user_to_group c0d3d3v wireshark
+
+
+cecho "Install grub-customizer  - https://wiki.archlinux.de/title/GRUB"
+aur_package_install "grub-customizer"
+#Theme: https://www.gnome-look.org/p/1111545/
+
+
+
 #plex - https://wiki.archlinux.org/index.php/Plex ?? Media center
+
+
+
+
 
 
 
@@ -766,7 +803,7 @@ cecho "Install teamspeak3"
 package_install "teamspeak3"
 
 cecho "Install gajim" 
-package_install "gajim"
+package_install "gajim gajim-plugin-omemo"
 
 
 
