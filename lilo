@@ -947,7 +947,7 @@ pacman -Rns $(pacman -Qtdq)
 pacman-optimize
 
 
- 
+ #load config from git
 
 
 
