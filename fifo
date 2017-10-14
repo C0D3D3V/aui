@@ -67,7 +67,8 @@ print_line
 #Mirrorlist
 cecho "Backup pacman mirrorlist and filter for German Servers [https://wiki.archlinux.org/index.php/mirrors]"
 cp /etc/pacman.d/mirrorlist /etc/pacman.d/mirrorlist.bak
-grep -E -A 1 ".*Germany.*$" /etc/pacman.d/mirrorlist.bak | sed '/--/d' > /etc/pacman.d/mirrorlist
+grep -E -A 1 ".*Germany.*$" /etc/pacman.d/mirrorlist.bak | sed '/--/d' > /etc/pacman.d/mirrorlist.backup
+rankmirrors -n 10 /etc/pacman.d/mirrorlist.backup > /etc/pacman.d/mirrorlist
  
 
 print_line
@@ -116,6 +117,9 @@ cecho "Create Filesystem [https://wiki.archlinux.org/index.php/file_systems]"
 
 mkfs.ext4 -L root -O \^64bit /dev/mapper/main-root
 mkfs.ext4 -L home -O \^64bit /dev/mapper/main-home
+tune2fs -O ^has_journal /dev/mapper/main-root
+tune2fs -O ^has_journal /dev/mapper/main-home
+
 mkfs.fat -F32 -n BOOT /dev/sda1
 mkswap -L swap /dev/mapper/main-swap
 
@@ -166,6 +170,17 @@ cecho "Generate Hostname [https://wiki.archlinux.org/index.php/Network_configura
  
 echo DerGeraet > /mnt/etc/hostname
 
+cecho "Generate Journalctrl config [https://wiki.archlinux.org/index.php/Systemd#Journal]"
+
+
+sed -i "s/#Storage=auto/Storage=persistent/" /mnt/etc/systemd/journald.conf
+sed -i "s/#SystemMaxUse=/SystemMaxUse=400M/" /mnt/etc/systemd/journald.conf
+sed -i "s/#SystemMaxFileSize=/SystemMaxFileSize=30M/" /mnt/etc/systemd/journald.conf
+sed -i "s/#RuntimeMaxUse=/RuntimeMaxUse=250M/" /mnt/etc/systemd/journald.conf
+sed -i "s/#RuntimeMaxFileSize=/RuntimeMaxFileSize=30M/" /mnt/etc/systemd/journald.conf
+
+
+
 cecho "Generate Timezone [https://wiki.archlinux.org/index.php/Time#Time_zone]"
  
 arch_chroot "ln -sf /usr/share/zoneinfo/Europe/Berlin /etc/localtime"
@@ -210,6 +225,7 @@ cecho "Reaload Repos"
 cecho "Backup pacman mirrorlist and filter for German Servers [https://wiki.archlinux.org/index.php/mirrors]"
 cp /mnt/etc/pacman.d/mirrorlist /mnt/etc/pacman.d/mirrorlist.bak
 grep -E -A 1 ".*Germany.*$" /mnt/etc/pacman.d/mirrorlist.bak | sed '/--/d' > /mnt/etc/pacman.d/mirrorlist
+rankmirrors -n 10 /mnt/etc/pacman.d/mirrorlist.backup > /mnt/etc/pacman.d/mirrorlist
 
 arch_chroot "pacman -Sy"
  

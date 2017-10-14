@@ -196,17 +196,17 @@ cp -v /etc/sudoers /etc/sudoers.aui
 sed -i '/%wheel ALL=(ALL) ALL/s/^#//' /etc/sudoers
 
 cecho "Config sudo"
-echo "" >> /etc/sudoers
-echo 'Defaults !requiretty, !tty_tickets, !umask' >> /etc/sudoers
-echo 'Defaults visiblepw, path_info' >> /etc/sudoers #insults
-#loglinelen=0, logfile =/var/log/sudo.log, log_year, log_host, 
-echo 'Defaults syslog=auth' >> /etc/sudoers
-echo 'Defaults passwd_tries=3, passwd_timeout=1' >> /etc/sudoers
-echo 'Defaults env_reset' >> /etc/sudoers
-echo 'Defaults !env_editor, editor="/usr/bin/vim:/usr/bin/vi:/usr/bin/nano"' >> /etc/sudoers
-echo 'Defaults timestamp_timeout=15' >> /etc/sudoers
-echo 'Defaults passprompt="[sudo] password for %u: "' >> /etc/sudoers
-echo 'Defaults lecture=never' >> /etc/sudores
+#echo "" >> /etc/sudoers
+#echo 'Defaults !requiretty, !tty_tickets, !umask' >> /etc/sudoers
+#echo 'Defaults visiblepw, path_info' >> /etc/sudoers #insults
+##loglinelen=0, logfile =/var/log/sudo.log, log_year, log_host, 
+#echo 'Defaults syslog=auth' >> /etc/sudoers
+#echo 'Defaults passwd_tries=3, passwd_timeout=1' >> /etc/sudoers
+#echo 'Defaults env_reset' >> /etc/sudoers
+#echo 'Defaults !env_editor, editor="/usr/bin/vim:/usr/bin/vi:/usr/bin/nano"' >> /etc/sudoers
+#echo 'Defaults timestamp_timeout=15' >> /etc/sudoers
+#echo 'Defaults passprompt="[sudo] password for %u: "' >> /etc/sudoers
+#echo 'Defaults lecture=never' >> /etc/sudores
 
 
 
@@ -280,7 +280,7 @@ print_line
 
 
 cecho "Install ssh - https://wiki.archlinux.de/title/SSH" 
-package_install "openssh" 
+package_install "openssh keychain" 
 
 print_line
 
@@ -308,7 +308,11 @@ read -p "Press enter to continue"
 print_line
 
 cecho "Install ZSH - https://wiki.archlinux.org/index.php/Zsh" 
-package_install "zsh wget git"
+package_install "zsh wget curl git"
+
+cecho "Install xterm"  
+package_install "xterm"
+
  
 run_as_user "mv /home/c0d3d3v/.zshrc /home/c0d3d3v/.zshrc.bkp"
 run_as_user "wget https://raw.githubusercontent.com/robbyrussell/oh-my-zsh/master/tools/install.sh -O /var/tmp/install-oh-my-zsh.sh"
@@ -340,7 +344,7 @@ print_line
 
 cecho "Install XORG - https://wiki.archlinux.org/index.php/Xorg" 
  
-package_install "xorg-server xorg-xinit xorg-apps xorg-server-xwayland  xorg-xkill xorg-xinput xf86-input-libinput"
+package_install "xorg-server xorg-xinit xorg-apps xorg-xkill xorg-xinput xf86-input-libinput" #xorg-server-xwayland
 
 package_install "mesa"
 modprobe uinput
@@ -367,7 +371,8 @@ if [[ $OPTION == y ]]; then
 
 	read_input_text "Install Lenovo TLP tools"
 	if [[ $OPTION == y ]]; then
-		package_install "tp_smapi acpi_call"
+		package_install "acpi_call"
+    #package_install "tp_smapi"
 	fi
 
 	systemctl enable tlp
@@ -431,6 +436,7 @@ package_install "cups cups-filters ghostscript gsfonts"
 package_install "gutenprint foomatic-db foomatic-db-engine foomatic-db-nonfree foomatic-filters foomatic-db-ppds foomatic-db-nonfree-ppds hplip splix cups-pdf foomatic-db-gutenprint-ppds"
 systemctl enable org.cups.cupsd.service
 
+aur_package_install "gscan2pdf"
 
 
 
@@ -443,7 +449,7 @@ package_install "xf86-input-synaptics"
 print_line
 
 cecho "Install Fonts - https://wiki.archlinux.org/index.php/fonts" 
-package_install "ttf-dejavu ttf-liberation ttf-bitstream-vera ttf-hack wqy-microhei noto-fonts-cjk"
+package_install "ttf-dejavu ttf-liberation ttf-bitstream-vera ttf-hack wqy-microhei noto-fonts-cjk ttf-symbola"
 aur_package_install "ttf-fira-code ttf-google-fonts-git " 
 
 
@@ -465,6 +471,14 @@ aur_package_install "papirus-icon-theme"
 # config xinitrc
 config_xinitrc "startkde"
 
+#config sddm
+systemctl enable sddm
+sddm --example-config > /etc/sddm.conf
+sed -i 's/Current=/Current=breeze/' /etc/sddm.conf
+sed -i 's/CursorTheme=/CursorTheme=breeze_cursors/' /etc/sddm.conf
+sed -i 's/Numlock=none/Numlock=on/' /etc/sddm.conf
+
+
 print_line
 cecho "Install KDE Tools"  
 
@@ -483,11 +497,6 @@ package_install "skrooge"
 #terminal
 package_install "yakuake" 
 
-systemctl enable sddm
-sddm --example-config > /etc/sddm.conf
-sed -i 's/Current=/Current=breeze/' /etc/sddm.conf
-sed -i 's/CursorTheme=/CursorTheme=breeze_cursors/' /etc/sddm.conf
-sed -i 's/Numlock=none/Numlock=on/' /etc/sddm.conf
 
 
 
@@ -548,6 +557,12 @@ print_line
 cecho "Install DEVELOPMENT APPS" 
 cecho "Install emacs - Best Editor"  
 package_install "emacs" 
+aur_package_install "terminus-font" 
+
+cecho "Install vim - Some Editor"  
+package_install "vim" 
+
+
 
 cecho "Install sublime3 - Nice Editor"  
 aur_package_install "sublime-text-dev" 
@@ -565,27 +580,60 @@ aur_package_install "android-studio"
 
 cecho "Install monodevelop - dot net shit"  
 package_install "monodevelop monodevelop-debugger-gdb"
+#fix https://bugs.archlinux.org/task/52939
+ln -s /usr/lib/libgit2.so /usr/lib/libgit2-e8b8948.so
+
 
 cecho "Install qtcreator"  
-package_install "qtcreator"
+package_install "qtcreator qt5-doc"
 
 cecho "Install MySQL Workbench"  
 package_install "mysql-workbench"
 
+cecho "Install sqlite3"  
+package_install "sqlite3"
 
 cecho "Install OpenJDK"  
-package_install "jdk8-openjdk icedtea-web"
+#maybe switch to oracle shit
+package_install "jdk8-openjdk icedtea-web"  
 archlinux-java set java-8-openjdk/jre
 
 cecho "Install nodejs"  
 package_install "nodejs"
  
 cecho "Install eclipse"  
-package_install "eclipse-jee"
+package_install "eclipse-jee tomcat8"
+add_user_to_group c0d3d3v tomcat8
+
+cecho "Install codeblocks"  
+package_install "codeblocks"
 
 
 cecho "Install intellij - just more shit"  
 package_install "intellij-idea-community-edition"
+
+cecho "Install ruby"  
+package_install "ruby"
+aur_package_install "rbenv ruby-build"
+
+
+cecho "Install elixir"  
+package_install "elixir"
+
+cecho "Install Haskel"  
+package_install "ghc"
+
+cecho "Install clang"  
+package_install "linter-clang clang"
+
+
+cecho "Install filezilla"  
+package_install "filezilla"
+
+
+cecho "Install Ardoino"  
+package_install "arduino arduino-avr-core"
+
 
 
 
@@ -627,6 +675,19 @@ package_install "ocrfeeder tesseract gocr"
 cecho "Install xmind - Mindmaps"   
 aur_package_install "xmind"
 
+cecho "Install Foxit pdf reader"   
+aur_package_install "foxitreader"
+
+cecho "Install masterpdfeditor"   
+aur_package_install "masterpdfeditor"
+
+cecho "Install geogebra"   
+aur_package_install "geogebra"
+
+
+
+
+
 
 
 
@@ -653,9 +714,9 @@ package_install "grsync"
 
 
 
-cecho "Install hosts-update - Host file updater"
-aur_package_install "hosts-update"
-hosts-update
+#cecho "Install hosts-update - Host file updater"
+#aur_package_install "hosts-update"
+#hosts-update
 
 
 cecho "Install htop - Systemmonitor"
@@ -683,8 +744,25 @@ aur_package_install "pacaur"
 
 
 #Update erinnerung
-cecho "Install aarchup  - https://wiki.archlinux.org/index.php/AUR_helpers"
-aur_package_install "aarchup"
+#cecho "Install aarchup  - https://wiki.archlinux.org/index.php/AUR_helpers"
+#aur_package_install "aarchup" #notification-daemon
+#    echo "# Comments are ignored
+    # The [main] line defines the group main
+    # You need to include this and no arguments
+    # can be placed before it.
+    # also notice that all options should be in the long form
+    # ie: for loop-time use only loop-time do not try to use 'l' or '-l'
+#    [main]
+    # Argument on the left then '=' then the value of it
+    # ie:
+#    loop-time=30
+#    timeout=60
+    # Arguments without a value must have the '=' sign
+    # ie:
+#    aur=" > "/etc/aarchup.conf"
+#systemctl enable aarchup.timer
+
+
 
 
 cecho "Install wireshark  - https://wiki.archlinux.org/index.php/wireshark"
@@ -697,9 +775,70 @@ aur_package_install "grub-customizer"
 #Theme: https://www.gnome-look.org/p/1111545/
 
 
+#cecho "Install partitionmanager  - https://wiki.archlinux.org/index.php/partitioning#Partitioning_tools"
+#package_install "partitionmanager"
+
+cecho "Install gnome-disk-utility  - https://wiki.archlinux.org/index.php/partitioning#Partitioning_tools"
+package_install "gnome-disk-utility"
+
+ 
+
+
+
+
+#python moduls
+pip2 install beautifulsoup4
+pip2 install colorama
+pip2 install termcolor
+pip2 install flake8
+pip2 install jedi
+
+
+
+
+read_input_text "Install Wacom suport - https://wiki.archlinux.org/index.php/wacom_tablet"
+if [[ $OPTION == y ]]; then
+  package_install "xf86-input-wacom libwacom" 
+  aur_package_install "kcm-wacomtablet" 
+
+
+fi
+
+
+read_input_text "Install Tablet suport - https://wiki.archlinux.org/index.php/Tablet_PC"
+if [[ $OPTION == y ]]; then
+  aur_package_install "iio-sensor-proxy" 
+
+
+fi
+
 
 #plex - https://wiki.archlinux.org/index.php/Plex ?? Media center
 
+
+cecho "Install hwinfo"
+package_install "hwinfo"
+
+cecho "Install tree"
+package_install "tree"
+ 
+cecho "Install nmap"
+package_install "nmap"
+
+
+cecho "Install xclip"
+package_install "xclip"
+
+cecho "Install xbindkeys"
+package_install "xbindkeys xbindkeys_config-gtk2"
+
+cecho "Install putty"
+package_install "putty"
+
+
+cecho "Install Aircrack-ng"
+aur_package_install "pixiewps-git aircrack-ng reaver-wps-fork-t6x-git pyrit-git cowpatty wifite-git"
+ 
 
 
 
@@ -715,9 +854,9 @@ cecho "Install graphics APPS"
 cecho "Install gimp" 
 package_install "gimp"
 
-cecho "Install inkscape - Vektrografiken" 
-package_install "inkscape python2-numpy python-lxml"
-
+#cecho "Install inkscape - Vektrografiken" 
+package_install "python2-numpy python-lxml"
+#package_install "inkscape"
 
 cecho "Install mypaint" 
 package_install "mypaint" 
@@ -725,6 +864,8 @@ package_install "mypaint"
 cecho "Install simple-scan" 
 package_install "simple-scan"
 
+cecho "Install krita" 
+package_install "krita"
 
 
 
@@ -740,7 +881,13 @@ package_install "chromium"
 cecho "Install firefox" 
 package_install "firefox firefox-i18n-de"
 
+cecho "Install tor-browser" 
+run_as_user "gpg --recv-keys D1483FA6C3C07136"
+package_install "tor-browser-de"
 
+
+cecho "Install links"  
+package_install "links"
 
 
 
