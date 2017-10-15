@@ -36,6 +36,16 @@ arch_chroot() {
 }
 
 
+add_line() {
+    local _add_line=${1}
+    local _filepath=${2}
+
+
+    local _has_line=`grep -ci "${_add_line}" ${_filepath} 2>&1`
+    [[ $_has_line -eq 0 ]] && echo "${_add_line}" >> ${_filepath}
+} 
+
+
 check_root
 
 print_line
@@ -153,6 +163,11 @@ print_line
 cecho "Generate Fstab [https://wiki.archlinux.org/index.php/fstab]"
  
 genfstab -U /mnt >> /mnt/etc/fstab
+
+#fix small /tmp 
+add_line "tmpfs   /tmp         tmpfs   rw,nodev,nosuid,size=2G          0  0" "/mnt/etc/fstab"
+
+
 
 cecho "Generate vconsole [https://wiki.archlinux.org/index.php/Keyboard_configuration_in_console]"
  

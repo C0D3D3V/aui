@@ -86,6 +86,7 @@ add_line() {
     local _add_line=${1}
     local _filepath=${2}
 
+
     local _has_line=`grep -ci "${_add_line}" ${_filepath} 2>&1`
     [[ $_has_line -eq 0 ]] && echo "${_add_line}" >> ${_filepath}
 } 
@@ -570,12 +571,23 @@ aur_package_install "sublime-text-dev"
 
 cecho "Install Android Studio"  
 package_install "sublime-text-dev" 
-aur_package_install "android-sdk android-sdk-platform-tools android-sdk-build-tools android-platform"
+
+
+run_as_user "gpg --recv-keys 702353E0F7E48EDB"
+aur_package_install "android-sdk-25.2.5 android-sdk-platform-tools android-sdk-build-tools android-platform  android-ndk-10e " 
 add_user_to_group c0d3d3v sdkusers
 chown -R :sdkusers /opt/android-sdk/
 chmod -R g+w /opt/android-sdk/
 add_line "export ANDROID_HOME=/opt/android-sdk" "/home/c0d3d3v/.bashrc"
+
+touch /opt/android-studio/bin/studio64.vmoptions
+add_line "-Djava.io.tmpdir=/var/tmp/" "/opt/android-studio/bin/studio64.vmoptions"
+ 
+
 aur_package_install "android-studio"
+
+
+
 
 
 cecho "Install monodevelop - dot net shit"  
@@ -585,7 +597,7 @@ ln -s /usr/lib/libgit2.so /usr/lib/libgit2-e8b8948.so
 
 
 cecho "Install qtcreator"  
-package_install "qtcreator qt5-doc"
+package_install "qtcreator qt5-doc android-qt5-arm64-v8a"
 
 cecho "Install MySQL Workbench"  
 package_install "mysql-workbench"
