@@ -709,16 +709,17 @@ aur_package_install "yed"
 cecho "Install electrum"   
 package_install "electrum"
 
-cecho "Install bitcoin-core"   
+cecho "Install bitcoin-qt" 
+aur_package_install "bitcoin-qt"  
 #aur_package_install "bitcoin-core"
-#mkdir -p ~/.bitcoin                                         ##
-#cat > ~/.bitcoin/bitcoin.conf <<'EOF'                       ##
+#run_as_user "mkdir -p ~/.bitcoin" 
+#run_as_user "cat > ~/.bitcoin/bitcoin.conf <<'EOF'                       ##
 #rpcconnect=127.0.0.1                                          ##
 #rpcport=8332                                                  ##
 #rpcuser=bitcoin                                               ##
 #rpcpassword=secret                                            ##
-#EOF   
-
+#EOF"
+ 
 
 
 
