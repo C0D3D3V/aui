@@ -472,6 +472,12 @@ aur_package_install "papirus-icon-theme"
 # config xinitrc
 config_xinitrc "startkde"
 
+#fix KDE Connect
+firewall-cmd --zone=public --permanent --add-port=1714-1764/tcp
+firewall-cmd --zone=public --permanent --add-port=1714-1764/udp
+systemctl restart firewalld.service
+
+
 #config sddm
 systemctl enable sddm
 sddm --example-config > /etc/sddm.conf
@@ -574,7 +580,7 @@ package_install "sublime-text-dev"
 
 
 run_as_user "gpg --recv-keys 702353E0F7E48EDB"
-aur_package_install "android-sdk-25.2.5 android-sdk-platform-tools android-sdk-build-tools android-platform  android-ndk-10e " 
+aur_package_install "android-sdk android-sdk-platform-tools android-sdk-build-tools android-platform  android-ndk" 
 add_user_to_group c0d3d3v sdkusers
 chown -R :sdkusers /opt/android-sdk/
 chmod -R g+w /opt/android-sdk/
@@ -696,8 +702,22 @@ aur_package_install "masterpdfeditor"
 cecho "Install geogebra"   
 aur_package_install "geogebra"
 
+cecho "Install yed"   
+aur_package_install "yed"
 
 
+cecho "Install electrum"   
+package_install "electrum"
+
+cecho "Install bitcoin-core"   
+#aur_package_install "bitcoin-core"
+#mkdir -p ~/.bitcoin                                         ##
+#cat > ~/.bitcoin/bitcoin.conf <<'EOF'                       ##
+#rpcconnect=127.0.0.1                                          ##
+#rpcport=8332                                                  ##
+#rpcuser=bitcoin                                               ##
+#rpcpassword=secret                                            ##
+#EOF   
 
 
 
@@ -851,6 +871,9 @@ package_install "putty"
 cecho "Install Aircrack-ng"
 aur_package_install "pixiewps-git aircrack-ng reaver-wps-fork-t6x-git pyrit-git cowpatty wifite-git"
  
+
+cecho "Install powertop"
+package_install "powertop"
 
 
 
