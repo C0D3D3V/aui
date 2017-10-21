@@ -186,7 +186,7 @@ print_line
 cecho "Load Bash Config"  
 #bash conf resource (bsp: https://github.com/helmuthdu/dotfiles)
 cp /etc/skel/.bashrc /home/c0d3d3v 
-chown -R c0d3d3v:users /home/c0d3d3v    #config files gehören dem user
+chown -R c0d3d3v:c0d3d3v /home/c0d3d3v    #config files gehören dem user
 
 cecho "Make him sudoer"
 package_install "sudo"
@@ -450,7 +450,7 @@ package_install "xf86-input-synaptics"
 print_line
 
 cecho "Install Fonts - https://wiki.archlinux.org/index.php/fonts" 
-package_install "ttf-dejavu ttf-liberation ttf-bitstream-vera ttf-hack wqy-microhei noto-fonts-cjk ttf-symbola"
+package_install "noto-fonts-emoji ttf-dejavu ttf-liberation ttf-bitstream-vera ttf-hack wqy-microhei noto-fonts-cjk ttf-symbola"
 aur_package_install "ttf-fira-code ttf-google-fonts-git " 
 
 
@@ -652,6 +652,15 @@ package_install "filezilla"
 cecho "Install Ardoino"  
 package_install "arduino arduino-avr-core"
 
+ 
+cecho "Install H2"  
+aur_package_install "h2"
+
+
+
+
+
+
 
 
 
@@ -690,8 +699,8 @@ cecho "Install ocrfeeder"   #require aspell
 package_install "ocrfeeder tesseract gocr"
 
  
-cecho "Install xmind - Mindmaps"   
-aur_package_install "xmind"
+#cecho "Install xmind - Mindmaps"   
+#aur_package_install "xmind"
 
 cecho "Install Foxit pdf reader"   
 aur_package_install "foxitreader"
@@ -867,6 +876,7 @@ package_install "xbindkeys xbindkeys_config-gtk2"
 
 cecho "Install putty"
 package_install "putty"
+aur_package_install "putty-freedesktop"
 
 
 cecho "Install Aircrack-ng"
@@ -876,11 +886,103 @@ aur_package_install "pixiewps-git aircrack-ng reaver-wps-fork-t6x-git pyrit-git 
 cecho "Install powertop"
 package_install "powertop"
 
+cecho "Install pkgfile"
+package_install "pkgfile"
+
+
+cecho "Install bind-tools"
+package_install "bind-tools"
+
+cecho "Install dnscrypt-proxy - https://wiki.archlinux.org/index.php/DNSCrypt#Unbound"
+package_install "dnscrypt-proxy"
+
+useradd -r -d /var/dnscrypt -m -s /sbin/nologin dnscrypt
+
+#sed -i "s/Daemonize no/Daemonize yes/" /etc/dnscrypt-proxy.conf 
+sed -i "s/# EDNSPayloadSize 1252/EDNSPayloadSize 4096/" /etc/dnscrypt-proxy.conf 
+sed -i "s|ResolverName random|ResolverName d0wn-random-ns2|" /etc/dnscrypt-proxy.conf 
+sed -i "s|# ResolversList /usr/local/share/dnscrypt-proxy/dnscrypt-resolvers.csv|ResolversList /usr/share/dnscrypt-proxy/dnscrypt-resolvers.csv|" /etc/dnscrypt-proxy.conf 
+sed -i "s|LocalCache on|LocalCache off|" /etc/dnscrypt-proxy.conf 
+ 
+#sed -i "s|#PidFile /var/run/dnscrypt-proxy.pid|PidFile /var/run/dnscrypt-proxy.pid|" /etc/dnscrypt-proxy.conf 
+sed -i "s|# User _dnscrypt-proxy|User dnscrypt|" /etc/dnscrypt-proxy.conf 
+sed -i "s|# MaxActiveRequests 250|MaxActiveRequests 250|" /etc/dnscrypt-proxy.conf 
+#LocalAddress 127.0.0.1:5301
+
+
+
+# User _dnscrypt-proxy
+cp /etc/dnscrypt-proxy.conf /etc/dnscrypt-proxy2.conf 
+#sed -i "s|PidFile /var/run/dnscrypt-proxy.pid|PidFile /var/run/dnscrypt-proxy2.pid|" /etc/dnscrypt-proxy2.conf 
+sed -i "s|ResolverName d0wn-random-ns2|ResolverName dnscrypt.nl-ns0|" /etc/dnscrypt-proxy2.conf 
+#LocalAddress 127.0.0.1:5302
+
+
+
+sed -i "s/ListenStream=127.0.0.1:53/ListenDatagram=127.0.0.1:5301/" /usr/lib/systemd/system/dnscrypt-proxy.socket
+sed -i "s/ListenDatagram=127.0.0.1:53/ListenDatagram=127.0.0.1:5301/" /usr/lib/systemd/system/dnscrypt-proxy.socket
+ 
+cp /usr/lib/systemd/system/dnscrypt-proxy.socket /usr/lib/systemd/system/dnscrypt-proxy2.socket
+cp /usr/lib/systemd/system/dnscrypt-proxy.service /usr/lib/systemd/system/dnscrypt-proxy2.service
+
+
+sed -i "s/ListenStream=127.0.0.1:5301/ListenDatagram=127.0.0.1:5302/" /usr/lib/systemd/system/dnscrypt-proxy2.socket
+sed -i "s/ListenDatagram=127.0.0.1:5301/ListenDatagram=127.0.0.1:5302/" /usr/lib/systemd/system/dnscrypt-proxy2.socket
+sed -i "s/Requires=dnscrypt-proxy.socket/Requires=dnscrypt-proxy2.socket/" /usr/lib/systemd/system/dnscrypt-proxy2.service
+sed -i "s/Also=dnscrypt-proxy.socket/Also=dnscrypt-proxy2.socket/" /usr/lib/systemd/system/dnscrypt-proxy2.service
+sed -i "s|ExecStart=/usr/bin/dnscrypt-proxy /etc/dnscrypt-proxy.conf|ExecStart=/usr/bin/dnscrypt-proxy /etc/dnscrypt-proxy2.conf|" /usr/lib/systemd/system/dnscrypt-proxy2.service
+   
+
+
+
+#firewall-cmd --zone=public --permanent --add-port=443/udp
+
+systemctl enable dnscrypt-proxy.service
+systemctl enable dnscrypt-proxy2.service
 
 
 
 
+cecho "Install unbound - https://wiki.archlinux.org/index.php/unbound"
+package_install "unbound expat"
 
+echo '
+server:
+    # The following line will configure unbound to perform cryptographic
+    # DNSSEC validation using the root trust anchor.
+    auto-trust-anchor-file: trusted-key.key
+server:
+    #access-control: 10.8.0.0/24 allow
+    #logfile: "/var/log/unbound.log"
+    log-time-ascii: yes
+    module-config: "iterator"
+    do-not-query-localhost: no
+    interface: 127.0.0.1
+    #interface: 10.8.0.1
+    access-control: 127.0.0.1 allow
+    #access-control: 10.8.0.1/24 allow
+forward-zone:
+   name: "."
+   forward-addr: 127.0.0.1@5301
+   forward-addr: 127.0.0.1@5302
+   forward-first: no
+
+remote-control:
+control-enable: no' > /etc/unbound/unbound.conf
+chown root:unbound /etc/unbound
+chmod 775 /etc/unbound
+  
+
+echo '
+# Configuration for resolvconf(8)
+# See resolvconf.conf(5) for details
+
+resolv_conf=/etc/resolv.conf
+# If you run a local name server, you should uncomment the below line and
+# configure your subscribers configuration files below.
+name_servers=127.0.0.1' > /etc/resolvconf.conf
+
+systemctl enable unbound.service
 
 
 print_line
