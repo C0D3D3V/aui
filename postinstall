@@ -656,6 +656,8 @@ package_install "arduino arduino-avr-core"
 cecho "Install H2"  
 aur_package_install "h2"
 
+cecho "Install gource"  
+package_install "gource"
 
 
 
@@ -679,7 +681,7 @@ cecho "Install haroopad"
 aur_package_install "haroopad"
  
 #finanze
-cecho "Install haroopad - finanze manager"  
+cecho "Install homebank - finanze manager"  
 package_install "homebank"
 
 
@@ -720,6 +722,10 @@ package_install "electrum"
 
 cecho "Install bitcoin-qt" 
 aur_package_install "bitcoin-qt"  
+
+cecho "Install bisq" 
+aur_package_install "bisq-git"  
+
 #aur_package_install "bitcoin-core"
 #run_as_user "mkdir -p ~/.bitcoin" 
 #run_as_user "cat > ~/.bitcoin/bitcoin.conf <<'EOF'                       ##
@@ -729,6 +735,8 @@ aur_package_install "bitcoin-qt"
 #rpcpassword=secret                                            ##
 #EOF"
  
+cecho "Install geogebra" 
+aur_package_install "geogebra"  
 
 
 

@@ -48,10 +48,6 @@ add_line() {
 
 check_root
 
-print_line
-
-cecho "Load German Keymap [https://wiki.archlinux.org/index.php/Keyboard_configuration_in_console]"
-cecho "Be sure to load Keymap with loadkeys de-latin1"
 
 print_line
 
@@ -61,7 +57,13 @@ cecho "Be sure to connect to Wifi with: wifi-menu"
 cecho "Or Connect to ethernet [https://bbs.archlinux.org/viewtopic.php?id=210679]"
 cecho "Be sure to connect to Ethernet with: "
 cecho "ip link set enpxxxx up  "
-cecho "dhcpcd" 
+cecho "dhcpcd"
+
+print_line
+
+cecho "You can test your connection with 'ping www.google.de'"
+cecho "You can test your connection with 'ping www.google.de'"
+
 print_line
 
 read -p "Press enter to continue"
@@ -69,23 +71,32 @@ read -p "Press enter to continue"
 cecho "This Skript will install Arch Linux on /dev/sda"
 cecho "Be sure that /dev/sda is the correct device, to do this use: lsblk"
 
-print_line
+
 
 read -p "Press enter to continue"
 print_line
+
+cecho "Load German Keymap [https://wiki.archlinux.org/index.php/Keyboard_configuration_in_console]"
+#cecho "Be sure to load Keymap with loadkeys de-latin1"
+loadkeys de-latin1
+
+print_line 
 
 #Mirrorlist
 cecho "Backup pacman mirrorlist and filter for German Servers [https://wiki.archlinux.org/index.php/mirrors]"
 cp /etc/pacman.d/mirrorlist /etc/pacman.d/mirrorlist.bak
 grep -E -A 1 ".*Germany.*$" /etc/pacman.d/mirrorlist.bak | sed '/--/d' > /etc/pacman.d/mirrorlist.backup
-rankmirrors -n 10 /etc/pacman.d/mirrorlist.backup > /etc/pacman.d/mirrorlist
+rankmirrors -n 6 /etc/pacman.d/mirrorlist.backup > /etc/pacman.d/mirrorlist
  
 
 print_line
 
 cecho "Please create two partitions. [https://wiki.archlinux.de/title/GPT]"
-cecho "First: +500M Type: EF00"
-cecho "Second: 100%FREE"
+cecho "First delete all partitions with: d"
+cecho "Create new partitions with: n"
+cecho "First partition: first Sector '[enter]'; last Sector '+500M'; type 'EF00'"
+cecho "Second partition:  first Sector '[enter]'; last Sector '100%FREE'; type '[enter]'"
+cecho "At the end, wirte the partitions: w"
 
 gdisk /dev/sda
 
@@ -111,9 +122,9 @@ print_line
 cecho "Create LVM [https://wiki.archlinux.org/index.php/LVM]"
 pvcreate /dev/mapper/lvm
 vgcreate main /dev/mapper/lvm
-lvcreate -L 200GB -n root main
+#lvcreate -L 200GB -n root main
 lvcreate -L 8GB -n swap main
-lvcreate -l 100%FREE -n home main
+lvcreate -l 100%FREE -n root main  #home
 
 cecho "If something faild use following commands to remove the partitions."
 cecho "vgreduce main /dev/mapper/lvm"
@@ -126,9 +137,11 @@ print_line
 cecho "Create Filesystem [https://wiki.archlinux.org/index.php/file_systems]"
 
 mkfs.ext4 -L root -O \^64bit /dev/mapper/main-root
-mkfs.ext4 -L home -O \^64bit /dev/mapper/main-home
-tune2fs -O ^has_journal /dev/mapper/main-root
-tune2fs -O ^has_journal /dev/mapper/main-home
+#mkfs.ext4 -L home -O \^64bit /dev/mapper/main-home
+
+#deactivate journal
+#tune2fs -O ^has_journal /dev/mapper/main-root
+#tune2fs -O ^has_journal /dev/mapper/main-home
 
 mkfs.fat -F32 -n BOOT /dev/sda1
 mkswap -L swap /dev/mapper/main-swap
@@ -139,8 +152,8 @@ print_line
 cecho "Mount Filesystem [https://wiki.archlinux.de/title/Mounten]"
  
 mount /dev/mapper/main-root /mnt
-mkdir /mnt/home
-mount /dev/mapper/main-home /mnt/home
+#mkdir /mnt/home
+#mount /dev/mapper/main-home /mnt/home
 mkdir /mnt/boot
 mount /dev/sda1 /mnt/boot
 
@@ -238,9 +251,11 @@ cecho "Reaload Repos"
 
 #Mirrorlist
 cecho "Backup pacman mirrorlist and filter for German Servers [https://wiki.archlinux.org/index.php/mirrors]"
-cp /mnt/etc/pacman.d/mirrorlist /mnt/etc/pacman.d/mirrorlist.bak
-grep -E -A 1 ".*Germany.*$" /mnt/etc/pacman.d/mirrorlist.bak | sed '/--/d' > /mnt/etc/pacman.d/mirrorlist
-rankmirrors -n 10 /mnt/etc/pacman.d/mirrorlist.backup > /mnt/etc/pacman.d/mirrorlist
+#cp /mnt/etc/pacman.d/mirrorlist /mnt/etc/pacman.d/mirrorlist.bak
+#grep -E -A 1 ".*Germany.*$" /mnt/etc/pacman.d/mirrorlist.bak | sed '/--/d' > /mnt/etc/pacman.d/mirrorlist
+#rankmirrors -n 6 /mnt/etc/pacman.d/mirrorlist.backup > /mnt/etc/pacman.d/mirrorlist
+cp /etc/pacman.d/mirrorlist /mnt/etc/pacman.d/mirrorlist
+cp /etc/pacman.d/mirrorlist.bak /mnt/etc/pacman.d/mirrorlist.bak
 
 arch_chroot "pacman -Sy"
  
@@ -285,6 +300,6 @@ arch_chroot "grub-install --target=x86_64-efi --efi-directory=/boot --bootloader
 
 cecho "Installation finished" 
 cecho "pls exct following comands:" 
-cecho "umount /mnt/home"
+#cecho "umount /mnt/home"
 cecho "umount /mnt/boot"
 cecho "umount /mnt"
