@@ -62,8 +62,8 @@ cecho "dhcpcd"
 print_line
 
 cecho "You can test your connection with 'ping www.google.de'"
-cecho "You can stop the scipt at any time with ctr + c"
 cecho "You can scroll up with 'Shift + PgUp' and scoll down with 'Shift + PgDown'"
+cecho "You can stop the scipt at any time with 'ctr + c'"
 
 print_line
 
@@ -181,7 +181,7 @@ cecho "Generate Fstab [https://wiki.archlinux.org/index.php/fstab]"
 genfstab -U /mnt >> /mnt/etc/fstab
 
 #fix small /tmp 
-add_line "tmpfs   /tmp         tmpfs   rw,nodev,nosuid,size=2G          0  0" "/mnt/etc/fstab"
+add_line "tmpfs   /tmp         tmpfs   rw,nodev,nosuid,size=8G          0  0" "/mnt/etc/fstab"
 
 
 
