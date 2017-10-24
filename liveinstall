@@ -85,6 +85,7 @@ print_line
 
 #Mirrorlist
 cecho "Backup pacman mirrorlist and filter for German Servers [https://wiki.archlinux.org/index.php/mirrors]"
+cecho "Please wait..."
 cp /etc/pacman.d/mirrorlist /etc/pacman.d/mirrorlist.bak
 grep -E -A 1 ".*Germany.*$" /etc/pacman.d/mirrorlist.bak | sed '/--/d' > /etc/pacman.d/mirrorlist.backup
 rankmirrors -n 6 /etc/pacman.d/mirrorlist.backup > /etc/pacman.d/mirrorlist
@@ -95,8 +96,8 @@ print_line
 cecho "Please create two partitions. [https://wiki.archlinux.de/title/GPT]"
 cecho "First delete all partitions with: d"
 cecho "Create new partitions with: n"
-cecho "First partition: first Sector '[enter]'; last Sector '+500M'; type 'EF00'"
-cecho "Second partition:  first Sector '[enter]'; last Sector '100%FREE'; type '[enter]'"
+cecho "First partition: Partition number '1'; First sector '[enter]'; Last sector '+500M'; type 'EF00'"
+cecho "Second partition:  Partition number '2'; First sector '[enter]'; Last sector '[enter]'; type '[enter]'"
 cecho "At the end, wirte the partitions: w"
 cecho "You can scroll up with 'Shift + PgUp' and scoll down with 'Shift + PgDown'"
 
