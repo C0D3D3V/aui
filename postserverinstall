@@ -1,0 +1,495 @@
+#!/bin/bash
+
+ 
+AUI_DIR=`pwd` #CURRENT DIRECTORY 
+LOG="${AUI_DIR}/`basename ${0}`.log" # LOG FILE
+
+[[ -f $LOG ]] && rm -f "$LOG"
+
+cecho() { 
+ echo -e "$1"
+ echo -e "$1" >>"$LOG"
+ tput sgr0;
+} 
+
+error_msg() {
+    local _msg="${1}"
+    echo -e "${_msg}"
+    echo -e "${_msg}" >>"$LOG"
+    exit 1
+} 
+
+check_root() {
+ if [[ "$(id -u)" != "0" ]]; then
+  error_msg "ERROR! You must execute the script as the root user."
+ fi
+} 
+
+
+print_line() {
+ printf "\n%$(tput cols)s\n\n"|tr ' ' '-'
+}
+ 
+ aui_download_packages() {
+    for PKG in $1; do
+      #exec command as user instead of root
+      su - c0d3d3v -c "
+        [[ ! -d aui_packages ]] && mkdir aui_packages
+        cd aui_packages
+        curl -o ${PKG}.tar.gz https://aur.archlinux.org/cgit/aur.git/snapshot/${PKG}.tar.gz
+        tar zxvf ${PKG}.tar.gz
+        rm ${PKG}.tar.gz
+        cd ${PKG}
+        makepkg -csi --noconfirm
+      "
+    done
+} 
+
+is_package_installed() { 
+    #check if a package is already installed
+    for PKG in $1; do
+      pacman -Q $PKG &> /dev/null && return 0;
+    done
+    return 1
+}
+
+run_as_user() {
+    sudo -H -u c0d3d3v ${1}
+
+}
+
+read_input_text() {
+#    if [[ $AUTOMATIC_MODE -eq 1 ]]; then
+#      OPTION=$2
+#    else
+      read -p "$1 [y/N]: " OPTION
+      echo ""
+#    fi
+    OPTION=`echo "$OPTION" | tr '[:upper:]' '[:lower:]'`
+} 
+
+replace_line(){
+    local _search=${1}
+    local _replace=${2}
+    local _filepath=${3}
+    local _filebase=`basename ${3}`
+
+    sed -e "s/${_search}/${_replace}/" ${_filepath} > /tmp/${_filebase} 2>"$LOG"
+    if [[ ${?} -eq 0 ]]; then
+      mv /tmp/${_filebase} ${_filepath}
+    else
+      cecho "failed: ${_search} - ${_filepath}"
+    fi
+}
+
+add_line() {
+    local _add_line=${1}
+    local _filepath=${2}
+
+
+    local _has_line=`grep -ci "${_add_line}" ${_filepath} 2>&1`
+    [[ $_has_line -eq 0 ]] && echo "${_add_line}" >> ${_filepath}
+} 
+
+
+aur_package_install() {
+    su - c0d3d3v -c "sudo -v"
+    #install package from aur
+    for PKG in $1; do
+      if ! is_package_installed "${PKG}" ; then
+          su - c0d3d3v -c "yaourt --noconfirm -S ${PKG}"
+      else 
+          echo -e "Warning: ${PKG} is up to date --skipping" 
+      fi
+    done
+}  
+
+package_install() { 
+ #install packages using pacman
+  	for PKG in $1; do
+      if ! is_package_installed "${PKG}" ; then
+		pacman -S --noconfirm --needed ${PKG}
+      else 
+		echo -e "Warning: ${PKG} is up to date --skipping" 
+      fi
+    done  
+} 
+
+config_xinitrc() { 
+    #create a xinitrc file in home user directory
+    cp -fv /etc/X11/xinit/xinitrc /home/c0d3d3v/.xinitrc
+    echo -e "exec $1" >> /home/c0d3d3v/.xinitrc
+    chown -R c0d3d3v:users /home/c0d3d3v/.xinitrc
+} 
+
+add_user_to_group() { 
+    local _user=${1}
+    local _group=${2}
+
+    if [[ -z ${_group} ]]; then
+      error_msg "ERROR! 'add_user_to_group' was not given enough parameters."
+    fi
+	
+	groupadd ${_group}
+    gpasswd -a ${_user} ${_group}  
+} 
+
+check_root
+
+print_line
+
+print_line
+
+cecho "Connect to wifi [https://wiki.archlinux.org/index.php/netctl]"
+cecho "Be sure to connect to Wifi with: wifi-menu"
+
+cecho "Or Connect to ethernet [https://bbs.archlinux.org/viewtopic.php?id=210679]"
+cecho "Be sure to connect to Ethernet with: "
+cecho "ip link set enpxxxx up  "
+cecho "dhcpcd" 
+
+print_line
+
+cecho "This Skript will install my lolvy system"
+cecho "Be sure that you want to install all the software"
+
+print_line
+
+cecho "A clean Arch installation is requested" 
+
+print_line
+
+read -p "Press enter to continue"
+
+print_line
+
+ 
+
+cecho "Create a new user"  
+useradd -m -g users -G wheel -s /bin/bash c0d3d3v
+chfn c0d3d3v
+
+################# User Action ##################
+#user data
+
+passwd c0d3d3v
+################# User Action ##################
+#password eingabe
+
+
+print_line
+
+read -p "Press enter to continue"
+
+print_line
+
+cecho "Load Bash Config"  
+#bash conf resource (bsp: https://github.com/helmuthdu/dotfiles)
+cp /etc/skel/.bashrc /home/c0d3d3v 
+chown -R c0d3d3v:c0d3d3v /home/c0d3d3v    #config files gehören dem user
+
+cecho "Make him sudoer"
+package_install "sudo"
+
+cecho "Backup /etc/sudoers to /etc/sudoers.aui"
+
+cp -v /etc/sudoers /etc/sudoers.aui
+sed -i '/%wheel ALL=(ALL) ALL/s/^#//' /etc/sudoers
+
+cecho "Config sudo"
+#echo "" >> /etc/sudoers
+#echo 'Defaults !requiretty, !tty_tickets, !umask' >> /etc/sudoers
+#echo 'Defaults visiblepw, path_info' >> /etc/sudoers #insults
+##loglinelen=0, logfile =/var/log/sudo.log, log_year, log_host, 
+#echo 'Defaults syslog=auth' >> /etc/sudoers
+#echo 'Defaults passwd_tries=3, passwd_timeout=1' >> /etc/sudoers
+#echo 'Defaults env_reset' >> /etc/sudoers
+#echo 'Defaults !env_editor, editor="/usr/bin/vim:/usr/bin/vi:/usr/bin/nano"' >> /etc/sudoers
+#echo 'Defaults timestamp_timeout=15' >> /etc/sudoers
+#echo 'Defaults passprompt="[sudo] password for %u: "' >> /etc/sudoers
+#echo 'Defaults lecture=never' >> /etc/sudores
+
+
+
+print_line
+
+read -p "Press enter to continue"
+
+print_line
+
+
+cecho "Istall yaourt" 
+package_install "base-devel namcap"
+
+aui_download_packages "package-query yaourt"
+
+print_line
+
+read -p "Press enter to continue"
+
+print_line
+
+
+cecho "Install Bash tools" 
+package_install "rsync bash-completion"
+
+print_line
+
+
+cecho "Install NTP - https://wiki.archlinux.de/title/NTP" 
+package_install "ntp"
+systemctl enable ntpd 
+
+print_line
+
+
+
+cecho "Install dbus - https://wiki.archlinux.org/index.php/D-Bus" 
+package_install "dbus" 
+
+print_line
+
+
+cecho "Install ssh - https://wiki.archlinux.de/title/SSH" 
+package_install "openssh" 
+
+print_line
+
+cecho "Install cronie - https://wiki.archlinux.org/index.php/Cron" 
+package_install "cronie" 
+systemctl enable cronie
+
+print_line
+
+read -p "Press enter to continue"
+
+print_line
+
+cecho "Install ZSH - https://wiki.archlinux.org/index.php/Zsh" 
+package_install "zsh wget curl git"
+
+cecho "Install xterm"  
+package_install "xterm"
+
+ 
+run_as_user "mv /home/c0d3d3v/.zshrc /home/c0d3d3v/.zshrc.bak"
+run_as_user "wget https://raw.githubusercontent.com/robbyrussell/oh-my-zsh/master/tools/install.sh -O /var/tmp/install-oh-my-zsh.sh"
+
+
+print_line
+
+read -p "Press enter to continue - Please exit zsh after finsh install with: exit"
+
+print_line
+
+run_as_user "sh /var/tmp/install-oh-my-zsh.sh"
+run_as_user "rm /var/tmp/install-oh-my-zsh.sh"
+
+
+print_line
+
+read -p "Please check .zshrc - Press enter to continue"
+
+print_line
+
+run_as_user "nano /home/c0d3d3v/.zshrc"
+
+
+
+read -p "Press enter to continue"
+
+print_line
+
+#cecho "Install Aditional Firmeware" 
+ 
+#critical... only if nessesery
+#aur_package_install "aic94xx-firmware b43-firmware b43-firmware-legacy bfa-firmware broadcom-wl android-udev"
+#package_install "alsa-firmware bluez-firmware ipw2100-fw ipw2200-fw libffado libmtp libraw1394"
+
+
+print_line
+
+#unified-remote-server Remote tools
+
+cecho "Install vim - Some Editor"  
+package_install "vim" 
+
+
+
+cecho "Install htop - Systemmonitor"
+package_install "htop"
+
+
+cecho "Install netdata  - System informations __ NOICCCCCCCCCCCEEEEEEEEEE"
+package_install "netdata"
+systemctl enable netdata.service
+
+
+#Update erinnerung
+#cecho "Install aarchup  - https://wiki.archlinux.org/index.php/AUR_helpers"
+#aur_package_install "aarchup" #notification-daemon
+#    echo "# Comments are ignored
+    # The [main] line defines the group main
+    # You need to include this and no arguments
+    # can be placed before it.
+    # also notice that all options should be in the long form
+    # ie: for loop-time use only loop-time do not try to use 'l' or '-l'
+#    [main]
+    # Argument on the left then '=' then the value of it
+    # ie:
+#    loop-time=30
+#    timeout=60
+    # Arguments without a value must have the '=' sign
+    # ie:
+#    aur=" > "/etc/aarchup.conf"
+#systemctl enable aarchup.timer
+
+
+
+
+cecho "Install hwinfo"
+package_install "hwinfo"
+
+cecho "Install tree"
+package_install "tree"
+ 
+cecho "Install nmap"
+package_install "nmap"
+
+cecho "Install powertop"
+package_install "powertop"
+
+cecho "Install pkgfile"
+package_install "pkgfile"
+
+
+cecho "Install bind-tools"
+package_install "bind-tools"
+
+cecho "Install dnscrypt-proxy - https://wiki.archlinux.org/index.php/DNSCrypt#Unbound"
+package_install "dnscrypt-proxy"
+
+useradd -r -d /var/dnscrypt -m -s /sbin/nologin dnscrypt
+
+#sed -i "s/Daemonize no/Daemonize yes/" /etc/dnscrypt-proxy.conf 
+sed -i "s/# EDNSPayloadSize 1252/EDNSPayloadSize 4096/" /etc/dnscrypt-proxy.conf 
+sed -i "s|ResolverName random|ResolverName d0wn-random-ns2|" /etc/dnscrypt-proxy.conf 
+sed -i "s|# ResolversList /usr/local/share/dnscrypt-proxy/dnscrypt-resolvers.csv|ResolversList /usr/share/dnscrypt-proxy/dnscrypt-resolvers.csv|" /etc/dnscrypt-proxy.conf 
+sed -i "s|LocalCache on|LocalCache off|" /etc/dnscrypt-proxy.conf 
+ 
+#sed -i "s|#PidFile /var/run/dnscrypt-proxy.pid|PidFile /var/run/dnscrypt-proxy.pid|" /etc/dnscrypt-proxy.conf 
+sed -i "s|# User _dnscrypt-proxy|User dnscrypt|" /etc/dnscrypt-proxy.conf 
+sed -i "s|# MaxActiveRequests 250|MaxActiveRequests 250|" /etc/dnscrypt-proxy.conf 
+#LocalAddress 127.0.0.1:5301
+
+
+
+# User _dnscrypt-proxy
+cp /etc/dnscrypt-proxy.conf /etc/dnscrypt-proxy2.conf 
+#sed -i "s|PidFile /var/run/dnscrypt-proxy.pid|PidFile /var/run/dnscrypt-proxy2.pid|" /etc/dnscrypt-proxy2.conf 
+sed -i "s|ResolverName d0wn-random-ns2|ResolverName dnscrypt.nl-ns0|" /etc/dnscrypt-proxy2.conf 
+#LocalAddress 127.0.0.1:5302
+
+
+
+sed -i "s/ListenStream=127.0.0.1:53/ListenDatagram=127.0.0.1:5301/" /usr/lib/systemd/system/dnscrypt-proxy.socket
+sed -i "s/ListenDatagram=127.0.0.1:53/ListenDatagram=127.0.0.1:5301/" /usr/lib/systemd/system/dnscrypt-proxy.socket
+ 
+cp /usr/lib/systemd/system/dnscrypt-proxy.socket /usr/lib/systemd/system/dnscrypt-proxy2.socket
+cp /usr/lib/systemd/system/dnscrypt-proxy.service /usr/lib/systemd/system/dnscrypt-proxy2.service
+
+
+sed -i "s/ListenStream=127.0.0.1:5301/ListenDatagram=127.0.0.1:5302/" /usr/lib/systemd/system/dnscrypt-proxy2.socket
+sed -i "s/ListenDatagram=127.0.0.1:5301/ListenDatagram=127.0.0.1:5302/" /usr/lib/systemd/system/dnscrypt-proxy2.socket
+sed -i "s/Requires=dnscrypt-proxy.socket/Requires=dnscrypt-proxy2.socket/" /usr/lib/systemd/system/dnscrypt-proxy2.service
+sed -i "s/Also=dnscrypt-proxy.socket/Also=dnscrypt-proxy2.socket/" /usr/lib/systemd/system/dnscrypt-proxy2.service
+sed -i "s|ExecStart=/usr/bin/dnscrypt-proxy /etc/dnscrypt-proxy.conf|ExecStart=/usr/bin/dnscrypt-proxy /etc/dnscrypt-proxy2.conf|" /usr/lib/systemd/system/dnscrypt-proxy2.service
+   
+
+
+
+#firewall-cmd --zone=public --permanent --add-port=443/udp
+
+systemctl enable dnscrypt-proxy.service
+systemctl enable dnscrypt-proxy2.service
+
+
+
+
+cecho "Install unbound - https://wiki.archlinux.org/index.php/unbound"
+package_install "unbound expat"
+
+echo '
+server:
+    # The following line will configure unbound to perform cryptographic
+    # DNSSEC validation using the root trust anchor.
+    auto-trust-anchor-file: trusted-key.key
+server:
+    #access-control: 10.8.0.0/24 allow
+    #logfile: "/var/log/unbound.log"
+    log-time-ascii: yes
+    module-config: "iterator"
+    do-not-query-localhost: no
+    interface: 127.0.0.1
+    #interface: 10.8.0.1
+    access-control: 127.0.0.1 allow
+    #access-control: 10.8.0.1/24 allow
+forward-zone:
+   name: "."
+   forward-addr: 127.0.0.1@5301
+   forward-addr: 127.0.0.1@5302
+   forward-first: no
+
+remote-control:
+control-enable: no' > /etc/unbound/unbound.conf
+chown root:unbound /etc/unbound
+chmod 775 /etc/unbound
+  
+
+echo '
+# Configuration for resolvconf(8)
+# See resolvconf.conf(5) for details
+
+resolv_conf=/etc/resolv.conf
+# If you run a local name server, you should uncomment the below line and
+# configure your subscribers configuration files below.
+name_servers=127.0.0.1' > /etc/resolvconf.conf
+
+systemctl enable unbound.service
+
+
+
+cecho "Install links"  
+package_install "links"
+
+
+read -p "Finish up - Press enter to continue"
+
+print_line
+cecho "Set System Time"
+timedatectl set-local-rtc true
+ 
+systemctl enable systemd-timesyncd.service
+systemctl start systemd-timesyncd.service
+
+
+
+cecho "CLEAN ORPHAN PACKAGES - https://wiki.archlinux.org/index.php/Pacman/Tips_and_tricks#Removing_unused_packages_.28orphans.29" 
+
+pacman -Rns $(pacman -Qtdq)
+pacman-optimize
+
+
+ #load config from git
+
+
+
+
+
+print_line
+print_line
+
+echo "\n\n"
+
+cecho "Finish :)" 
+cecho "Please reboot and enjoy" 

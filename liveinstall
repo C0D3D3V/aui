@@ -70,7 +70,8 @@ print_line
 read -p "Press enter to continue"
 
 cecho "This Skript will install Arch Linux on /dev/sda"
-cecho "Be sure that /dev/sda is the correct device, to do this use: lsblk"
+cecho "Be sure that /dev/sda is the correct device"
+lsblk
 
 
 
@@ -103,6 +104,7 @@ cecho "You can scroll up with 'Shift + PgUp' and scoll down with 'Shift + PgDown
 
 gdisk /dev/sda
 
+lsblk
 read -p "Press enter to continue [Be sure you created the partitions correct]"
 
 
@@ -300,9 +302,16 @@ arch_chroot "grub-mkconfig -o /boot/grub/grub.cfg"
 arch_chroot "grub-install --target=x86_64-efi --efi-directory=/boot --bootloader-id=arch_grub" 
 
 
+print_line
+
+print_line
+
+echo "\n\n"
 
 cecho "Installation finished" 
-cecho "pls exct following comands:" 
+cecho "Please execute following comands:" 
 #cecho "umount /mnt/home"
 cecho "umount /mnt/boot"
 cecho "umount /mnt"
+echo "\n\n" 
+cecho "reboot"

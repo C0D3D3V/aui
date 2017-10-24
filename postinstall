@@ -218,7 +218,7 @@ read -p "Press enter to continue"
 print_line
 
 
-cecho "Istall yaourt" 
+cecho "Istall yaourt - https://wiki.archlinux.de/title/Yaourt" 
 package_install "base-devel yajl namcap"
 
 aui_download_packages "package-query yaourt"
@@ -231,7 +231,7 @@ print_line
 
 
 cecho "Install Bash tools" 
-package_install "bc rsync mlocate bash-completion pkgstats arch-wiki-lite"
+package_install "bc rsync mlocate bash-completion" #pkgstats arch-wiki-lite
 
 
 print_line
@@ -268,7 +268,7 @@ print_line
 
 cecho "Install acpid - https://wiki.archlinux.org/index.php/acpid" 
 package_install "acpid" 
-	systemctl enable acpid 
+systemctl enable acpid 
 
 print_line
 
@@ -281,7 +281,7 @@ print_line
 
 
 cecho "Install ssh - https://wiki.archlinux.de/title/SSH" 
-package_install "openssh keychain" 
+package_install "openssh" #keychain 
 
 print_line
 
@@ -315,7 +315,7 @@ cecho "Install xterm"
 package_install "xterm"
 
  
-run_as_user "mv /home/c0d3d3v/.zshrc /home/c0d3d3v/.zshrc.bkp"
+run_as_user "mv /home/c0d3d3v/.zshrc /home/c0d3d3v/.zshrc.bak"
 run_as_user "wget https://raw.githubusercontent.com/robbyrussell/oh-my-zsh/master/tools/install.sh -O /var/tmp/install-oh-my-zsh.sh"
 
 
@@ -437,6 +437,8 @@ package_install "cups cups-filters ghostscript gsfonts"
 package_install "gutenprint foomatic-db foomatic-db-engine foomatic-db-nonfree foomatic-filters foomatic-db-ppds foomatic-db-nonfree-ppds hplip splix cups-pdf foomatic-db-gutenprint-ppds"
 systemctl enable org.cups.cupsd.service
 
+
+cecho "Install gscan2pdf - Scan tool" 
 aur_package_install "gscan2pdf"
 
 
@@ -837,12 +839,15 @@ package_install "gnome-disk-utility"
 
 
 #python moduls
-pip2 install beautifulsoup4
-pip2 install colorama
-pip2 install termcolor
-pip2 install flake8
-pip2 install jedi
+#pip2 install beautifulsoup4
+#pip2 install colorama
+#pip2 install termcolor
+#pip2 install flake8
+#pip2 install jedi
 
+
+package_install "python pyhton2"
+aur_package_install "python2-beautifulsoup4 python2-termcolor python2-colorama python2-flake8 python2-jedi"
 
 
 
@@ -947,6 +952,9 @@ sed -i "s|ExecStart=/usr/bin/dnscrypt-proxy /etc/dnscrypt-proxy.conf|ExecStart=/
 
 systemctl enable dnscrypt-proxy.service
 systemctl enable dnscrypt-proxy2.service
+
+
+
 
 
 
@@ -1244,6 +1252,9 @@ pacman-optimize
 
 
 
+print_line
+print_line
+echo "\n\n" 
 
 cecho "Finish :)" 
-cecho "Please Reboot and enjoy" 
+cecho "Please reboot and enjoy" 
