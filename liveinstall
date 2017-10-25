@@ -51,6 +51,7 @@ check_root
 
 print_line
 
+ping -c 2 google.com
 cecho "Connect to wifi [https://wiki.archlinux.org/index.php/netctl]"
 cecho "Be sure to connect to Wifi with: wifi-menu"
 
