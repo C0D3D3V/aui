@@ -950,6 +950,9 @@ sed -i "s|ExecStart=/usr/bin/dnscrypt-proxy /etc/dnscrypt-proxy.conf|ExecStart=/
 
 #firewall-cmd --zone=public --permanent --add-port=443/udp
 
+#aktuallisiere dnscrypt-resolvers.csv
+wget https://raw.githubusercontent.com/jedisct1/dnscrypt-proxy/master/dnscrypt-resolvers.csv -O /usr/share/dnscrypt-proxy/dnscrypt-resolvers.csv 
+
 systemctl enable dnscrypt-proxy.service
 systemctl enable dnscrypt-proxy2.service
 
