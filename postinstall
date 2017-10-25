@@ -654,7 +654,6 @@ package_install "filezilla"
 
 cecho "Install Ardoino"  
 package_install "arduino arduino-avr-core"
-
  
 cecho "Install H2"  
 aur_package_install "h2"
@@ -933,14 +932,14 @@ sed -i "s|ResolverName d0wn-random-ns2|ResolverName dnscrypt.nl-ns0|" /etc/dnscr
 
 
 
-sed -i "s/ListenStream=127.0.0.1:53/ListenDatagram=127.0.0.1:5301/" /usr/lib/systemd/system/dnscrypt-proxy.socket
+sed -i "s/ListenStream=127.0.0.1:53/ListenStream=127.0.0.1:5301/" /usr/lib/systemd/system/dnscrypt-proxy.socket
 sed -i "s/ListenDatagram=127.0.0.1:53/ListenDatagram=127.0.0.1:5301/" /usr/lib/systemd/system/dnscrypt-proxy.socket
  
 cp /usr/lib/systemd/system/dnscrypt-proxy.socket /usr/lib/systemd/system/dnscrypt-proxy2.socket
 cp /usr/lib/systemd/system/dnscrypt-proxy.service /usr/lib/systemd/system/dnscrypt-proxy2.service
 
 
-sed -i "s/ListenStream=127.0.0.1:5301/ListenDatagram=127.0.0.1:5302/" /usr/lib/systemd/system/dnscrypt-proxy2.socket
+sed -i "s/ListenStream=127.0.0.1:5301/ListenStream=127.0.0.1:5302/" /usr/lib/systemd/system/dnscrypt-proxy2.socket
 sed -i "s/ListenDatagram=127.0.0.1:5301/ListenDatagram=127.0.0.1:5302/" /usr/lib/systemd/system/dnscrypt-proxy2.socket
 sed -i "s/Requires=dnscrypt-proxy.socket/Requires=dnscrypt-proxy2.socket/" /usr/lib/systemd/system/dnscrypt-proxy2.service
 sed -i "s/Also=dnscrypt-proxy.socket/Also=dnscrypt-proxy2.socket/" /usr/lib/systemd/system/dnscrypt-proxy2.service
