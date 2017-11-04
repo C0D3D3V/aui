@@ -188,6 +188,15 @@ add_line "tmpfs   /tmp         tmpfs   rw,nodev,nosuid,size=8G          0  0" "/
 
 
 
+cecho "Edit makepkg conf [https://wiki.archlinux.org/index.php/makepkg#tmpfs]"
+
+sed -i "s|#BUILDDIR=/tmp/makepkg|BUILDDIR=/tmp/makepkg|" /mnt/etc/makepkg.conf
+sed -i "s|PKGEXT='.pkg.tar.xz'|PKGEXT='.pkg.tar'|" /mnt/etc/makepkg.conf
+
+
+
+
+
 cecho "Generate vconsole [https://wiki.archlinux.org/index.php/Keyboard_configuration_in_console]"
  
 echo "KEYMAP=de-latin1" > /mnt/etc/vconsole.conf

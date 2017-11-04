@@ -358,6 +358,9 @@ package_install "tree"
 cecho "Install nmap"
 package_install "nmap"
 
+cecho "Install netcat"
+package_install "netcat"
+
 cecho "Install powertop"
 package_install "powertop"
 

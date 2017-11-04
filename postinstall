@@ -523,7 +523,7 @@ cecho "Install Networkmanager - https://wiki.archlinux.org/index.php/Networkmana
 package_install "networkmanager dnsmasq plasma-nm networkmanager-qt"
 
       # vpn support
-package_install "networkmanager-openconnect networkmanager-openvpn networkmanager-pptp networkmanager-vpnc"
+package_install "networkmanager-openconnect networkmanager-openvpn networkmanager-pptp networkmanager-vpnc" # pulse-secure webkitgtk
 # auto update datetime from network
 if is_package_installed "ntp"; then
 	package_install "networkmanager-dispatcher-ntpd"
@@ -579,7 +579,6 @@ aur_package_install "sublime-text-dev"
 #aur_package_install "sublime-text" 
 
 cecho "Install Android Studio"  
-package_install "sublime-text-dev" 
 
 
 run_as_user "gpg --recv-keys 702353E0F7E48EDB"
@@ -595,6 +594,7 @@ add_line "-Djava.io.tmpdir=/var/tmp/" "/opt/android-studio/bin/studio64.vmoption
 
 aur_package_install "android-studio"
 
+add_user_to_group c0d3d3v plugdev
 
 
 
@@ -641,6 +641,10 @@ aur_package_install "rbenv ruby-build"
 cecho "Install elixir"  
 package_install "elixir"
 
+
+cecho "Install go"  
+package_install "go"
+
 cecho "Install Haskel"  
 package_install "ghc"
 
@@ -662,6 +666,10 @@ cecho "Install gource"
 package_install "gource"
 
 
+#mockups
+cecho "Install balsamiqmockups"  
+aur_package_install "balsamiqmockups"
+
 
 
 
@@ -679,9 +687,14 @@ cecho "Install calibre"
 package_install "calibre"
  
 #git docu
-cecho "Install haroopad"  
-aur_package_install "haroopad"
+#cecho "Install haroopad"  
+#aur_package_install "haroopad"
  
+
+#cecho "Install remarkable"  
+#aur_package_install "remarkable"
+ 
+
 #finanze
 cecho "Install homebank - finanze manager"  
 package_install "homebank"
@@ -706,8 +719,8 @@ package_install "ocrfeeder tesseract gocr"
 #cecho "Install xmind - Mindmaps"   
 #aur_package_install "xmind"
 
-cecho "Install Foxit pdf reader"   
-aur_package_install "foxitreader"
+#cecho "Install Foxit pdf reader"   
+#aur_package_install "foxitreader"
 
 cecho "Install masterpdfeditor"   
 aur_package_install "masterpdfeditor"
@@ -715,18 +728,31 @@ aur_package_install "masterpdfeditor"
 cecho "Install geogebra"   
 aur_package_install "geogebra"
 
-cecho "Install yed"   
-aur_package_install "yed"
+#cecho "Install yed"   
+#aur_package_install "yed"
+
+
+cecho "Install dia"   
+package_install "dia"
+
+cecho "Install umbrello"   
+package_install "umbrello"
+
 
 
 cecho "Install electrum"   
-package_install "electrum"
+package_install "electrum electrum-mona"
 
 cecho "Install bitcoin-qt" 
 aur_package_install "bitcoin-qt"  
 
 cecho "Install bisq" 
 aur_package_install "bisq-git"  
+
+
+cecho "Install matlab" 
+#aur_package_install "matlab"  
+
 
 #aur_package_install "bitcoin-core"
 #run_as_user "mkdir -p ~/.bitcoin" 
@@ -741,6 +767,18 @@ cecho "Install geogebra"
 aur_package_install "geogebra"  
 
 
+cecho "Install xournal" 
+aur_package_install "xournal"
+
+#webcam
+cecho "Install cheese" 
+package_install "cheese"
+
+
+
+
+
+  
 
 
 
@@ -780,7 +818,6 @@ package_install "virtualbox virtualbox-host-dkms virtualbox-guest-iso linux-head
 aur_package_install "virtualbox-ext-oracle"
 add_user_to_group c0d3d3v vboxusers
 modprobe vboxdrv vboxnetflt
-
 
 
 cecho "Install netdata  - System informations"
@@ -847,7 +884,7 @@ package_install "gnome-disk-utility"
 
 
 package_install "python pyhton2"
-aur_package_install "python2-beautifulsoup4 python2-termcolor python2-colorama python2-flake8 python2-jedi"
+aur_package_install "python2-beautifulsoup4 python2-termcolor python2-gnupg python2-colorama python2-flake8 python2-jedi python-pynacl python-paramiko"
 
 
 
@@ -879,6 +916,9 @@ package_install "tree"
  
 cecho "Install nmap"
 package_install "nmap"
+
+cecho "Install netcat"
+package_install "netcat"
 
 
 cecho "Install xclip"
@@ -1100,7 +1140,7 @@ package_install "konversation"
 
 
 cecho "Install skype" 
-package_install "skypeforlinux"
+aur_package_install "skypeforlinux-bin"
 
 
 cecho "Install teamspeak3" 
@@ -1154,6 +1194,7 @@ cecho "Install Audio Tools"
 
 print_line
 cecho "Install Audio player" 
+aur_package_install "mpv"
 
 
 cecho "Install spotify" 
