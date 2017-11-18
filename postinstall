@@ -497,7 +497,7 @@ is_package_installed "cups" && package_install "print-manager"
 
 
 #twitter
-package_install "choqok"
+#package_install "choqok"
 #photos
 package_install "digikam"
 #cd burn
@@ -709,7 +709,7 @@ cecho "Install - https://wiki.archlinux.org/index.php/LibreOffice"
 package_install "libreoffice-fresh"
 package_install "libreoffice-fresh-de"
 package_install "hunspell hunspell-de"
-package_install "aspell aspell-de"
+package_install "aspell aspell-de aspell-en"
 
 #ocr analyse
 cecho "Install ocrfeeder"   #require aspell
@@ -883,7 +883,7 @@ package_install "gnome-disk-utility"
 #pip2 install jedi
 
 
-package_install "python pyhton2"
+package_install "python pyhton2 python-pip"
 aur_package_install "python2-beautifulsoup4 python2-termcolor python2-gnupg python2-colorama python2-flake8 python2-jedi python-pynacl python-paramiko"
 
 
