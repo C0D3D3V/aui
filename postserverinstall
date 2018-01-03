@@ -318,6 +318,10 @@ package_install "vim"
 
 
 
+cecho "Install HDD info"
+package_install "smartmontools"
+
+
 cecho "Install htop - Systemmonitor"
 package_install "htop"
 

@@ -438,6 +438,8 @@ package_install "cups cups-filters ghostscript gsfonts"
 package_install "gutenprint foomatic-db foomatic-db-engine foomatic-db-nonfree foomatic-filters foomatic-db-ppds foomatic-db-nonfree-ppds hplip splix cups-pdf foomatic-db-gutenprint-ppds"
 systemctl enable org.cups.cupsd.service
 
+cexho "Printer driver"
+aur_package_install "canon-pixma-mx920-complete"
 
 cecho "Install gscan2pdf - Scan tool" 
 aur_package_install "gscan2pdf"
@@ -454,7 +456,7 @@ print_line
 
 cecho "Install Fonts - https://wiki.archlinux.org/index.php/fonts" 
 package_install "noto-fonts-emoji ttf-dejavu ttf-liberation ttf-bitstream-vera ttf-hack wqy-microhei noto-fonts-cjk ttf-symbola"
-aur_package_install "ttf-fira-code ttf-google-fonts-git " 
+aur_package_install "ttf-fira-code " #ttf-google-fonts-git  
 
 
 
@@ -606,10 +608,14 @@ ln -s /usr/lib/libgit2.so /usr/lib/libgit2-e8b8948.so
 
 
 cecho "Install qtcreator"  
-package_install "qtcreator qt5-doc android-qt5-arm64-v8a"
+package_install "qtcreator qt5-doc" #android-qt5-arm64-v8a #dont install this .... shitty compile time 8h
 
 cecho "Install MySQL Workbench"  
 package_install "mysql-workbench"
+
+cecho "Install postgress Admin"
+package_install "pgadmin4"
+
 
 cecho "Install sqlite3"  
 package_install "sqlite3"
@@ -620,7 +626,7 @@ package_install "jdk8-openjdk icedtea-web"
 archlinux-java set java-8-openjdk/jre
 
 cecho "Install nodejs"  
-package_install "nodejs"
+package_install "nodejs npm"
  
 cecho "Install eclipse"  
 package_install "eclipse-jee tomcat8"
@@ -711,6 +717,11 @@ package_install "libreoffice-fresh-de"
 package_install "hunspell hunspell-de"
 package_install "aspell aspell-de aspell-en"
 
+
+#screenrecorder
+cexho "Instally qt-recordmydesktop - screen recorder"
+packafe_install "qt-recordmydesktop"
+
 #ocr analyse
 cecho "Install ocrfeeder"   #require aspell
 package_install "ocrfeeder tesseract gocr"
@@ -732,8 +743,11 @@ aur_package_install "geogebra"
 #aur_package_install "yed"
 
 
-cecho "Install dia"   
+cecho "Install dia - uml tool"   
 package_install "dia"
+
+#cecho "Install dbvis - dbvison tool"
+#aur_package_install "dbvis"
 
 cecho "Install umbrello"   
 package_install "umbrello"
@@ -743,14 +757,15 @@ package_install "umbrello"
 cecho "Install electrum"   
 package_install "electrum electrum-mona"
 
-cecho "Install bitcoin-qt" 
-aur_package_install "bitcoin-qt"  
+#only for mining
+#cecho "Install bitcoin-qt" 
+#aur_package_install "bitcoin-qt"  
 
-cecho "Install bisq" 
+cecho "Install bisq - bitcoin p2p market" 
 aur_package_install "bisq-git"  
 
 
-cecho "Install matlab" 
+#cecho "Install matlab - huge math tool ~23GB" 
 #aur_package_install "matlab"  
 
 
@@ -786,6 +801,10 @@ package_install "cheese"
 print_line
 
 cecho "Install system APPS" 
+
+cecho "Install tool for dublicate files (fslint hat gui)"
+aur_package_install "rmlint fslint"
+
 
 #cecho "Install cockpit - Systemd web monitor"  #for servers
 #aur_package_install "cockpit storaged linux-user-chroot ostree"  
@@ -859,6 +878,10 @@ package_install "wireshark-qt"
 add_user_to_group c0d3d3v wireshark
 
 
+cecho "Install trace-cmd ... kernel debug"
+aur_package_install "trace-cmd"
+
+
 cecho "Install grub-customizer  - https://wiki.archlinux.de/title/GRUB"
 aur_package_install "grub-customizer"
 #Theme: https://www.gnome-look.org/p/1111545/
@@ -910,6 +933,10 @@ fi
 
 cecho "Install hwinfo"
 package_install "hwinfo"
+
+cecho "Install HDD info"
+package_install "smartmontools gsmartcontrol"
+
 
 cecho "Install tree"
 package_install "tree"
@@ -1105,8 +1132,8 @@ cecho "Install JDownlaoder2"
 aur_package_install "jdownloader2"
 
 
-
-
+cecho "owncloud client"
+package_install "owncloud-client"
 
 
 
