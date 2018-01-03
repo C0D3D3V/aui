@@ -3,6 +3,9 @@
  
 AUI_DIR=`pwd` #CURRENT DIRECTORY 
 LOG="${AUI_DIR}/`basename ${0}`.log" # LOG FILE
+username=""
+
+
 
 [[ -f $LOG ]] && rm -f "$LOG"
 
@@ -33,7 +36,7 @@ print_line() {
  aui_download_packages() {
     for PKG in $1; do
       #exec command as user instead of root
-      su - c0d3d3v -c "
+      su - $username -c "
         [[ ! -d aui_packages ]] && mkdir aui_packages
         cd aui_packages
         curl -o ${PKG}.tar.gz https://aur.archlinux.org/cgit/aur.git/snapshot/${PKG}.tar.gz
@@ -54,7 +57,7 @@ is_package_installed() {
 }
 
 run_as_user() {
-    sudo -H -u c0d3d3v ${1}
+    sudo -H -u $username ${1}
 
 }
 
@@ -93,11 +96,11 @@ add_line() {
 
 
 aur_package_install() {
-    su - c0d3d3v -c "sudo -v"
+    su - $username -c "sudo -v"
     #install package from aur
     for PKG in $1; do
       if ! is_package_installed "${PKG}" ; then
-          su - c0d3d3v -c "yaourt --noconfirm -S ${PKG}"
+          su - $username -c "yaourt --noconfirm -S ${PKG}"
       else 
           echo -e "Warning: ${PKG} is up to date --skipping" 
       fi
@@ -117,9 +120,9 @@ package_install() {
 
 config_xinitrc() { 
     #create a xinitrc file in home user directory
-    cp -fv /etc/X11/xinit/xinitrc /home/c0d3d3v/.xinitrc
-    echo -e "exec $1" >> /home/c0d3d3v/.xinitrc
-    chown -R c0d3d3v:users /home/c0d3d3v/.xinitrc
+    cp -fv /etc/X11/xinit/xinitrc /home/$username/.xinitrc
+    echo -e "exec $1" >> /home/$username/.xinitrc
+    chown -R $username:users /home/$username/.xinitrc
 } 
 
 add_user_to_group() { 
@@ -164,19 +167,83 @@ read -p "Press enter to continue"
 
 print_line
 
- 
 
-cecho "Create a new user"  
-useradd -m -g users -G wheel -s /bin/bash c0d3d3v
-chfn c0d3d3v
 
-################# User Action ##################
-#user data
+cecho "Create a new user"
+USERentered=0
+user_exists=0
+skip_user_config=0
 
-passwd c0d3d3v
-################# User Action ##################
-#password eingabe
+while [ $user_exists -eq 0 ];
+do
 
+    while [ $USERentered -eq 0 ];
+    do
+
+	read -p "Please enter a username for the system: " username
+	echo "This user will be a sudo user!"
+	while true
+	do
+
+	    read -p "Do you realy want to use $username? [y/n]" answer
+
+	    case $answer in
+		[yY]* ) USERentered=1
+			break
+			;;
+
+		[nN]* ) break
+			;;
+
+		* )     echo "Dude, just enter Y or N, please.";
+			;;
+	    esac
+	done
+    done
+
+
+    user_exists=$(id -u "$username" > /dev/null 2>&1; echo $?)
+
+    if [ $user_exists -eq 0 ]; then
+
+	while true
+	do
+
+	    read -p "This user already exists, do you realy want to use $username? [y/n]" answer
+
+	    case $answer in
+		[yY]* ) user_exists=1
+			skip_user_config=1
+			break
+			;;
+
+		[nN]* ) USERentered=0
+			break
+			;;
+
+		* )     echo "Dude, just enter Y or N, please.";
+			;;
+	    esac
+	done
+
+    fi
+
+done
+echo "Your username is now $username"
+
+
+if [ $skip_user_config -eq 0 ]; then
+    useradd -m -g users -G wheel -s /bin/bash $username
+    chfn $username
+
+    ################# User Action ##################
+    #user data
+
+    passwd $username
+    ################# User Action ##################
+    #password eingabe
+
+fi
 
 print_line
 
@@ -186,8 +253,8 @@ print_line
 
 cecho "Load Bash Config"  
 #bash conf resource (bsp: https://github.com/helmuthdu/dotfiles)
-cp /etc/skel/.bashrc /home/c0d3d3v 
-chown -R c0d3d3v:c0d3d3v /home/c0d3d3v    #config files gehören dem user
+cp /etc/skel/.bashrc /home/$username 
+chown -R $username:$username /home/$username    #config files gehören dem user
 
 cecho "Make him sudoer"
 package_install "sudo"
@@ -316,7 +383,7 @@ cecho "Install xterm"
 package_install "xterm"
 
  
-run_as_user "mv /home/c0d3d3v/.zshrc /home/c0d3d3v/.zshrc.bak"
+run_as_user "mv /home/$username/.zshrc /home/$username/.zshrc.bak"
 run_as_user "wget https://raw.githubusercontent.com/robbyrussell/oh-my-zsh/master/tools/install.sh -O /var/tmp/install-oh-my-zsh.sh"
 
 
@@ -336,7 +403,7 @@ read -p "Please check .zshrc - Press enter to continue"
 
 print_line
 
-run_as_user "nano /home/c0d3d3v/.zshrc"
+run_as_user "nano /home/$username/.zshrc"
 
 
 
@@ -568,8 +635,7 @@ print_line
 
 cecho "Install DEVELOPMENT APPS" 
 cecho "Install emacs - Best Editor"  
-package_install "emacs" 
-aur_package_install "terminus-font" 
+package_install "emacs terminus-font" 
 
 cecho "Install vim - Some Editor"  
 package_install "vim" 
@@ -585,10 +651,10 @@ cecho "Install Android Studio"
 
 run_as_user "gpg --recv-keys 702353E0F7E48EDB"
 aur_package_install "android-sdk android-sdk-platform-tools android-sdk-build-tools android-platform  android-ndk" 
-add_user_to_group c0d3d3v sdkusers
+add_user_to_group $username sdkusers
 chown -R :sdkusers /opt/android-sdk/
 chmod -R g+w /opt/android-sdk/
-add_line "export ANDROID_HOME=/opt/android-sdk" "/home/c0d3d3v/.bashrc"
+add_line "export ANDROID_HOME=/opt/android-sdk" "/home/$username/.bashrc"
 
 touch /opt/android-studio/bin/studio64.vmoptions
 add_line "-Djava.io.tmpdir=/var/tmp/" "/opt/android-studio/bin/studio64.vmoptions"
@@ -596,7 +662,7 @@ add_line "-Djava.io.tmpdir=/var/tmp/" "/opt/android-studio/bin/studio64.vmoption
 
 aur_package_install "android-studio"
 
-add_user_to_group c0d3d3v plugdev
+add_user_to_group $username plugdev
 
 
 
@@ -630,7 +696,7 @@ package_install "nodejs npm"
  
 cecho "Install eclipse"  
 package_install "eclipse-jee tomcat8"
-add_user_to_group c0d3d3v tomcat8
+add_user_to_group $username tomcat8
 
 cecho "Install codeblocks"  
 package_install "codeblocks"
@@ -803,7 +869,8 @@ print_line
 cecho "Install system APPS" 
 
 cecho "Install tool for dublicate files (fslint hat gui)"
-aur_package_install "rmlint fslint"
+package_install "rmlint"
+aur_package_install "fslint"
 
 
 #cecho "Install cockpit - Systemd web monitor"  #for servers
@@ -835,7 +902,7 @@ package_install "htop"
 cecho "Install virtualbox "
 package_install "virtualbox virtualbox-host-dkms virtualbox-guest-iso linux-headers"
 aur_package_install "virtualbox-ext-oracle"
-add_user_to_group c0d3d3v vboxusers
+add_user_to_group $username vboxusers
 modprobe vboxdrv vboxnetflt
 
 
@@ -875,7 +942,7 @@ aur_package_install "pacaur"
 
 cecho "Install wireshark  - https://wiki.archlinux.org/index.php/wireshark"
 package_install "wireshark-qt"
-add_user_to_group c0d3d3v wireshark
+add_user_to_group $username wireshark
 
 
 cecho "Install trace-cmd ... kernel debug"
@@ -908,6 +975,7 @@ package_install "gnome-disk-utility"
 
 package_install "python pyhton2 python-pip"
 aur_package_install "python2-beautifulsoup4 python2-termcolor python2-gnupg python2-colorama python2-flake8 python2-jedi python-pynacl python-paramiko"
+package_install "python2-numpy python-lxml"
 
 
 
@@ -1079,7 +1147,6 @@ cecho "Install gimp"
 package_install "gimp"
 
 #cecho "Install inkscape - Vektrografiken" 
-package_install "python2-numpy python-lxml"
 #package_install "inkscape"
 
 cecho "Install mypaint" 
