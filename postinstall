@@ -1,6 +1,6 @@
 #!/bin/bash
 
- 
+
 AUI_DIR=`pwd` #CURRENT DIRECTORY 
 LOG="${AUI_DIR}/`basename ${0}`.log" # LOG FILE
 username=""
@@ -10,9 +10,9 @@ username=""
 [[ -f $LOG ]] && rm -f "$LOG"
 
 cecho() { 
- echo -e "$1"
- echo -e "$1" >>"$LOG"
- tput sgr0;
+    echo -e "$1"
+    echo -e "$1" >>"$LOG"
+    tput sgr0;
 } 
 
 error_msg() {
@@ -23,20 +23,20 @@ error_msg() {
 } 
 
 check_root() {
- if [[ "$(id -u)" != "0" ]]; then
-  error_msg "ERROR! You must execute the script as the root user."
- fi
+    if [[ "$(id -u)" != "0" ]]; then
+	error_msg "ERROR! You must execute the script as the root user."
+    fi
 } 
 
 
 print_line() {
- printf "\n%$(tput cols)s\n\n"|tr ' ' '-'
+    printf "\n%$(tput cols)s\n\n"|tr ' ' '-'
 }
- 
- aui_download_packages() {
+
+aui_download_packages() {
     for PKG in $1; do
-      #exec command as user instead of root
-      su - $username -c "
+	#exec command as user instead of root
+	su - $username -c "
         [[ ! -d aui_packages ]] && mkdir aui_packages
         cd aui_packages
         curl -o ${PKG}.tar.gz https://aur.archlinux.org/cgit/aur.git/snapshot/${PKG}.tar.gz
@@ -51,7 +51,7 @@ print_line() {
 is_package_installed() { 
     #check if a package is already installed
     for PKG in $1; do
-      pacman -Q $PKG &> /dev/null && return 0;
+	pacman -Q $PKG &> /dev/null && return 0;
     done
     return 1
 }
@@ -62,12 +62,12 @@ run_as_user() {
 }
 
 read_input_text() {
-#    if [[ $AUTOMATIC_MODE -eq 1 ]]; then
-#      OPTION=$2
-#    else
-      read -p "$1 [y/N]: " OPTION
-      echo ""
-#    fi
+    #    if [[ $AUTOMATIC_MODE -eq 1 ]]; then
+    #      OPTION=$2
+    #    else
+    read -p "$1 [y/N]: " OPTION
+    echo ""
+    #    fi
     OPTION=`echo "$OPTION" | tr '[:upper:]' '[:lower:]'`
 } 
 
@@ -79,9 +79,9 @@ replace_line(){
 
     sed -e "s/${_search}/${_replace}/" ${_filepath} > /tmp/${_filebase} 2>"$LOG"
     if [[ ${?} -eq 0 ]]; then
-      mv /tmp/${_filebase} ${_filepath}
+	mv /tmp/${_filebase} ${_filepath}
     else
-      cecho "failed: ${_search} - ${_filepath}"
+	cecho "failed: ${_search} - ${_filepath}"
     fi
 }
 
@@ -99,22 +99,22 @@ aur_package_install() {
     su - $username -c "sudo -v"
     #install package from aur
     for PKG in $1; do
-      if ! is_package_installed "${PKG}" ; then
-          su - $username -c "yaourt --noconfirm -S ${PKG}"
-      else 
-          echo -e "Warning: ${PKG} is up to date --skipping" 
-      fi
+	if ! is_package_installed "${PKG}" ; then
+            su - $username -c "yaourt --noconfirm -S ${PKG}"
+	else 
+            echo -e "Warning: ${PKG} is up to date --skipping" 
+	fi
     done
 }  
 
 package_install() { 
- #install packages using pacman
-  	for PKG in $1; do
-      if ! is_package_installed "${PKG}" ; then
-		pacman -S --noconfirm --needed ${PKG}
-      else 
-		echo -e "Warning: ${PKG} is up to date --skipping" 
-      fi
+    #install packages using pacman
+    for PKG in $1; do
+	if ! is_package_installed "${PKG}" ; then
+	    pacman -S --noconfirm --needed ${PKG}
+	else 
+	    echo -e "Warning: ${PKG} is up to date --skipping" 
+	fi
     done  
 } 
 
@@ -130,10 +130,10 @@ add_user_to_group() {
     local _group=${2}
 
     if [[ -z ${_group} ]]; then
-      error_msg "ERROR! 'add_user_to_group' was not given enough parameters."
+	error_msg "ERROR! 'add_user_to_group' was not given enough parameters."
     fi
-	
-	groupadd ${_group}
+    
+    groupadd ${_group}
     gpasswd -a ${_user} ${_group}  
 } 
 
@@ -154,7 +154,7 @@ cecho "dhcpcd"
 
 print_line
 
-cecho "This Skript will install my lolvy system"
+cecho "This Skript will install my lovely system"
 cecho "Be sure that you want to install all the software"
 
 print_line
@@ -382,7 +382,7 @@ package_install "zsh wget curl git"
 cecho "Install xterm"  
 package_install "xterm"
 
- 
+
 run_as_user "mv /home/$username/.zshrc /home/$username/.zshrc.bak"
 run_as_user "wget https://raw.githubusercontent.com/robbyrussell/oh-my-zsh/master/tools/install.sh -O /var/tmp/install-oh-my-zsh.sh"
 
@@ -412,12 +412,12 @@ read -p "Press enter to continue"
 print_line
 
 cecho "Install XORG - https://wiki.archlinux.org/index.php/Xorg" 
- 
+
 package_install "xorg-server xorg-xinit xorg-apps xorg-xkill xorg-xinput xf86-input-libinput" #xorg-server-xwayland
 
 package_install "mesa"
 modprobe uinput
- 
+
 
 print_line
 
@@ -434,20 +434,20 @@ print_line
 
 read_input_text "Install TLP"
 if [[ $OPTION == y ]]; then
-	cecho "Install TLP - https://wiki.archlinux.org/index.php/Tlp" 
+    cecho "Install TLP - https://wiki.archlinux.org/index.php/Tlp" 
 
-	package_install "tlp "
+    package_install "tlp "
 
-	read_input_text "Install Lenovo TLP tools"
-	if [[ $OPTION == y ]]; then
-		package_install "acpi_call"
-    #package_install "tp_smapi"
-	fi
+    read_input_text "Install Lenovo TLP tools"
+    if [[ $OPTION == y ]]; then
+	package_install "acpi_call"
+	#package_install "tp_smapi"
+    fi
 
-	systemctl enable tlp
-	systemctl enable tlp-sleep
-	systemctl disable systemd-rfkill
-	tlp start
+    systemctl enable tlp
+    systemctl enable tlp-sleep
+    systemctl disable systemd-rfkill
+    tlp start
 fi
 
 print_line
@@ -457,42 +457,42 @@ VIDEO_DRIVER=""
 ARCHI=`uname -m` # ARCHITECTURE
 check_vga() {
     local _vga=`lspci | grep VGA | tr "[:upper:]" "[:lower:]"`
-	local _vga_length=`lspci | grep VGA | wc -l`
-	if [[ -n $(echo ${_vga} | grep "nvidia") || -f /sys/kernel/debug/dri/0/vbios.rom ]]; then
-		cecho Nvidia 
-		VIDEO_DRIVER="nvidia"
+    local _vga_length=`lspci | grep VGA | wc -l`
+    if [[ -n $(echo ${_vga} | grep "nvidia") || -f /sys/kernel/debug/dri/0/vbios.rom ]]; then
+	cecho Nvidia 
+	VIDEO_DRIVER="nvidia"
     elif [[ -n $(echo ${_vga} | grep "advanced micro devices") || -f /sys/kernel/debug/dri/0/radeon_pm_info || -f /sys/kernel/debug/dri/0/radeon_sa_info ]]; then
-      cecho AMD/ATI
-      VIDEO_DRIVER="ati"
+	cecho AMD/ATI
+	VIDEO_DRIVER="ati"
     elif [[ -n $(echo ${_vga} | grep "intel corporation") || -f /sys/kernel/debug/dri/0/i915_capabilities ]]; then
-      cecho Intel
-	  VIDEO_DRIVER="intel"
-	fi
+	cecho Intel
+	VIDEO_DRIVER="intel"
+    fi
 }
 check_vga
 if [[ ${VIDEO_DRIVER} == nvidia ]]; then
-	package_install "nvidia{,-utils}"
-	[[ ${ARCHI} == x86_64 ]] && package_install "lib32-nvidia-utils"
-	nvidia-xconfig --add-argb-glx-visuals --allow-glx-with-composite --composite --render-accel -o /etc/X11/xorg.conf.d/20-nvidia.conf;
+    package_install "nvidia{,-utils}"
+    [[ ${ARCHI} == x86_64 ]] && package_install "lib32-nvidia-utils"
+    nvidia-xconfig --add-argb-glx-visuals --allow-glx-with-composite --composite --render-accel -o /etc/X11/xorg.conf.d/20-nvidia.conf;
 elif [[ ${VIDEO_DRIVER} == ati ]]; then
-	package_install "xf86-video-ati mesa-libgl mesa-vdpau libvdpau-va-gl"
+    package_install "xf86-video-ati mesa-libgl mesa-vdpau libvdpau-va-gl"
 
 elif [[ ${VIDEO_DRIVER} == intel ]]; then
     package_install "xf86-video-intel mesa-libgl libvdpau-va-gl"
 fi
 
 if [[ ${ARCHI} == x86_64 ]]; then
-	is_package_installed "mesa-libgl" && package_install "lib32-mesa-libgl"
-	is_package_installed "mesa-vdpau" && package_install "lib32-mesa-vdpau"
+    is_package_installed "mesa-libgl" && package_install "lib32-mesa-libgl"
+    is_package_installed "mesa-vdpau" && package_install "lib32-mesa-vdpau"
 fi
 if is_package_installed "libvdpau-va-gl"; then
-	add_line "export VDPAU_DRIVER=va_gl" "/etc/profile"
+    add_line "export VDPAU_DRIVER=va_gl" "/etc/profile"
 fi
 
 print_line
 
 cecho "Install Aditional Firmeware" 
- 
+
 #critical... only if nessesery
 #aur_package_install "aic94xx-firmware b43-firmware b43-firmware-legacy bfa-firmware broadcom-wl android-udev"
 #package_install "alsa-firmware bluez-firmware ipw2100-fw ipw2200-fw libffado libmtp libraw1394"
@@ -581,7 +581,7 @@ package_install "yakuake"
 
 cecho "Install MTP Suptort"
 if is_package_installed "libmtp" ; then
-      package_install "gvfs-mtp"
+    package_install "gvfs-mtp"
 fi
 
 
@@ -591,12 +591,12 @@ cecho "Install Networkmanager - https://wiki.archlinux.org/index.php/Networkmana
 
 package_install "networkmanager dnsmasq plasma-nm networkmanager-qt"
 
-      # vpn support
+# vpn support
 package_install "networkmanager-openconnect networkmanager-openvpn networkmanager-pptp networkmanager-vpnc" # pulse-secure webkitgtk
 # auto update datetime from network
 if is_package_installed "ntp"; then
-	package_install "networkmanager-dispatcher-ntpd"
-	systemctl enable NetworkManager-dispatcher.service
+    package_install "networkmanager-dispatcher-ntpd"
+    systemctl enable NetworkManager-dispatcher.service
 fi
 
 is_package_installed "tlp" && package_install "tlp-rdw"
@@ -612,12 +612,12 @@ read -p "Press enter to continue"
 print_line
 
 cecho "Install accessories APPS"  
- 
+
 cecho "Install conky-lua - Sensore Gadgets"  
 aur_package_install "conky-lua"
 package_install "lm_sensors"
 sensors-detect --auto
- 
+
 cecho "Install conky-lua - Pacman GUI"  
 aur_package_install "pamac-aur"
 
@@ -658,7 +658,7 @@ add_line "export ANDROID_HOME=/opt/android-sdk" "/home/$username/.bashrc"
 
 touch /opt/android-studio/bin/studio64.vmoptions
 add_line "-Djava.io.tmpdir=/var/tmp/" "/opt/android-studio/bin/studio64.vmoptions"
- 
+
 
 aur_package_install "android-studio"
 
@@ -693,7 +693,7 @@ archlinux-java set java-8-openjdk/jre
 
 cecho "Install nodejs"  
 package_install "nodejs npm"
- 
+
 cecho "Install eclipse"  
 package_install "eclipse-jee tomcat8"
 add_user_to_group $username tomcat8
@@ -730,7 +730,7 @@ package_install "filezilla"
 
 cecho "Install Ardoino"  
 package_install "arduino arduino-avr-core"
- 
+
 cecho "Install H2"  
 aur_package_install "h2"
 
@@ -757,15 +757,15 @@ cecho "Install office APPS"
 #bücher
 cecho "Install calibre"  
 package_install "calibre"
- 
+
 #git docu
 #cecho "Install haroopad"  
 #aur_package_install "haroopad"
- 
+
 
 #cecho "Install remarkable"  
 #aur_package_install "remarkable"
- 
+
 
 #finanze
 cecho "Install homebank - finanze manager"  
@@ -775,7 +775,7 @@ package_install "homebank"
 #latex
 cecho "Install latex + texstudio"  
 package_install "texlive-most texlive-lang texlive-bin texstudio"
- 
+
 #office
 cecho "Install - https://wiki.archlinux.org/index.php/LibreOffice"
 package_install "libreoffice-fresh"
@@ -792,7 +792,7 @@ packafe_install "qt-recordmydesktop"
 cecho "Install ocrfeeder"   #require aspell
 package_install "ocrfeeder tesseract gocr"
 
- 
+
 #cecho "Install xmind - Mindmaps"   
 #aur_package_install "xmind"
 
@@ -843,7 +843,7 @@ aur_package_install "bisq-git"
 #rpcuser=bitcoin                                               ##
 #rpcpassword=secret                                            ##
 #EOF"
- 
+
 cecho "Install geogebra" 
 aur_package_install "geogebra"  
 
@@ -859,7 +859,7 @@ package_install "cheese"
 
 
 
-  
+
 
 
 
@@ -922,18 +922,18 @@ aur_package_install "pacaur"
 #cecho "Install aarchup  - https://wiki.archlinux.org/index.php/AUR_helpers"
 #aur_package_install "aarchup" #notification-daemon
 #    echo "# Comments are ignored
-    # The [main] line defines the group main
-    # You need to include this and no arguments
-    # can be placed before it.
-    # also notice that all options should be in the long form
-    # ie: for loop-time use only loop-time do not try to use 'l' or '-l'
+# The [main] line defines the group main
+# You need to include this and no arguments
+# can be placed before it.
+# also notice that all options should be in the long form
+# ie: for loop-time use only loop-time do not try to use 'l' or '-l'
 #    [main]
-    # Argument on the left then '=' then the value of it
-    # ie:
+# Argument on the left then '=' then the value of it
+# ie:
 #    loop-time=30
 #    timeout=60
-    # Arguments without a value must have the '=' sign
-    # ie:
+# Arguments without a value must have the '=' sign
+# ie:
 #    aur=" > "/etc/aarchup.conf"
 #systemctl enable aarchup.timer
 
@@ -960,7 +960,7 @@ aur_package_install "grub-customizer"
 cecho "Install gnome-disk-utility  - https://wiki.archlinux.org/index.php/partitioning#Partitioning_tools"
 package_install "gnome-disk-utility"
 
- 
+
 
 
 
@@ -981,8 +981,8 @@ package_install "python2-numpy python-lxml"
 
 read_input_text "Install Wacom suport - https://wiki.archlinux.org/index.php/wacom_tablet"
 if [[ $OPTION == y ]]; then
-  package_install "xf86-input-wacom libwacom" 
-  aur_package_install "kcm-wacomtablet" 
+    package_install "xf86-input-wacom libwacom" 
+    aur_package_install "kcm-wacomtablet" 
 
 
 fi
@@ -990,7 +990,7 @@ fi
 
 read_input_text "Install Tablet suport - https://wiki.archlinux.org/index.php/Tablet_PC"
 if [[ $OPTION == y ]]; then
-  aur_package_install "iio-sensor-proxy" 
+    aur_package_install "iio-sensor-proxy" 
 
 
 fi
@@ -1008,7 +1008,7 @@ package_install "smartmontools gsmartcontrol"
 
 cecho "Install tree"
 package_install "tree"
- 
+
 cecho "Install nmap"
 package_install "nmap"
 
@@ -1029,7 +1029,7 @@ aur_package_install "putty-freedesktop"
 
 cecho "Install Aircrack-ng"
 aur_package_install "pixiewps-git aircrack-ng reaver-wps-fork-t6x-git pyrit-git cowpatty wifite-git"
- 
+
 
 cecho "Install powertop"
 package_install "powertop"
@@ -1051,7 +1051,7 @@ sed -i "s/# EDNSPayloadSize 1252/EDNSPayloadSize 4096/" /etc/dnscrypt-proxy.conf
 sed -i "s|ResolverName random|ResolverName d0wn-random-ns2|" /etc/dnscrypt-proxy.conf 
 sed -i "s|# ResolversList /usr/local/share/dnscrypt-proxy/dnscrypt-resolvers.csv|ResolversList /usr/share/dnscrypt-proxy/dnscrypt-resolvers.csv|" /etc/dnscrypt-proxy.conf 
 sed -i "s|LocalCache on|LocalCache off|" /etc/dnscrypt-proxy.conf 
- 
+
 #sed -i "s|#PidFile /var/run/dnscrypt-proxy.pid|PidFile /var/run/dnscrypt-proxy.pid|" /etc/dnscrypt-proxy.conf 
 sed -i "s|# User _dnscrypt-proxy|User dnscrypt|" /etc/dnscrypt-proxy.conf 
 sed -i "s|# MaxActiveRequests 250|MaxActiveRequests 250|" /etc/dnscrypt-proxy.conf 
@@ -1069,7 +1069,7 @@ sed -i "s|ResolverName d0wn-random-ns2|ResolverName dnscrypt.nl-ns0|" /etc/dnscr
 
 sed -i "s/ListenStream=127.0.0.1:53/ListenStream=127.0.0.1:5301/" /usr/lib/systemd/system/dnscrypt-proxy.socket
 sed -i "s/ListenDatagram=127.0.0.1:53/ListenDatagram=127.0.0.1:5301/" /usr/lib/systemd/system/dnscrypt-proxy.socket
- 
+
 cp /usr/lib/systemd/system/dnscrypt-proxy.socket /usr/lib/systemd/system/dnscrypt-proxy2.socket
 cp /usr/lib/systemd/system/dnscrypt-proxy.service /usr/lib/systemd/system/dnscrypt-proxy2.service
 
@@ -1079,7 +1079,7 @@ sed -i "s/ListenDatagram=127.0.0.1:5301/ListenDatagram=127.0.0.1:5302/" /usr/lib
 sed -i "s/Requires=dnscrypt-proxy.socket/Requires=dnscrypt-proxy2.socket/" /usr/lib/systemd/system/dnscrypt-proxy2.service
 sed -i "s/Also=dnscrypt-proxy.socket/Also=dnscrypt-proxy2.socket/" /usr/lib/systemd/system/dnscrypt-proxy2.service
 sed -i "s|ExecStart=/usr/bin/dnscrypt-proxy /etc/dnscrypt-proxy.conf|ExecStart=/usr/bin/dnscrypt-proxy /etc/dnscrypt-proxy2.conf|" /usr/lib/systemd/system/dnscrypt-proxy2.service
-   
+
 
 
 
@@ -1125,7 +1125,7 @@ remote-control:
 control-enable: no' > /etc/unbound/unbound.conf
 chown root:unbound /etc/unbound
 chmod 775 /etc/unbound
-  
+
 
 echo '
 # Configuration for resolvconf(8)
@@ -1310,7 +1310,7 @@ package_install "audacity"
 
 print_line
 cecho "Install Audio Codecs"
- 
+
 package_install "gst-plugins-base gst-plugins-base-libs gst-plugins-good gst-plugins-bad gst-plugins-ugly gst-libav"
 
 package_install "phonon-qt5-gstreamer"
@@ -1350,7 +1350,7 @@ aur_package_install "ddnet"
 
 
 
- 
+
 
 
 
@@ -1366,7 +1366,7 @@ read -p "Finish up - Press enter to continue"
 print_line
 cecho "Set System Time"
 timedatectl set-local-rtc true
- 
+
 systemctl enable systemd-timesyncd.service
 systemctl start systemd-timesyncd.service
 
@@ -1386,13 +1386,13 @@ pacman -Rns $(pacman -Qtdq)
 pacman-optimize
 
 
- #load config from git
+#load config from git
 
 
 
 print_line
 print_line
-echo "\n\n" 
+echo -e "\n\n" 
 
 cecho "Finish :)" 
 cecho "Please reboot and enjoy" 

@@ -1,5 +1,5 @@
 #!/bin/bash
- 
+
 
 
 AUI_DIR=`pwd` #CURRENT DIRECTORY 
@@ -8,9 +8,9 @@ LOG="${AUI_DIR}/`basename ${0}`.log" # LOG FILE
 [[ -f $LOG ]] && rm -f "$LOG"
 
 cecho() { 
- echo -e "$1"
- echo -e "$1" >>"$LOG"
- tput sgr0;
+    echo -e "$1"
+    echo -e "$1" >>"$LOG"
+    tput sgr0;
 } 
 
 error_msg() {
@@ -21,18 +21,18 @@ error_msg() {
 } 
 
 check_root() {
- if [[ "$(id -u)" != "0" ]]; then
-  error_msg "ERROR! You must execute the script as the root user."
- fi
+    if [[ "$(id -u)" != "0" ]]; then
+	error_msg "ERROR! You must execute the script as the root user."
+    fi
 } 
 
 
 print_line() {
- printf "\n%$(tput cols)s\n\n"|tr ' ' '-'
+    printf "\n%$(tput cols)s\n\n"|tr ' ' '-'
 }
 
 arch_chroot() {
- arch-chroot /mnt /bin/bash -c "${1}"
+    arch-chroot /mnt /bin/bash -c "${1}"
 }
 
 
@@ -91,7 +91,7 @@ cecho "Please wait..."
 cp /etc/pacman.d/mirrorlist /etc/pacman.d/mirrorlist.bak
 grep -E -A 1 ".*Germany.*$" /etc/pacman.d/mirrorlist.bak | sed '/--/d' > /etc/pacman.d/mirrorlist.backup
 rankmirrors -n 6 /etc/pacman.d/mirrorlist.backup > /etc/pacman.d/mirrorlist
- 
+
 
 print_line
 
@@ -156,7 +156,7 @@ mkswap -L swap /dev/mapper/main-swap
 print_line
 
 cecho "Mount Filesystem [https://wiki.archlinux.de/title/Mounten]"
- 
+
 mount /dev/mapper/main-root /mnt
 #mkdir /mnt/home
 #mount /dev/mapper/main-home /mnt/home
@@ -164,7 +164,7 @@ mkdir /mnt/boot
 mount /dev/sda1 /mnt/boot
 
 cecho "Activate Swap [https://wiki.archlinux.org/index.php/swap]"
- 
+
 swapon -L swap
 
 
@@ -180,7 +180,7 @@ pacstrap /mnt base base-devel intel-ucode parted btrfs-progs f2fs-tools ntp net-
 print_line
 
 cecho "Generate Fstab [https://wiki.archlinux.org/index.php/fstab]"
- 
+
 genfstab -U /mnt >> /mnt/etc/fstab
 
 #fix small /tmp 
@@ -198,19 +198,19 @@ sed -i "s|PKGEXT='.pkg.tar.xz'|PKGEXT='.pkg.tar'|" /mnt/etc/makepkg.conf
 
 
 cecho "Generate vconsole [https://wiki.archlinux.org/index.php/Keyboard_configuration_in_console]"
- 
+
 echo "KEYMAP=de-latin1" > /mnt/etc/vconsole.conf
 echo "FONT=lat9w-16" >> /mnt/etc/vconsole.conf
 
 cecho "Generate loacls [https://wiki.archlinux.org/index.php/locale]"
- 
+
 echo "LANG=de_DE.UTF-8" > /mnt/etc/locale.conf
 echo "LC_COLLATE=C" >> /mnt/etc/locale.conf
 echo "LANGUAGE=de_DE" >> /mnt/etc/locale.conf
 
 
 cecho "Generate Hostname [https://wiki.archlinux.org/index.php/Network_configuration#Set_the_hostname]"
- 
+
 echo DerGeraet > /mnt/etc/hostname
 
 cecho "Generate Journalctrl config [https://wiki.archlinux.org/index.php/Systemd#Journal]"
@@ -225,7 +225,7 @@ sed -i "s/#RuntimeMaxFileSize=/RuntimeMaxFileSize=30M/" /mnt/etc/systemd/journal
 
 
 cecho "Generate Timezone [https://wiki.archlinux.org/index.php/Time#Time_zone]"
- 
+
 arch_chroot "ln -sf /usr/share/zoneinfo/Europe/Berlin /etc/localtime"
 
 cecho "Setup Hardware Clock [https://wiki.archlinux.org/index.php/Time]"
@@ -242,15 +242,15 @@ sed -i "s/#de_DE ISO-8859-1/de_DE ISO-8859-1/" /mnt/etc/locale.gen
 sed -i "s/#de_DE@euro ISO-8859-15/de_DE@euro ISO-8859-15/" /mnt/etc/locale.gen
 sed -i "s/#en_US.UTF-8 UTF-8/en_US.UTF-8 UTF-8/" /mnt/etc/locale.gen
 sed -i "s/#en_US ISO-8859-1/en_US ISO-8859-1/" /mnt/etc/locale.gen
- 
+
 arch_chroot "locale-gen"
- 
+
 
 print_line
 
 cecho "Activate Multilib  [https://wiki.archlinux.org/index.php/multilib]"
 #SigLevel = PackageRequired TrustedOnly
- 
+
 
 sed -i "/\[multilib\]/,/Include/"'s/^#//' /mnt/etc/pacman.conf
 
@@ -273,7 +273,7 @@ cp /etc/pacman.d/mirrorlist /mnt/etc/pacman.d/mirrorlist
 cp /etc/pacman.d/mirrorlist.bak /mnt/etc/pacman.d/mirrorlist.bak
 
 arch_chroot "pacman -Sy"
- 
+
 
 print_line
 
@@ -286,7 +286,7 @@ sed -i '/^HOOK/s/block/block keyboard keymap encrypt/' /mnt/etc/mkinitcpio.conf
 sed -i '/^HOOK/s/filesystems/lvm2 filesystems/' /mnt/etc/mkinitcpio.conf
 sed -i '/^HOOK/s/fsck/fsck shutdown/' /mnt/etc/mkinitcpio.conf
 sed -i 's/MODULES=""/MODULES="ext4"/' /mnt/etc/mkinitcpio.conf
- 
+
 arch_chroot "mkinitcpio -p linux"
 
 
@@ -296,7 +296,7 @@ cecho "Set Root Password  [https://wiki.archlinux.org/index.php/users_and_groups
 
 arch_chroot "passwd"
 
- 
+
 print_line
 
 cecho "Install Grub  [https://wiki.archlinux.org/index.php/GRUB]"
@@ -323,5 +323,5 @@ cecho "Please execute following comands:"
 #cecho "umount /mnt/home"
 cecho "umount /mnt/boot"
 cecho "umount /mnt"
-echo "\n\n" 
+echo -e "\n\n" 
 cecho "reboot"
