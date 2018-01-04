@@ -1,50 +1,12 @@
 #!/bin/bash
 
 
-
-AUI_DIR=`pwd` #CURRENT DIRECTORY 
-LOG="${AUI_DIR}/`basename ${0}`.log" # LOG FILE
-
-[[ -f $LOG ]] && rm -f "$LOG"
-
-cecho() { 
-    echo -e "$1"
-    echo -e "$1" >>"$LOG"
-    tput sgr0;
-} 
-
-error_msg() {
-    local _msg="${1}"
-    echo -e "${_msg}"
-    echo -e "${_msg}" >>"$LOG"
-    exit 1
-} 
-
-check_root() {
-    if [[ "$(id -u)" != "0" ]]; then
-	error_msg "ERROR! You must execute the script as the root user."
-    fi
-} 
-
-
-print_line() {
-    printf "\n%$(tput cols)s\n\n"|tr ' ' '-'
-}
-
-arch_chroot() {
-    arch-chroot /mnt /bin/bash -c "${1}"
-}
-
-
-add_line() {
-    local _add_line=${1}
-    local _filepath=${2}
-
-
-    local _has_line=`grep -ci "${_add_line}" ${_filepath} 2>&1`
-    [[ $_has_line -eq 0 ]] && echo "${_add_line}" >> ${_filepath}
-} 
-
+if [[ -f `pwd`/sharedfuncs ]]; then
+  source sharedfuncs
+else
+  echo "missing file: sharedfuncs"
+  exit 1
+fi
 
 check_root
 
