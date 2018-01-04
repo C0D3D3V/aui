@@ -12,7 +12,9 @@ cecho() {
     echo -e "$1"
     echo -e "$1" >>"$LOG"
     tput sgr0;
-} 
+}
+
+echo -e "\n\n\n\n\n\n\n\nNew Logfile\n\n" >>"$LOG"
 
 error_msg() {
     local _msg="${1}"
