@@ -6,7 +6,7 @@ AUI_DIR=`pwd` #CURRENT DIRECTORY
 LOG="${AUI_DIR}/`basename ${0}`.log" # LOG FILE
 username=""
 
-[[ -f $LOG ]] && rm -f "$LOG"
+#[[ -f $LOG ]] && rm -f "$LOG"
 
 cecho() { 
     echo -e "$1"
@@ -17,7 +17,7 @@ cecho() {
 error_msg() {
     local _msg="${1}"
     echo -e "${_msg}"
-    echo -e "${_msg}" >>"$LOG"
+    echo -e "$(date): ${_msg}" >>"$LOG"
     exit 1
 } 
 
