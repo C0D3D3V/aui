@@ -285,14 +285,14 @@ progress() {
         spinny
         sleep 0.25
       else
-        ncecho "\b\b  \n";
+        #ncecho "\b\b  \n";
         wait $pid
         retcode=$?
-        ncecho "$pid's retcode: $retcode -> "
+        ncecho " $pid's retcode: $retcode -> "
         if [[ $retcode == 0 ]] || [[ $retcode == 255 ]]; then
-          cecho success
+          ncecho "{BGreen}success${Reset}\n"
         else
-          cecho failed
+          ncecho "${BRed}failed${Reset}\n"
           echo -e "$PKG" >> $PKG_FAIL
           tail -n 15 $LOG
         fi
