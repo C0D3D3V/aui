@@ -35,7 +35,7 @@ do
     fi
 
 done
-cecho "Your username is now $username"
+print_info "Your username is now $username"
 
 
 if [ $skip_user_config -eq 0 ]; then

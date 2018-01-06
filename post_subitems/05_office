@@ -68,7 +68,7 @@ package_install "ocrfeeder tesseract gocr"
 
 
 #Scan Tools
-cecho "Install gscan2pdf - Scan tool" 
+print_info "Install gscan2pdf - Scan tool" 
 aur_package_install "gscan2pdf"
 
 
@@ -128,7 +128,7 @@ package_install "electrum electrum-mona"
 #cecho "Install bitcoin-qt" 
 #aur_package_install "bitcoin-qt"  
 
-cechprint_info "Install bisq - bitcoin p2p market" 
+print_info "Install bisq - bitcoin p2p market" 
 aur_package_install "bisq-git"  
 
 

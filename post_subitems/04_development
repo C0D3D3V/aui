@@ -26,7 +26,7 @@ aur_package_install "sublime-text-dev"
 
 
 
-cecho "Install codeblocks"  
+print_info "Install codeblocks"  
 package_install "codeblocks"
 
 
@@ -142,7 +142,7 @@ package_install "arduino arduino-avr-core"
 
 
 #tools
-cecho "Install gource"  
+print_info "Install gource"  
 package_install "gource"
 
 

@@ -165,7 +165,7 @@ aur_package_install "ttf-fira-code " #ttf-google-fonts-git
 
 print_line
 
-cecho "Install KDE - https://wiki.archlinux.org/index.php/KDE" 
+print_info "Install KDE - https://wiki.archlinux.org/index.php/KDE" 
 
 package_install "plasma kf5 sddm"
 package_install "ark dolphin dolphin-plugins kio-extras kdeconnect quota-tools gwenview kipi-plugins kcalc konsole spectacle okular kdeutils-sweeper kwalletmanager kmix"
@@ -179,11 +179,6 @@ aur_package_install "papirus-icon-theme"
 
 # config xinitrc
 config_xinitrc "startkde"
-
-#fix KDE Connect
-firewall-cmd --zone=public --permanent --add-port=1714-1764/tcp
-firewall-cmd --zone=public --permanent --add-port=1714-1764/udp
-system_ctl restart firewalld.service
 
 
 #config sddm
@@ -223,8 +218,8 @@ package_install "yakuake"
 
 
 
-cecho "Install MTP Suptort"
 if is_package_installed "libmtp" ; then
+    print_info "Install MTP Suptort"
     package_install "gvfs-mtp"
 fi
 
