@@ -149,6 +149,7 @@ package_install "sslstrip"
 #System
 
 #realy this firewall is only a try ...
+#NOTMARCEL
 print_info "Install firewalld - Firewall gui"
 package_install "firewalld"
 system_ctl enable firewalld
@@ -268,8 +269,8 @@ fi
 
 
 #System Information
-print_info "Install hwinfo"
-package_install "hwinfo"
+print_info "Install hwinfo and hardinfo"
+package_install "hwinfo hardinfo"
 
 print_info "Install HDD info"
 package_install "smartmontools gsmartcontrol"

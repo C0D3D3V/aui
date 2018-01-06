@@ -27,8 +27,8 @@ package_install "calibre"
 
 
 #finanze
-print_info "Install homebank - finanze manager"  
-package_install "homebank"
+#print_info "Install homebank - finanze manager"  
+#package_install "homebank"
 
 
 
@@ -46,7 +46,9 @@ package_install "texlive-most  texlive-bin texstudio" #texlive-lang
 print_info "Install Libreoffice - https://wiki.archlinux.org/index.php/LibreOffice"
 #package_install "libreoffice-fresh"
 package_install "libreoffice-fresh-de"
+#NOTMARCEL
 package_install "hunspell hunspell-de"
+#NOTMARCEL
 package_install "aspell aspell-de aspell-en"
 
 
@@ -55,6 +57,7 @@ package_install "aspell aspell-de aspell-en"
 
 
 #screenrecorder
+#NOTMARCEL
 print_info "Instally qt-recordmydesktop - screen recorder"
 packafe_install "qt-recordmydesktop"
 
@@ -62,6 +65,7 @@ packafe_install "qt-recordmydesktop"
 
 
 #ocr analyse
+#NOTMARCEL
 print_info "Install ocrfeeder"   #require aspell
 package_install "ocrfeeder tesseract gocr"
 
@@ -71,6 +75,7 @@ package_install "ocrfeeder tesseract gocr"
 
 
 #Scan Tools
+#NOTMARCEL
 print_info "Install gscan2pdf - Scan tool" 
 aur_package_install "gscan2pdf"
 
@@ -118,15 +123,15 @@ package_install "maxima"
 #cecho "Install yed"   
 #aur_package_install "yed"
 
-
+#NOTMARCEL
 print_info "Install dia - uml tool"   
 package_install "dia"
 
 #cecho "Install dbvis - dbvison tool"
 #aur_package_install "dbvis"
 
-print_info "Install umbrello"   
-package_install "umbrello"
+#print_info "Install umbrello"   
+#package_install "umbrello"
 
 
 
@@ -135,13 +140,15 @@ package_install "umbrello"
 
 #Cryptocurrency Tools
 
+#NOTMARCEL
 print_info "Install electrum"   
 package_install "electrum electrum-mona"
 
 #only for mining
 #cecho "Install bitcoin-qt" 
-#aur_package_install "bitcoin-qt"  
+#aur_package_install "bitcoin-qt"
 
+#NOTMARCEL
 print_info "Install bisq - bitcoin p2p market" 
 aur_package_install "bisq-git"  
 

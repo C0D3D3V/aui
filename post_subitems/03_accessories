@@ -4,6 +4,7 @@
 print_title "Install accessories APPS"
 
 
+#NOTMARCEL
 print_info "Install conky-lua - Sensore Gadgets"  
 aur_package_install "conky-lua"
 package_install "lm_sensors"
@@ -13,7 +14,7 @@ sensors-detect --auto
 
 
 
-
+#NOTMARCEL
 print_info "Install conky-lua - Pacman GUI"  
 aur_package_install "pamac-aur"
 

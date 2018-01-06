@@ -158,6 +158,7 @@ print_line
 
 print_info "Install Fonts - https://wiki.archlinux.org/index.php/fonts" 
 package_install "noto-fonts-emoji ttf-dejavu ttf-liberation ttf-bitstream-vera ttf-hack wqy-microhei noto-fonts-cjk ttf-symbola"
+#NOTMARCEL
 aur_package_install "ttf-fira-code " #ttf-google-fonts-git  
 
 
@@ -168,7 +169,7 @@ aur_package_install "ttf-fira-code " #ttf-google-fonts-git
 
 
 print_line
-
+#NOTMARCEL (ALLES ZU KDE)
 print_info "Install KDE - https://wiki.archlinux.org/index.php/KDE" 
 
 package_install "plasma kf5 sddm"
@@ -199,6 +200,7 @@ print_line
 
 
 
+#NOTMARCEL DOCH SCHON
 #print_info "Install GNOME - https://wiki.archlinux.org/index.php/GNOME"
 #package_install "gnome"
 #TODO

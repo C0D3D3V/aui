@@ -8,6 +8,7 @@ print_title "Install DEVELOPMENT APPS"
 print_info "Install emacs - Best Editor"  
 package_install "emacs terminus-font" 
 
+#NOTMARCEL
 print_info "Install vim - Some Editor"  
 package_install "vim" 
 
@@ -17,7 +18,7 @@ package_install "gvim"
 
 
 
-
+#NOTMARCEL
 print_info "Install sublime3 - Nice Editor"  
 aur_package_install "sublime-text-dev" 
 #aur_package_install "sublime-text" 
@@ -42,6 +43,9 @@ package_install "codeblocks"
 
 print_info "Install cmake"  
 package_install "cmake"
+
+print_info "Install binwalk"  
+package_install "binwalk"
 
 
 
@@ -76,7 +80,7 @@ package_install "gradle"
 
 
 
-
+#NOTMARCEL
 print_info "Install monodevelop - dot net shit"  
 package_install "monodevelop monodevelop-debugger-gdb"
 #fix https://bugs.archlinux.org/task/52939
@@ -85,20 +89,22 @@ ln -s /usr/lib/libgit2.so /usr/lib/libgit2-e8b8948.so
 
 
 
-
+#NOTMARCEL
 print_info "Install qtcreator"  
 package_install "qtcreator qt5-doc" #android-qt5-arm64-v8a #dont install this .... shitty compile time 8h
 
 
 
 
-
+#NOTMARCEL
 print_info "Install MySQL Workbench"  
 package_install "mysql-workbench"
 
+#NOTMARCEL
 print_info "Install postgress Admin"
 package_install "pgadmin4"
 
+#NOTMARCEL
 print_info "Install sqlite3"  
 package_install "sqlite3"
 
@@ -118,11 +124,12 @@ print_info "Install OpenJDK"
 package_install "jdk8-openjdk icedtea-web"  
 archlinux-java set java-8-openjdk/jre
 
+#NOTMARCEL
 print_info "Install eclipse"  
 package_install "eclipse-jee tomcat8"
 add_user_to_group $username tomcat8
 
-
+#NOTMARCEL
 print_info "Install intellij - just more shit"  
 package_install "intellij-idea-community-edition"
 
@@ -136,7 +143,8 @@ package_install "jadx"
 
 
 
-#languages 
+#languages
+#NOTMARCEL ALLE SPRECHEN
 print_info "Install nodejs"  
 package_install "nodejs npm"
 
@@ -171,6 +179,7 @@ package_install "arduino arduino-avr-core"
 
 
 #tools
+#NOTMARCEL
 print_info "Install gource"  
 package_install "gource"
 
