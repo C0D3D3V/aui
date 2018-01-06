@@ -44,20 +44,10 @@ include_file "post_subitems/03_accessories"
 #install development APPS 
 include_file "post_subitems/04_develoment"
 
+#install office APPS 
+include_file "post_subitems/05_office"
 
-
-
-
-
-
-
-cecho "Install gscan2pdf - Scan tool" 
-aur_package_install "gscan2pdf"
-
-
-
-print_info "Install filezilla"  
-package_install "filezilla"
+x
 
 
 
@@ -66,110 +56,7 @@ package_install "filezilla"
 
 
 
-print_line
 
-cecho "Install office APPS" 
-
-#bücher
-cecho "Install calibre"  
-package_install "calibre"
-
-#git docu
-#cecho "Install haroopad"  
-#aur_package_install "haroopad"
-
-
-#cecho "Install remarkable"  
-#aur_package_install "remarkable"
-
-
-#finanze
-cecho "Install homebank - finanze manager"  
-package_install "homebank"
-
-
-#latex
-cecho "Install latex + texstudio"  
-package_install "texlive-most texlive-lang texlive-bin texstudio"
-
-#office
-cecho "Install - https://wiki.archlinux.org/index.php/LibreOffice"
-package_install "libreoffice-fresh"
-package_install "libreoffice-fresh-de"
-package_install "hunspell hunspell-de"
-package_install "aspell aspell-de aspell-en"
-
-
-#screenrecorder
-cexho "Instally qt-recordmydesktop - screen recorder"
-packafe_install "qt-recordmydesktop"
-
-#ocr analyse
-cecho "Install ocrfeeder"   #require aspell
-package_install "ocrfeeder tesseract gocr"
-
-
-#cecho "Install xmind - Mindmaps"   
-#aur_package_install "xmind"
-
-#cecho "Install Foxit pdf reader"   
-#aur_package_install "foxitreader"
-
-cecho "Install masterpdfeditor"   
-aur_package_install "masterpdfeditor"
-
-cecho "Install geogebra"   
-aur_package_install "geogebra"
-
-#cecho "Install yed"   
-#aur_package_install "yed"
-
-
-cecho "Install dia - uml tool"   
-package_install "dia"
-
-#cecho "Install dbvis - dbvison tool"
-#aur_package_install "dbvis"
-
-cecho "Install umbrello"   
-package_install "umbrello"
-
-
-
-cecho "Install electrum"   
-package_install "electrum electrum-mona"
-
-#only for mining
-#cecho "Install bitcoin-qt" 
-#aur_package_install "bitcoin-qt"  
-
-cecho "Install bisq - bitcoin p2p market" 
-aur_package_install "bisq-git"  
-
-
-#cecho "Install matlab - huge math tool ~23GB" 
-#aur_package_install "matlab"  
-
-
-#aur_package_install "bitcoin-core"
-#run_as_user "mkdir -p ~/.bitcoin" 
-#run_as_user "cat > ~/.bitcoin/bitcoin.conf <<'EOF'                       ##
-#rpcconnect=127.0.0.1                                          ##
-#rpcport=8332                                                  ##
-#rpcuser=bitcoin                                               ##
-#rpcpassword=secret                                            ##
-#EOF"
-
-cecho "Install geogebra" 
-aur_package_install "geogebra"  
-
-
-cecho "Install xournal" 
-aur_package_install "xournal"
-
-#webcam
-cecho "Install cheese" 
-package_install "cheese"
 
 
 

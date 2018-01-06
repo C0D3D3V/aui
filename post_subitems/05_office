@@ -1,0 +1,181 @@
+#!/bin/bash
+
+
+print_title "Install office APPS"
+
+
+#bücher
+print_info "Install calibre"  
+package_install "calibre"
+
+
+
+
+#git docu
+#cecho "Install haroopad"  
+#aur_package_install "haroopad"
+
+
+#cecho "Install remarkable"  
+#aur_package_install "remarkable"
+
+
+
+
+
+#finanze
+print_info "Install homebank - finanze manager"  
+package_install "homebank"
+
+
+
+
+#latex
+print_info "Install latex + texstudio"  
+package_install "texlive-most texlive-lang texlive-bin texstudio"
+
+
+
+
+
+
+#office
+print_info "Install Libreoffice - https://wiki.archlinux.org/index.php/LibreOffice"
+package_install "libreoffice-fresh"
+package_install "libreoffice-fresh-de"
+package_install "hunspell hunspell-de"
+package_install "aspell aspell-de aspell-en"
+
+
+
+
+
+
+#screenrecorder
+print_info "Instally qt-recordmydesktop - screen recorder"
+packafe_install "qt-recordmydesktop"
+
+
+
+
+#ocr analyse
+print_info "Install ocrfeeder"   #require aspell
+package_install "ocrfeeder tesseract gocr"
+
+
+
+
+
+
+#Scan Tools
+cecho "Install gscan2pdf - Scan tool" 
+aur_package_install "gscan2pdf"
+
+
+
+
+
+
+
+#PDF READER
+#cecho "Install xmind - Mindmaps"   
+#aur_package_install "xmind"
+
+#cecho "Install Foxit pdf reader"   
+#aur_package_install "foxitreader"
+
+
+
+
+print_info "Install masterpdfeditor"   
+aur_package_install "masterpdfeditor"
+
+
+
+#MATH-TOOLS
+print_info "Install geogebra"   
+aur_package_install "geogebra"
+
+
+
+
+
+#DIAGRAM TOOLS
+#cecho "Install yed"   
+#aur_package_install "yed"
+
+
+print_info "Install dia - uml tool"   
+package_install "dia"
+
+#cecho "Install dbvis - dbvison tool"
+#aur_package_install "dbvis"
+
+print_info "Install umbrello"   
+package_install "umbrello"
+
+
+
+
+
+
+#Cryptocurrency Tools
+
+print_info "Install electrum"   
+package_install "electrum electrum-mona"
+
+#only for mining
+#cecho "Install bitcoin-qt" 
+#aur_package_install "bitcoin-qt"  
+
+cechprint_info "Install bisq - bitcoin p2p market" 
+aur_package_install "bisq-git"  
+
+
+
+
+
+
+
+#cecho "Install matlab - huge math tool ~23GB" 
+#aur_package_install "matlab"  
+
+
+#aur_package_install "bitcoin-core"
+#run_as_user "mkdir -p ~/.bitcoin" 
+#run_as_user "cat > ~/.bitcoin/bitcoin.conf <<'EOF'                       ##
+#rpcconnect=127.0.0.1                                          ##
+#rpcport=8332                                                  ##
+#rpcuser=bitcoin                                               ##
+#rpcpassword=secret                                            ##
+#EOF"
+
+
+
+
+#NOTES
+print_info "Install xournal" 
+aur_package_install "xournal"
+
+
+
+
+
+
+#webcam
+print_info "Install cheese" 
+package_install "cheese"
+
+
+
+
+
+
+#File upload
+print_info "Install filezilla"  
+package_install "filezilla"
+
+
+
+
+
