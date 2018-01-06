@@ -1,0 +1,10 @@
+#!/bin/bash
+
+
+print_title "Install VIDEO APPS"
+
+
+
+print_info "Install vlc"
+package_install "vlc"
+#package_install "phonon-qt5-vlc"

@@ -1,0 +1,42 @@
+#!/bin/bash
+
+
+print_title "Install Audio Tools"
+
+
+
+
+#cecho "Install Audio player" 
+#aur_package_install "mpv"
+
+
+print_info "Install spotify" 
+aur_package_install "spotify"
+
+
+print_info "Install cava" 
+aur_package_install "cava"
+
+
+
+print_line
+cecho "Install Audio editor" 
+
+
+#NOTMARCEL
+print_info "Install audacity" 
+package_install "audacity"
+
+
+
+print_line
+cecho "Install Audio Codecs"
+
+package_install "gst-plugins-base gst-plugins-base-libs gst-plugins-good gst-plugins-bad gst-plugins-ugly gst-libav"
+
+#NOTMARCEL
+package_install "phonon-qt5-gstreamer"
+
+
+
+

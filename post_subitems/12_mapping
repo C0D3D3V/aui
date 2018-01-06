@@ -1,0 +1,8 @@
+#!/bin/bash
+
+
+print_title "Install Mapping Tools"
+
+print_info "Install google-earth" 
+aur_package_install "google-earth"
+

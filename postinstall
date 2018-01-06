@@ -50,14 +50,47 @@ include_file "post_subitems/05_office"
 #install system APPS 
 include_file "post_subitems/06_system"
 
+#install graphics APPS 
+include_file "post_subitems/07_graphics"
+
+#install browser APPS 
+include_file "post_subitems/08_browser"
+
+#install DOWNLOAD tools 
+include_file "post_subitems/09_download"
+
+#install email tools 
+include_file "post_subitems/10_email"
+
+#install Instant Messanger 
+include_file "post_subitems/11_im"
+
+#install Mapping Tools 
+include_file "post_subitems/12_mapping"
+
+#install Audio Tools 
+include_file "post_subitems/13_audio"
+
+#install VIDEO APPS 
+include_file "post_subitems/14_video"
+
+#install Games 
+include_file "post_subitems/15_games"
+
+#install trololol 
+include_file "post_subitems/16_trololol"
 
 
 
 
 
+print_line
 
 
 
+
+
+cecho "Fix Firewall shit"
 
 #To the end
 #fix KDE Connect
@@ -68,230 +101,6 @@ system_ctl restart firewalld.service
 
 
 
-
-
-
-
-
-
-print_line
-
-cecho "Install graphics APPS" 
-
-cecho "Install gimp" 
-package_install "gimp"
-
-#cecho "Install inkscape - Vektrografiken" 
-#package_install "inkscape"
-
-cecho "Install mypaint" 
-package_install "mypaint" 
-
-cecho "Install simple-scan" 
-package_install "simple-scan"
-
-cecho "Install krita" 
-package_install "krita"
-
-
-
-print_line
-
-cecho "Install browser" 
-
-
-
-cecho "Install chromium" 
-package_install "chromium"
-
-cecho "Install firefox" 
-package_install "firefox firefox-i18n-de"
-
-cecho "Install tor-browser" 
-run_as_user "gpg --recv-keys D1483FA6C3C07136"
-package_install "tor-browser-de"
-
-
-cecho "Install links"  
-package_install "links"
-
-
-
-
-print_line
-
-cecho "Install DOWNLOAD tools" 
-
-cecho "Install deluge - bittorrent client" 
-package_install "deluge"
-
-#cecho "Install rslsync - bittorrent sync" 
-#aur_package_install "rslsync"
-
-
-
-cecho "Install JDownlaoder2" 
-aur_package_install "jdownloader2"
-
-
-cecho "owncloud client"
-package_install "owncloud-client"
-
-
-
-
-print_line
-
-cecho "Install email tools" 
-
-
-cecho "Install thunderbird" 
-package_install "thunderbird"
-package_install "thunderbird-i18n-de"
-
-cecho "Install liferea" 
-package_install "liferea"
-
-
-
-
-
-
-
-
-print_line
-
-cecho "Install im" 
-
-
-cecho "Install konversation" 
-package_install "konversation"
-
-
-cecho "Install skype" 
-aur_package_install "skypeforlinux-bin"
-
-
-cecho "Install teamspeak3" 
-package_install "teamspeak3"
-
-cecho "Install gajim" 
-package_install "gajim gajim-plugin-omemo"
-
-
-
-cecho "Install qtox" 
-aur_package_install "qtox-git"
-
-
-
-
-
-
-
-
-
-
-print_line
-
-cecho "Install Mapping Tools" 
-
-
-cecho "Install google-earth" 
-aur_package_install "google-earth"
-
-
-
-
-
-
-print_line
-
-cecho "Install RAT"  
-#package_install "remmina"    #Remote desktop
-
-
-
-
-
-
-
-print_line
-
-cecho "Install Audio Tools" 
-
-
-print_line
-cecho "Install Audio player" 
-aur_package_install "mpv"
-
-
-cecho "Install spotify" 
-aur_package_install "spotify"
-
-
-
-
-
-print_line
-cecho "Install Audio editor" 
-
-
-
-cecho "Install audacity" 
-package_install "audacity"
-
-
-
-print_line
-cecho "Install Audio Codecs"
-
-package_install "gst-plugins-base gst-plugins-base-libs gst-plugins-good gst-plugins-bad gst-plugins-ugly gst-libav"
-
-package_install "phonon-qt5-gstreamer"
-# Use the 'standard' preset by default. This preset should generally be
-# transparent to most people on most music and is already quite high in quality.
-# The resulting bitrate should be in the 170-210kbps range, according to music
-# complexity.
-#run_as_user "gconftool-2 --type string --set /system/gstreamer/0.10/audio/profiles/mp3/pipeline '\audio/x-raw-int,rate=44100,channels=2 ! lame name=enc preset=1001 ! id3v2mux'"
-
-
-
-
-
-
-
-
-
-
-print_line
-cecho "Install VIDEO APPS" 
-
-
-cecho "Install vlc"
-package_install "vlc"
-package_install "phonon-qt5-vlc"
-
-
-
-print_line
-cecho "Install Games" 
-
-
-cecho "Install ddnet"
-aur_package_install "ddnet"
-
-
-
-
-
-
-
-
-
-
-
-print_line 
 
 
 

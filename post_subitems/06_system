@@ -9,15 +9,30 @@ print_title "Install system APPS"
 #Tools (Utils)
 print_info "Install tool for dublicate files (fslint hat gui)"
 package_install "rmlint"
-aur_package_install "fslint"
+#aur_package_install "fslint"
 
 
 print_info "Install gparted - Partitionsmanager"
 package_install "gparted"
 
+cecho "Install truecrypt"
+package_install "truecrypt"
+
+
+
+
+
 
 print_info "Install grsync - Gui für Rsync"
 package_install "grsync"
+
+
+cecho "Install seafile-client"
+aur_package_install "seafile-client"
+
+
+cecho "Install syncthing"
+package_install "syncthing"
 
 
 
@@ -26,13 +41,17 @@ package_install "grsync"
 
 print_info "Install wireshark  - https://wiki.archlinux.org/index.php/wireshark"
 package_install "wireshark-qt"
+#package_install "wireshark-gtk"  #for gnome
 add_user_to_group $username wireshark
 
 
+print_info "Install ettercap"
+package_install "ettercap-gtk"
 
 
-print_info "Install trace-cmd ... kernel debug"
-aur_package_install "trace-cmd"
+
+#print_info "Install trace-cmd ... kernel debug"
+#aur_package_install "trace-cmd"
 
 
 print_info "Install grub-customizer  - https://wiki.archlinux.de/title/GRUB"
@@ -43,8 +62,36 @@ aur_package_install "grub-customizer"
 #cecho "Install partitionmanager  - https://wiki.archlinux.org/index.php/partitioning#Partitioning_tools"
 #package_install "partitionmanager"
 
-print_info "Install gnome-disk-utility  - https://wiki.archlinux.org/index.php/partitioning#Partitioning_tools"
-package_install "gnome-disk-utility"
+#print_info "Install gnome-disk-utility  - https://wiki.archlinux.org/index.php/partitioning#Partitioning_tools"
+#package_install "gnome-disk-utility"
+
+
+
+print_info "Install pv - A terminal-based tool for monitoring the progress of data through a pipeline"
+package_install "pv"
+
+print_info "Install gdb with peda"
+package_install "gdb peda"
+
+print_info "Install lsof"
+package_install "lsof"
+
+print_info "Install nasm"
+package_install "nasm"
+
+print_info "Install radare2"
+package_install "radare2"
+
+print_info "Install strace ltrace"
+package_install "strace ltrace"
+ 
+print_info "Install traceroute"
+package_install "traceroute"
+
+print_info "Install whois"
+package_install "whois"
+
+
 
 
 
@@ -69,9 +116,9 @@ print_info "Install htop - Systemmonitor"
 package_install "htop"
 
 
-print_info "Install netdata  - System informations"
-package_install "netdata"
-system_ctl enable netdata.service
+#print_info "Install netdata  - System informations"
+#package_install "netdata"
+#system_ctl enable netdata.service
 
 
 
@@ -81,14 +128,17 @@ system_ctl enable netdata.service
 
 
 
-print_info "Install putty"
-package_install "putty"
-aur_package_install "putty-freedesktop"
+#print_info "Install putty"
+#package_install "putty"
+#aur_package_install "putty-freedesktop"
 
 
 print_info "Install Aircrack-ng"
-aur_package_install "pixiewps-git aircrack-ng reaver-wps-fork-t6x-git pyrit-git cowpatty wifite-git"
+package_install "aircrack-ng cowpatty"
+aur_package_install "reaver-wps-fork-t6x-git pyrit-git wifite-git" #pixiewps-git
 
+print_info "Install sslstrip"
+package_install "sslstrip"
 
 
 
@@ -97,6 +147,8 @@ aur_package_install "pixiewps-git aircrack-ng reaver-wps-fork-t6x-git pyrit-git 
 
 
 #System
+
+#realy this firewall is only a try ...
 print_info "Install firewalld - Firewall gui"
 package_install "firewalld"
 system_ctl enable firewalld
@@ -112,18 +164,31 @@ system_ctl enable firewalld
 
 
 print_info "Install virtualbox "
-package_install "virtualbox virtualbox-host-dkms virtualbox-guest-iso linux-headers"
+package_install "virtualbox virtualbox-host-modules-arch virtualbox-guest-iso"
 aur_package_install "virtualbox-ext-oracle"
 add_user_to_group $username vboxusers
 modprobe vboxdrv vboxnetflt
 
 
 
+print_info "Install VMware Horizon Client"
+#fix package bugs -.-
+gpg --recv-keys D5E9E43F7DF9EE8C
+aur_package_install "gstreamer0.10-base"
+aur_package_install "openssl098"
+#end of fix
+aur_package_install "vmware-horizon-client" #VMware Horizon Client connect to VMware Horizon virtual desktop
+
+
+
+
+
+
 
 #alterrnative für yaourt 
-print_info "Install pacaur  - https://wiki.archlinux.org/index.php/AUR_helpers"
-run_as_user "gpg --recv-keys 1EB2638FF56C0C53"
-aur_package_install "pacaur"
+#print_info "Install pacaur  - https://wiki.archlinux.org/index.php/AUR_helpers"
+#run_as_user "gpg --recv-keys 1EB2638FF56C0C53"
+#aur_package_install "pacaur"
 
 
 
@@ -164,7 +229,7 @@ aur_package_install "pacaur"
 
 print_info "Install Python"
 package_install "python pyhton2 python-pip"
-aur_package_install "python2-beautifulsoup4 python2-termcolor python2-gnupg python2-colorama python2-flake8 python2-jedi python-pynacl python-paramiko"
+aur_package_install "python2-beautifulsoup4 python2-termcolor python2-gnupg python2-colorama  python2-jedi" #python2-flake8 python-pynacl python-paramiko"
 package_install "python2-numpy python-lxml"
 
 
@@ -175,13 +240,14 @@ print_info "Install xclip"
 package_install "xclip"
 
 print_info "Install xbindkeys"
-package_install "xbindkeys xbindkeys_config-gtk2"
+package_install "xbindkeys"
+aur_package_install "xbindkeys_config-gtk2"
 
 
 
 
 #System Suport.... Driver
-
+#NOTMARCEL
 yn_question "Do you wanr to install Wacom suport"
 if [[ $ynAnswer == y ]]; then
     print_info "Install Wacom suport - https://wiki.archlinux.org/index.php/wacom_tablet"
@@ -189,7 +255,7 @@ if [[ $ynAnswer == y ]]; then
     aur_package_install "kcm-wacomtablet" 
 fi
 
-
+#NOTMARCEL
 yn_question "Do you wanr to install Tablet suport"
 if [[ $ynAnswer == y ]]; then
     print_info "Install Tablet suport - https://wiki.archlinux.org/index.php/Tablet_PC"
@@ -215,8 +281,8 @@ package_install "tree"
 print_info "Install nmap"
 package_install "nmap"
 
-print_info "Install netcat"
-package_install "netcat"
+print_info "Install gnu-netcat"
+package_install "gnu-netcat"
 
 print_info "Install powertop"
 package_install "powertop"
@@ -227,6 +293,18 @@ package_install "pkgfile"
 
 print_info "Install bind-tools"
 package_install "bind-tools"
+
+
+
+
+
+print_info "Install smartcard things"
+package_install "ccid pcsc-tools opensc"
+
+
+
+
+
 
 
 
@@ -329,3 +407,8 @@ resolv_conf=/etc/resolv.conf
 name_servers=127.0.0.1' > /etc/resolvconf.conf
 
 system_ctl enable unbound.service
+
+
+
+
+

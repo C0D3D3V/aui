@@ -5,6 +5,9 @@ print_title "Install office APPS"
 
 
 #bücher
+print_info "Install keepassxc"  
+package_install "keepassxc"
+
 print_info "Install calibre"  
 package_install "calibre"
 
@@ -32,7 +35,7 @@ package_install "homebank"
 
 #latex
 print_info "Install latex + texstudio"  
-package_install "texlive-most texlive-lang texlive-bin texstudio"
+package_install "texlive-most  texlive-bin texstudio" #texlive-lang
 
 
 
@@ -41,7 +44,7 @@ package_install "texlive-most texlive-lang texlive-bin texstudio"
 
 #office
 print_info "Install Libreoffice - https://wiki.archlinux.org/index.php/LibreOffice"
-package_install "libreoffice-fresh"
+#package_install "libreoffice-fresh"
 package_install "libreoffice-fresh-de"
 package_install "hunspell hunspell-de"
 package_install "aspell aspell-de aspell-en"
@@ -91,10 +94,21 @@ print_info "Install masterpdfeditor"
 aur_package_install "masterpdfeditor"
 
 
+print_info "Install diffpdf pdf-decrypt pdf2png pdfgrep"  
+package_install "pdfgrep"
+aur_package_install "diffpdf pdf-decrypt pdf2png"
+
+
+
+
+
 
 #MATH-TOOLS
 print_info "Install geogebra"   
-aur_package_install "geogebra"
+package_install "geogebra"
+
+echo "Install maxima"
+package_install "maxima"
 
 
 
@@ -133,6 +147,13 @@ aur_package_install "bisq-git"
 
 
 
+print_info "Install zcash"   
+package_install "zcash"
+
+run_as_user "gpg --recv-keys 45CE8E0631DED8DE"
+print_info "Install  zcash-swing-wallet-ui-git -- Desktop GUI Wallet for ZCash" 
+aur_package_install "zcash-swing-wallet-ui-git"  
+
 
 
 
@@ -155,7 +176,7 @@ aur_package_install "bisq-git"
 
 #NOTES
 print_info "Install xournal" 
-aur_package_install "xournal"
+package_install "xournal"
 
 
 
@@ -179,3 +200,10 @@ package_install "filezilla"
 
 
 
+
+#RAT
+print_info "Install x11vnc - VNC client" 
+package_install "x11vnc"
+
+#cecho "Install RAT"  
+#package_install "remmina"    #Remote desktop

@@ -1,0 +1,25 @@
+#!/bin/bash
+
+
+print_title "Install graphics APPS"
+
+
+print_info "Install gimp" 
+package_install "gimp"
+
+print_info "Install inkscape - Vektrografiken" 
+package_install "inkscape"
+
+#NOTMARCEL
+print_info "Install mypaint" 
+package_install "mypaint" 
+
+print_info "Install simple-scan" 
+package_install "simple-scan"
+
+#NOTMARCEL
+print_info "Install krita" 
+package_install "krita"
+
+
+

@@ -125,13 +125,17 @@ print_line
 
 print_info "Install CUPS - https://wiki.archlinux.org/index.php/Cups" 
 package_install "cups cups-filters ghostscript gsfonts"
-package_install "gutenprint foomatic-db foomatic-db-engine foomatic-db-nonfree foomatic-filters foomatic-db-ppds foomatic-db-nonfree-ppds hplip splix cups-pdf foomatic-db-gutenprint-ppds"
+package_install "gutenprint foomatic-db foomatic-db-engine foomatic-db-nonfree foomatic-db-ppds foomatic-db-nonfree-ppds hplip splix cups-pdf foomatic-db-gutenprint-ppds" #foomatic-filters-lprng
 system_ctl enable org.cups.cupsd.service
 
 
 
 print_info "Install Printer driver"
+#Canon MX920
 aur_package_install "canon-pixma-mx920-complete"
+#Samsunf
+aur_package_install "samsung-unified-driver"
+package_install "splix"
 
 
 print_line
@@ -195,6 +199,16 @@ print_line
 
 
 
+#print_info "Install GNOME - https://wiki.archlinux.org/index.php/GNOME"
+#package_install "gnome"
+#TODO
+#config_xinitrc "gnome-session"
+
+
+
+
+
+
 
 
 print_info "Install KDE Tools"  
@@ -209,7 +223,12 @@ package_install "k3b cdrdao dvd+rw-tools"
 #finanze
 package_install "skrooge"
 #terminal
-package_install "yakuake" 
+package_install "yakuake"
+
+#cecho "Install guake - Terminal "  #for gnome  
+#package_install "guake"
+
+
 
 
 
@@ -236,11 +255,13 @@ print_line
 
 
 print_info "Install Networkmanager - https://wiki.archlinux.org/index.php/Networkmanager"  
-
 package_install "networkmanager dnsmasq plasma-nm networkmanager-qt"
+#is dependency of gnome but not of kde maybe
 
 # vpn support
 package_install "networkmanager-openconnect networkmanager-openvpn networkmanager-pptp networkmanager-vpnc" # pulse-secure webkitgtk
+#my university use openconnect
+
 # auto update datetime from network
 if is_package_installed "ntp"; then
     package_install "networkmanager-dispatcher-ntpd"

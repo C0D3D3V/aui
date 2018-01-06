@@ -11,7 +11,8 @@ package_install "emacs terminus-font"
 print_info "Install vim - Some Editor"  
 package_install "vim" 
 
-
+print_info "Install gvim - Vi with gui"  
+package_install "gvim" 
 
 
 
@@ -25,17 +26,28 @@ aur_package_install "sublime-text-dev"
 
 
 
+print_info "Install diffuse"  
+package_install "diffuse"
+
+
+
+print_info "Install bless Hex-Editor"  
+package_install "bless"
+
+
 
 print_info "Install codeblocks"  
 package_install "codeblocks"
 
 
+print_info "Install cmake"  
+package_install "cmake"
 
 
 
 
 print_info "Install Android Studio"  
-run_as_user "gpg --recv-keys 702353E0F7E48EDB"
+#run_as_user "gpg --recv-keys 702353E0F7E48EDB" #not needed anymore?
 aur_package_install "android-sdk android-sdk-platform-tools android-sdk-build-tools android-platform  android-ndk"
 
 add_user_to_group $username sdkusers
@@ -43,12 +55,21 @@ chown -R :sdkusers /opt/android-sdk/
 chmod -R g+w /opt/android-sdk/
 add_line "export ANDROID_HOME=/opt/android-sdk" "/home/${username}/.bashrc"
 
+
+
+
+aur_package_install "android-studio"
 touch /opt/android-studio/bin/studio64.vmoptions
 add_line "-Djava.io.tmpdir=/var/tmp/" "/opt/android-studio/bin/studio64.vmoptions"
 
-aur_package_install "android-studio"
 
 add_user_to_group $username plugdev
+
+
+
+
+print_info "Install gradle"  
+package_install "gradle"
 
 
 
@@ -84,6 +105,11 @@ package_install "sqlite3"
 print_info "Install H2"  
 aur_package_install "h2"
 
+cecho "Install sqlitebrowser"  
+package_install "sqlitebrowser"
+
+
+
 
 
 
@@ -100,6 +126,9 @@ add_user_to_group $username tomcat8
 print_info "Install intellij - just more shit"  
 package_install "intellij-idea-community-edition"
 
+
+print_info "Install jadx - decompiler for java"  
+package_install "jadx"
 
 
 
@@ -144,7 +173,6 @@ package_install "arduino arduino-avr-core"
 #tools
 print_info "Install gource"  
 package_install "gource"
-
 
 
 

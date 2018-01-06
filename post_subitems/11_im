@@ -1,0 +1,28 @@
+#!/bin/bash
+
+
+print_title "Install Instant Messanger"
+
+
+print_info "Install konversation, weechat" 
+package_install "konversation, weechat"
+
+
+#print_info "Install skype" 
+#aur_package_install "skypeforlinux-bin"
+
+
+print_info "Install teamspeak3" 
+package_install "teamspeak3"
+
+print_info "Install gajim" 
+package_install "gajim"
+aur_package_install "gajim-plugin-omemo"
+
+
+#NOTMARCEL
+print_info "Install qtox" 
+aur_package_install "qtox-git"
+
+
+

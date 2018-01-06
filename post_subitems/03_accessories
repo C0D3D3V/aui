@@ -23,8 +23,11 @@ aur_package_install "pamac-aur"
 
 
 
-print_info "Install terminator - Terminal multiplexer"   
-package_install "terminator"
+#print_info "Install terminator - Terminal multiplexer"   
+#package_install "terminator"
+
+print_info "Install tmux - Terminal multiplexer"   
+package_install "tmux"
 
 #unified-remote-server Remote tools
 
