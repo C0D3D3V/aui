@@ -19,8 +19,7 @@ print_line
 
 read -p "Press enter to continue"
 
-cecho "This Skript will install Arch Linux on /dev/sda"
-cecho "Be sure that /dev/sda is the correct device"
+cecho "This Skript will install Arch Linux"
 lsblk
 
 
@@ -36,13 +35,46 @@ print_line
 
 #Mirrorlist
 cecho "Backup pacman mirrorlist and filter for German Servers [https://wiki.archlinux.org/index.php/mirrors]"
-cecho "Please wait..."
-cp /etc/pacman.d/mirrorlist /etc/pacman.d/mirrorlist.bak
-grep -E -A 1 ".*Germany.*$" /etc/pacman.d/mirrorlist.bak | sed '/--/d' > /etc/pacman.d/mirrorlist.backup
-rankmirrors -n 6 /etc/pacman.d/mirrorlist.backup > /etc/pacman.d/mirrorlist
+ncecho "First Dowload full Mirrorlist"
+
+
+url="https://www.archlinux.org/mirrorlist/?country=DE&use_mirror_status=on"
+
+tmpfile=$(mktemp --suffix=-mirrorlist)
+# Get latest mirror list and save to tmpfile
+curl -so ${tmpfile} ${url} &
+pid=$!;progress $pid
+
+sed -i 's/^#Server/Server/g' ${tmpfile}
+
+if [[ -s ${tmpfile} ]]; then
+    { cecho " Backing up the original mirrorlist..."
+      mv -i /etc/pacman.d/mirrorlist /etc/pacman.d/mirrorlist.orig; } &&
+	{ cecho " Rotating the new list into place..."
+	  mv -i ${tmpfile} /etc/pacman.d/mirrorlist; }
+else
+    cecho " Unable to update, could not download list."
+fi
+
+
+  
+#cp /etc/pacman.d/mirrorlist /etc/pacman.d/mirrorlist.bak
+#grep -E -A 1 ".*Germany.*$" /etc/pacman.d/mirrorlist.bak | sed '/--/d' > /etc/pacman.d/mirrorlist.backup
+
+#rankmirrors -n 6 /etc/pacman.d/mirrorlist.backup > /etc/pacman.d/mirrorlist &
+cp /etc/pacman.d/mirrorlist /etc/pacman.d/mirrorlist.tmp
+rankmirrors /etc/pacman.d/mirrorlist.tmp > /etc/pacman.d/mirrorlist &
+pid=$!;progress $pid
+
+rm /etc/pacman.d/mirrorlist.tmp
+
 
 
 print_line
+
+cecho "Select Boot Device"
+select_device
+
 
 cecho "Please create two partitions. [https://wiki.archlinux.de/title/GPT]"
 cecho "First delete all partitions with: d"
@@ -52,7 +84,7 @@ cecho "Second partition:  Partition number '2'; First sector '[enter]'; Last sec
 cecho "At the end, wirte the partitions: w"
 cecho "You can scroll up with 'Shift + PgUp' and scoll down with 'Shift + PgDown'"
 
-gdisk /dev/sda
+gdisk $BOOT_MOUNTPOINT
 
 lsblk
 read -p "Press enter to continue [Be sure you created the partitions correct]"
@@ -63,13 +95,16 @@ print_line
 cecho "Setup Luks [https://wiki.archlinux.org/index.php/Dm-crypt]"
 cecho "Confirm with YES"
 modprobe dm-crypt
-cryptsetup -c aes-xts-plain64 -y -s 512 luksFormat /dev/sda2
+
+select_luks
+
+cryptsetup -c aes-xts-plain64 -y -s 512 luksFormat $LUKS_DISK
 
 
 read -p "Press enter to continue [be sure luks is setup]"
 
 cecho "Open Luks Partition"
-cryptsetup luksOpen /dev/sda2 lvm
+cryptsetup luksOpen $LUKS_DISK lvm
 
 
 print_line
@@ -98,7 +133,10 @@ mkfs.ext4 -L root -O \^64bit /dev/mapper/main-root
 #tune2fs -O ^has_journal /dev/mapper/main-root
 #tune2fs -O ^has_journal /dev/mapper/main-home
 
-mkfs.fat -F32 -n BOOT /dev/sda1
+select_boot
+
+
+mkfs.fat -F32 -n BOOT $BOOT_DISK
 mkswap -L swap /dev/mapper/main-swap
 
 
@@ -110,7 +148,7 @@ mount /dev/mapper/main-root /mnt
 #mkdir /mnt/home
 #mount /dev/mapper/main-home /mnt/home
 mkdir /mnt/boot
-mount /dev/sda1 /mnt/boot
+mount $BOOT_DISK /mnt/boot
 
 cecho "Activate Swap [https://wiki.archlinux.org/index.php/swap]"
 
