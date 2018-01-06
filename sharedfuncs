@@ -290,7 +290,7 @@ progress() {
         retcode=$?
         ncecho " $pid's retcode: $retcode -> "
         if [[ $retcode == 0 ]] || [[ $retcode == 255 ]]; then
-          ncecho "{BGreen}success${Reset}\n"
+          ncecho "${BGreen}success${Reset}\n"
         else
           ncecho "${BRed}failed${Reset}\n"
           echo -e "$PKG" >> $PKG_FAIL
