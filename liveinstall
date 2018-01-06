@@ -95,10 +95,10 @@ read -p "Press enter to continue [Be sure you created the partitions correct]"
 print_line
 
 cecho "Setup Luks [https://wiki.archlinux.org/index.php/Dm-crypt]"
-cecho "Confirm with YES"
 modprobe dm-crypt
 
 select_luks
+print_warning "Confirm with YES"
 
 cryptsetup -c aes-xts-plain64 -y -s 512 luksFormat $LUKS_DISK
 
