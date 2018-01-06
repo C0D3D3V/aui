@@ -11,16 +11,8 @@ check_root
 
 print_line
 
-print_line
+check_connection
 
-ping -c 2 google.com
-cecho "Connect to wifi [https://wiki.archlinux.org/index.php/netctl]"
-cecho "Be sure to connect to Wifi with: wifi-menu"
-
-cecho "Or Connect to ethernet [https://bbs.archlinux.org/viewtopic.php?id=210679]"
-cecho "Be sure to connect to Ethernet with: "
-cecho "ip link set enpxxxx up  "
-cecho "dhcpcd" 
 
 print_line
 
@@ -31,593 +23,41 @@ print_line
 
 cecho "A clean Arch installation is requested" 
 
-print_line
-
-read -p "Press enter to continue"
+pause_function
 
 print_line
 
 
 
-cecho "Create a new user"
-USERentered=0
-user_exists=0
-skip_user_config=0
+#create user
+include_file "post_subitems/00_userinstall"
 
-while [ $user_exists -eq 0 ];
-do
+#install zsh and few basic components
+include_file "post_subitems/01_basecomponents"
 
-    while [ $USERentered -eq 0 ];
-    do
+#install KDE Desktop
+include_file "post_subitems/02_desktop"
 
-	read -p "Please enter a username for the system: " username
-	echo "This user will be a sudo user!"
-	while true
-	do
+#install accessories APPS (thinks that does not match the other categories :D ??)
+include_file "post_subitems/03_accessories"
 
-	    read -p "Do you realy want to use $username? [y/n]" answer
+#install development APPS 
+include_file "post_subitems/04_develoment"
 
-	    case $answer in
-		[yY]* ) USERentered=1
-			break
-			;;
 
-		[nN]* ) break
-			;;
 
-		* )     echo "Dude, just enter Y or N, please.";
-			;;
-	    esac
-	done
-    done
 
 
-    user_exists=$(id -u "$username" > /dev/null 2>&1; echo $?)
 
-    if [ $user_exists -eq 0 ]; then
 
-	while true
-	do
-
-	    read -p "This user already exists, do you realy want to use $username? [y/n]" answer
-
-	    case $answer in
-		[yY]* ) user_exists=1
-			skip_user_config=1
-			break
-			;;
-
-		[nN]* ) USERentered=0
-			break
-			;;
-
-		* )     echo "Dude, just enter Y or N, please.";
-			;;
-	    esac
-	done
-
-    fi
-
-done
-echo "Your username is now $username"
-
-
-if [ $skip_user_config -eq 0 ]; then
-    useradd -m -g users -G wheel -s /bin/bash $username
-    chfn $username
-
-    ################# User Action ##################
-    #user data
-
-    passwd $username
-    ################# User Action ##################
-    #password eingabe
-
-fi
-
-print_line
-
-read -p "Press enter to continue"
-
-print_line
-
-cecho "Load Bash Config"  
-#bash conf resource (bsp: https://github.com/helmuthdu/dotfiles)
-cp /etc/skel/.bashrc /home/$username
-groupadd $username
-add_user_to_group $username $username
-chown -R $username:$username /home/$username    #config files gehören dem user
-
-cecho "Make him sudoer"
-package_install "sudo"
-
-cecho "Backup /etc/sudoers to /etc/sudoers.aui"
-
-cp -v /etc/sudoers /etc/sudoers.aui
-sed -i '/%wheel ALL=(ALL) ALL/s/^#//' /etc/sudoers
-
-cecho "Config sudo"
-#echo "" >> /etc/sudoers
-#echo 'Defaults !requiretty, !tty_tickets, !umask' >> /etc/sudoers
-#echo 'Defaults visiblepw, path_info' >> /etc/sudoers #insults
-##loglinelen=0, logfile =/var/log/sudo.log, log_year, log_host, 
-#echo 'Defaults syslog=auth' >> /etc/sudoers
-#echo 'Defaults passwd_tries=3, passwd_timeout=1' >> /etc/sudoers
-#echo 'Defaults env_reset' >> /etc/sudoers
-#echo 'Defaults !env_editor, editor="/usr/bin/vim:/usr/bin/vi:/usr/bin/nano"' >> /etc/sudoers
-#echo 'Defaults timestamp_timeout=15' >> /etc/sudoers
-#echo 'Defaults passprompt="[sudo] password for %u: "' >> /etc/sudoers
-#echo 'Defaults lecture=never' >> /etc/sudores
-
-
-
-print_line
-
-read -p "Press enter to continue"
-
-print_line
-
-
-cecho "Istall yaourt - https://wiki.archlinux.de/title/Yaourt" 
-package_install "base-devel yajl namcap"
-
-aui_download_packages "package-query yaourt"
-
-print_line
-
-read -p "Press enter to continue"
-
-print_line
-
-
-cecho "Install Bash tools" 
-package_install "bc rsync mlocate bash-completion" #pkgstats arch-wiki-lite
-
-
-print_line
-
-cecho "Install compress tools" 
-package_install "zip unzip unrar p7zip lzop cpio"
-
-
-print_line
-
-
-cecho "Install AVAHI - https://wiki.archlinux.org/index.php/Avahi" 
-package_install "avahi nss-mdns"
-systemctl enable avahi-daemon
-
-print_line
-
-
-cecho "Install ALSA - https://wiki.archlinux.org/index.php/Alsa" 
-package_install "alsa-utils alsa-plugins"
-
-
-print_line
-
-
-
-cecho "Install NTP - https://wiki.archlinux.de/title/NTP" 
-package_install "ntp"
-systemctl enable ntpd 
-
-print_line
-
-
-
-cecho "Install acpid - https://wiki.archlinux.org/index.php/acpid" 
-package_install "acpid" 
-systemctl enable acpid 
-
-print_line
-
-
-
-cecho "Install dbus - https://wiki.archlinux.org/index.php/D-Bus" 
-package_install "dbus" 
-
-print_line
-
-
-cecho "Install ssh - https://wiki.archlinux.de/title/SSH" 
-package_install "openssh" #keychain 
-
-print_line
-
-cecho "Install cronie - https://wiki.archlinux.org/index.php/Cron" 
-package_install "cronie" 
-systemctl enable cronie
-
-print_line
-
-
-cecho "Install PULSEAUDIO - https://wiki.archlinux.org/index.php/Pulseaudio" 
-package_install "pulseaudio pulseaudio-alsa"
-
-print_line
-
-
-cecho "Install NTFS/FAT/exFAT/F2FS - https://wiki.archlinux.org/index.php/File_Systems" 
-package_install "ntfs-3g dosfstools exfat-utils f2fs-tools fuse fuse-exfat autofs mtpfs"
-
-
-print_line
-
-read -p "Press enter to continue"
-
-print_line
-
-cecho "Install ZSH - https://wiki.archlinux.org/index.php/Zsh" 
-package_install "zsh wget curl git"
-
-#set zsh as default shell
-chsh -s /bin/zsh
-
-
-cecho "Install xterm"  
-package_install "xterm"
-
-
-run_as_user "mv /home/$username/.zshrc /home/$username/.zshrc.bak"
-run_as_user "wget https://raw.githubusercontent.com/robbyrussell/oh-my-zsh/master/tools/install.sh -O /var/tmp/install-oh-my-zsh.sh"
-
-
-print_line
-
-read -p "Press enter to continue - Please exit zsh after finsh install with: exit"
-
-print_line
-
-run_as_user "sh /var/tmp/install-oh-my-zsh.sh"
-run_as_user "rm /var/tmp/install-oh-my-zsh.sh"
-
-
-print_line
-
-read -p "Please check .zshrc - Press enter to continue"
-
-print_line
-
-run_as_user "nano /home/$username/.zshrc"
-
-
-
-read -p "Press enter to continue"
-
-print_line
-
-cecho "Install XORG - https://wiki.archlinux.org/index.php/Xorg" 
-
-package_install "xorg-server xorg-xinit xorg-apps xorg-xkill xorg-xinput xf86-input-libinput" #xorg-server-xwayland
-
-package_install "mesa"
-modprobe uinput
-
-
-print_line
-
-cecho "Install FONTS CONFIGURATION - https://wiki.archlinux.org/index.php/Font_Configuration" 
-
-package_install "cairo fontconfig freetype2"
-
-
-print_line
-
-read -p "Press enter to continue"
-
-print_line
-
-read_input_text "Install TLP"
-if [[ $OPTION == y ]]; then
-    cecho "Install TLP - https://wiki.archlinux.org/index.php/Tlp" 
-
-    package_install "tlp "
-
-    read_input_text "Install Lenovo TLP tools"
-    if [[ $OPTION == y ]]; then
-	package_install "acpi_call"
-	#package_install "tp_smapi"
-    fi
-
-    systemctl enable tlp
-    systemctl enable tlp-sleep
-    systemctl disable systemd-rfkill
-    tlp start
-fi
-
-print_line
-
-cecho "Install VIDEO CARD Driver" 
-VIDEO_DRIVER=""
-ARCHI=`uname -m` # ARCHITECTURE
-check_vga() {
-    local _vga=`lspci | grep VGA | tr "[:upper:]" "[:lower:]"`
-    local _vga_length=`lspci | grep VGA | wc -l`
-    if [[ -n $(echo ${_vga} | grep "nvidia") || -f /sys/kernel/debug/dri/0/vbios.rom ]]; then
-	cecho Nvidia 
-	VIDEO_DRIVER="nvidia"
-    elif [[ -n $(echo ${_vga} | grep "advanced micro devices") || -f /sys/kernel/debug/dri/0/radeon_pm_info || -f /sys/kernel/debug/dri/0/radeon_sa_info ]]; then
-	cecho AMD/ATI
-	VIDEO_DRIVER="ati"
-    elif [[ -n $(echo ${_vga} | grep "intel corporation") || -f /sys/kernel/debug/dri/0/i915_capabilities ]]; then
-	cecho Intel
-	VIDEO_DRIVER="intel"
-    fi
-}
-check_vga
-if [[ ${VIDEO_DRIVER} == nvidia ]]; then
-    package_install "nvidia{,-utils}"
-    [[ ${ARCHI} == x86_64 ]] && package_install "lib32-nvidia-utils"
-    nvidia-xconfig --add-argb-glx-visuals --allow-glx-with-composite --composite --render-accel -o /etc/X11/xorg.conf.d/20-nvidia.conf;
-elif [[ ${VIDEO_DRIVER} == ati ]]; then
-    package_install "xf86-video-ati mesa-libgl mesa-vdpau libvdpau-va-gl"
-
-elif [[ ${VIDEO_DRIVER} == intel ]]; then
-    package_install "xf86-video-intel mesa-libgl libvdpau-va-gl"
-fi
-
-if [[ ${ARCHI} == x86_64 ]]; then
-    is_package_installed "mesa-libgl" && package_install "lib32-mesa-libgl"
-    is_package_installed "mesa-vdpau" && package_install "lib32-mesa-vdpau"
-fi
-if is_package_installed "libvdpau-va-gl"; then
-    add_line "export VDPAU_DRIVER=va_gl" "/etc/profile"
-fi
-
-print_line
-
-cecho "Install Aditional Firmeware" 
-
-#critical... only if nessesery
-#aur_package_install "aic94xx-firmware b43-firmware b43-firmware-legacy bfa-firmware broadcom-wl android-udev"
-#package_install "alsa-firmware bluez-firmware ipw2100-fw ipw2200-fw libffado libmtp libraw1394"
-
-
-print_line
-
-cecho "Install CUPS - https://wiki.archlinux.org/index.php/Cups" 
-package_install "cups cups-filters ghostscript gsfonts"
-package_install "gutenprint foomatic-db foomatic-db-engine foomatic-db-nonfree foomatic-filters foomatic-db-ppds foomatic-db-nonfree-ppds hplip splix cups-pdf foomatic-db-gutenprint-ppds"
-systemctl enable org.cups.cupsd.service
-
-cexho "Printer driver"
-aur_package_install "canon-pixma-mx920-complete"
 
 cecho "Install gscan2pdf - Scan tool" 
 aur_package_install "gscan2pdf"
 
 
 
-print_line
-
-cecho "Install synaptics - https://wiki.archlinux.de/title/Synaptics_Touchpad_Treiber" 
-package_install "xf86-input-synaptics"
-
-
-print_line
-
-cecho "Install Fonts - https://wiki.archlinux.org/index.php/fonts" 
-package_install "noto-fonts-emoji ttf-dejavu ttf-liberation ttf-bitstream-vera ttf-hack wqy-microhei noto-fonts-cjk ttf-symbola"
-aur_package_install "ttf-fira-code " #ttf-google-fonts-git  
-
-
-
-print_line
-
-cecho "Install KDE - https://wiki.archlinux.org/index.php/KDE" 
-
-package_install "plasma kf5 sddm"
-package_install "ark dolphin dolphin-plugins kio-extras kdeconnect quota-tools gwenview kipi-plugins kcalc konsole spectacle okular kdeutils-sweeper kwalletmanager kmix"
-
-#dont want
-#kate
-
-#dark design
-package_install "arc-kde"
-aur_package_install "papirus-icon-theme"
-
-# config xinitrc
-config_xinitrc "startkde"
-
-#fix KDE Connect
-firewall-cmd --zone=public --permanent --add-port=1714-1764/tcp
-firewall-cmd --zone=public --permanent --add-port=1714-1764/udp
-systemctl restart firewalld.service
-
-
-#config sddm
-systemctl enable sddm
-sddm --example-config > /etc/sddm.conf
-sed -i 's/Current=/Current=breeze/' /etc/sddm.conf
-sed -i 's/CursorTheme=/CursorTheme=breeze_cursors/' /etc/sddm.conf
-sed -i 's/Numlock=none/Numlock=on/' /etc/sddm.conf
-
-
-print_line
-cecho "Install KDE Tools"  
-
-is_package_installed "cups" && package_install "print-manager"
-
-
-
-#twitter
-#package_install "choqok"
-#photos
-package_install "digikam"
-#cd burn
-package_install "k3b cdrdao dvd+rw-tools"
-#finanze
-package_install "skrooge"
-#terminal
-package_install "yakuake" 
-
-
-
-
-cecho "Install MTP Suptort"
-if is_package_installed "libmtp" ; then
-    package_install "gvfs-mtp"
-fi
-
-
-print_line
-
-cecho "Install Networkmanager - https://wiki.archlinux.org/index.php/Networkmanager"  
-
-package_install "networkmanager dnsmasq plasma-nm networkmanager-qt"
-
-# vpn support
-package_install "networkmanager-openconnect networkmanager-openvpn networkmanager-pptp networkmanager-vpnc" # pulse-secure webkitgtk
-# auto update datetime from network
-if is_package_installed "ntp"; then
-    package_install "networkmanager-dispatcher-ntpd"
-    systemctl enable NetworkManager-dispatcher.service
-fi
-
-is_package_installed "tlp" && package_install "tlp-rdw"
-
-systemctl enable NetworkManager.service
-
-
-
-
-
-read -p "Press enter to continue"
-
-print_line
-
-cecho "Install accessories APPS"  
-
-cecho "Install conky-lua - Sensore Gadgets"  
-aur_package_install "conky-lua"
-package_install "lm_sensors"
-sensors-detect --auto
-
-cecho "Install conky-lua - Pacman GUI"  
-aur_package_install "pamac-aur"
-
-#enpass-bin passwort manager
-
-cecho "Install terminator - Terminal multiplexer"   
-package_install "terminator"
-
-#unified-remote-server Remote tools
-
-
-
-
-print_line
-
-cecho "Install DEVELOPMENT APPS" 
-cecho "Install emacs - Best Editor"  
-package_install "emacs terminus-font" 
-
-cecho "Install vim - Some Editor"  
-package_install "vim" 
-
-
-
-cecho "Install sublime3 - Nice Editor"  
-aur_package_install "sublime-text-dev" 
-#aur_package_install "sublime-text" 
-
-cecho "Install Android Studio"  
-
-
-run_as_user "gpg --recv-keys 702353E0F7E48EDB"
-aur_package_install "android-sdk android-sdk-platform-tools android-sdk-build-tools android-platform  android-ndk" 
-add_user_to_group $username sdkusers
-chown -R :sdkusers /opt/android-sdk/
-chmod -R g+w /opt/android-sdk/
-add_line "export ANDROID_HOME=/opt/android-sdk" "/home/$username/.bashrc"
-
-touch /opt/android-studio/bin/studio64.vmoptions
-add_line "-Djava.io.tmpdir=/var/tmp/" "/opt/android-studio/bin/studio64.vmoptions"
-
-
-aur_package_install "android-studio"
-
-add_user_to_group $username plugdev
-
-
-
-
-cecho "Install monodevelop - dot net shit"  
-package_install "monodevelop monodevelop-debugger-gdb"
-#fix https://bugs.archlinux.org/task/52939
-ln -s /usr/lib/libgit2.so /usr/lib/libgit2-e8b8948.so
-
-
-cecho "Install qtcreator"  
-package_install "qtcreator qt5-doc" #android-qt5-arm64-v8a #dont install this .... shitty compile time 8h
-
-cecho "Install MySQL Workbench"  
-package_install "mysql-workbench"
-
-cecho "Install postgress Admin"
-package_install "pgadmin4"
-
-
-cecho "Install sqlite3"  
-package_install "sqlite3"
-
-cecho "Install OpenJDK"  
-#maybe switch to oracle shit
-package_install "jdk8-openjdk icedtea-web"  
-archlinux-java set java-8-openjdk/jre
-
-cecho "Install nodejs"  
-package_install "nodejs npm"
-
-cecho "Install eclipse"  
-package_install "eclipse-jee tomcat8"
-add_user_to_group $username tomcat8
-
-cecho "Install codeblocks"  
-package_install "codeblocks"
-
-
-cecho "Install intellij - just more shit"  
-package_install "intellij-idea-community-edition"
-
-cecho "Install ruby"  
-package_install "ruby"
-aur_package_install "rbenv ruby-build"
-
-
-cecho "Install elixir"  
-package_install "elixir"
-
-
-cecho "Install go"  
-package_install "go"
-
-cecho "Install Haskel"  
-package_install "ghc"
-
-cecho "Install clang"  
-package_install "linter-clang clang"
-
-
-cecho "Install filezilla"  
+print_info "Install filezilla"  
 package_install "filezilla"
-
-
-cecho "Install Ardoino"  
-package_install "arduino arduino-avr-core"
-
-cecho "Install H2"  
-aur_package_install "h2"
-
-cecho "Install gource"  
-package_install "gource"
-
-
-#mockups
-cecho "Install balsamiqmockups"  
-aur_package_install "balsamiqmockups"
-
 
 
 
@@ -754,7 +194,7 @@ aur_package_install "fslint"
 
 cecho "Install firewalld - Firewall gui"
 package_install "firewalld"
-systemctl enable firewalld
+system_ctl enable firewalld
 
 
 cecho "Install gparted - Partitionsmanager"
@@ -784,7 +224,7 @@ modprobe vboxdrv vboxnetflt
 
 cecho "Install netdata  - System informations"
 package_install "netdata"
-systemctl enable netdata.service
+system_ctl enable netdata.service
 
 
 #alterrnative für yaourt 
@@ -811,7 +251,7 @@ aur_package_install "pacaur"
 # Arguments without a value must have the '=' sign
 # ie:
 #    aur=" > "/etc/aarchup.conf"
-#systemctl enable aarchup.timer
+#system_ctl enable aarchup.timer
 
 
 
@@ -964,8 +404,8 @@ sed -i "s|ExecStart=/usr/bin/dnscrypt-proxy /etc/dnscrypt-proxy.conf|ExecStart=/
 #aktuallisiere dnscrypt-resolvers.csv
 wget https://raw.githubusercontent.com/jedisct1/dnscrypt-proxy/master/dnscrypt-resolvers.csv -O /usr/share/dnscrypt-proxy/dnscrypt-resolvers.csv 
 
-systemctl enable dnscrypt-proxy.service
-systemctl enable dnscrypt-proxy2.service
+system_ctl enable dnscrypt-proxy.service
+system_ctl enable dnscrypt-proxy2.service
 
 
 
@@ -1012,7 +452,7 @@ resolv_conf=/etc/resolv.conf
 # configure your subscribers configuration files below.
 name_servers=127.0.0.1' > /etc/resolvconf.conf
 
-systemctl enable unbound.service
+system_ctl enable unbound.service
 
 
 print_line
@@ -1243,8 +683,8 @@ print_line
 cecho "Set System Time"
 timedatectl set-local-rtc true
 
-systemctl enable systemd-timesyncd.service
-systemctl start systemd-timesyncd.service
+system_ctl enable systemd-timesyncd.service
+system_ctl start systemd-timesyncd.service
 
 
 
@@ -1268,7 +708,7 @@ pacman-optimize
 
 print_line
 print_line
-echo -e "\n\n" 
+cecho "\n\n" 
 
 cecho "Finish :)" 
 cecho "Please reboot and enjoy" 

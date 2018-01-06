@@ -1,0 +1,126 @@
+#!/bin/bash
+
+
+print_title "Install base components"
+
+
+print_info "Istall yaourt - https://wiki.archlinux.de/title/Yaourt" 
+package_install "base-devel yajl namcap"
+aui_download_packages "package-query yaourt"
+
+pause_function
+
+print_line
+
+
+
+print_info "Install Bash tools" 
+package_install "bc rsync mlocate bash-completion" #pkgstats arch-wiki-lite
+
+
+print_line
+
+print_info "Install compress tools" 
+package_install "zip unzip unrar p7zip lzop cpio"
+
+
+print_line
+
+
+print_info "Install AVAHI - https://wiki.archlinux.org/index.php/Avahi" 
+package_install "avahi nss-mdns"
+system_ctl enable avahi-daemon
+
+print_line
+
+
+print_info "Install ALSA - https://wiki.archlinux.org/index.php/Alsa" 
+package_install "alsa-utils alsa-plugins"
+
+
+print_line
+
+
+
+print_info "Install NTP - https://wiki.archlinux.de/title/NTP" 
+package_install "ntp"
+system_ctl enable ntpd 
+
+print_line
+
+
+
+print_info "Install acpid - https://wiki.archlinux.org/index.php/acpid" 
+package_install "acpid" 
+system_ctl enable acpid 
+
+print_line
+
+
+
+print_info "Install dbus - https://wiki.archlinux.org/index.php/D-Bus" 
+package_install "dbus" 
+
+print_line
+
+
+print_info "Install ssh - https://wiki.archlinux.de/title/SSH" 
+package_install "openssh" #keychain 
+
+print_line
+
+print_info "Install cronie - https://wiki.archlinux.org/index.php/Cron" 
+package_install "cronie" 
+system_ctl enable cronie
+
+print_line
+
+
+print_info "Install PULSEAUDIO - https://wiki.archlinux.org/index.php/Pulseaudio" 
+package_install "pulseaudio pulseaudio-alsa"
+
+print_line
+
+
+print_info "Install NTFS/FAT/exFAT/F2FS - https://wiki.archlinux.org/index.php/File_Systems" 
+package_install "ntfs-3g dosfstools exfat-utils f2fs-tools fuse fuse-exfat autofs mtpfs"
+
+#pause_function
+
+print_line
+
+print_info "Install ZSH - https://wiki.archlinux.org/index.php/Zsh" 
+package_install "zsh wget curl git"
+
+#set zsh as default shell
+chsh -s /bin/zsh
+
+
+print_info "Install xterm"  
+package_install "xterm"
+
+
+run_as_user "mv /home/${username}/.zshrc /home/${username}/.zshrc.bak"
+run_as_user "wget https://raw.githubusercontent.com/robbyrussell/oh-my-zsh/master/tools/install.sh -O /var/tmp/install-oh-my-zsh.sh"
+
+
+print_line
+
+read -p "Press enter to continue - Please exit zsh after finsh install with: exit"
+
+print_line
+
+run_as_user "sh /var/tmp/install-oh-my-zsh.sh"
+run_as_user "rm /var/tmp/install-oh-my-zsh.sh"
+
+
+print_line
+
+read -p "Please check .zshrc - Press enter to continue"
+
+print_line
+
+run_as_user "nano /home/${username}/.zshrc"
+
+pause_function
+

@@ -12,17 +12,7 @@ check_root
 
 print_line
 
-
-print_line
-ping -c 2 google.com
-
-cecho "Connect to wifi [https://wiki.archlinux.org/index.php/netctl]"
-cecho "Be sure to connect to Wifi with: wifi-menu"
-
-cecho "Or Connect to ethernet [https://bbs.archlinux.org/viewtopic.php?id=210679]"
-cecho "Be sure to connect to Ethernet with: "
-cecho "ip link set enpxxxx up  "
-cecho "dhcpcd" 
+check_connection
 
 print_line
 
@@ -33,9 +23,7 @@ print_line
 
 cecho "A clean Arch installation is requested" 
 
-print_line
-
-read -p "Press enter to continue"
+pause_function
 
 print_line
 
@@ -62,7 +50,7 @@ print_line
 cecho "Load Bash Config"  
 #bash conf resource (bsp: https://github.com/helmuthdu/dotfiles)
 cp /etc/skel/.bashrc /home/c0d3d3v 
-chown -R c0d3d3v:c0d3d3v /home/c0d3d3v    #config files gehören dem user
+chown -R c0d3d3v:users /home/c0d3d3v    #config files gehören dem user
 
 cecho "Make him sudoer"
 package_install "sudo"
@@ -373,7 +361,7 @@ pacman-optimize
 print_line
 print_line
 
-echo -e "\n\n"
+cecho "\n\n"
 
 cecho "Finish :)" 
 cecho "Please reboot and enjoy" 

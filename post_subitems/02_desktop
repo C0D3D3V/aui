@@ -1,0 +1,264 @@
+#!/bin/bash
+
+
+print_title "Install Desktop"
+
+
+print_info "Install XORG - https://wiki.archlinux.org/index.php/Xorg" 
+
+package_install "xorg-server xorg-xinit xorg-apps xorg-xkill xorg-xinput xf86-input-libinput" #xorg-server-xwayland
+
+package_install "mesa"
+modprobe uinput
+
+
+
+
+
+
+print_line
+
+print_info "Install FONTS CONFIGURATION - https://wiki.archlinux.org/index.php/Font_Configuration" 
+
+package_install "cairo fontconfig freetype2"
+
+
+
+#pause_function
+
+print_line
+
+
+
+
+
+yn_question "Do you want to install TLP?"
+if [[ $ynAnswer == y ]]; then
+    print_info "Install TLP - https://wiki.archlinux.org/index.php/Tlp" 
+
+    package_install "tlp "
+
+    read_input_text "Install Lenovo TLP tools"
+    if [[ $OPTION == y ]]; then
+	package_install "acpi_call"
+	#package_install "tp_smapi"
+    fi
+
+    system_ctl enable tlp
+    system_ctl enable tlp-sleep
+    system_ctl disable systemd-rfkill
+    tlp start
+fi
+
+
+
+
+
+
+
+
+
+print_line
+
+print_info "Install VIDEO CARD Driver" 
+VIDEO_DRIVER=""
+ARCHI=`uname -m` # ARCHITECTURE
+check_vga() {
+    local _vga=`lspci | grep VGA | tr "[:upper:]" "[:lower:]"`
+    local _vga_length=`lspci | grep VGA | wc -l`
+    if [[ -n $(echo ${_vga} | grep "nvidia") || -f /sys/kernel/debug/dri/0/vbios.rom ]]; then
+	cecho Nvidia 
+	VIDEO_DRIVER="nvidia"
+    elif [[ -n $(echo ${_vga} | grep "advanced micro devices") || -f /sys/kernel/debug/dri/0/radeon_pm_info || -f /sys/kernel/debug/dri/0/radeon_sa_info ]]; then
+	cecho AMD/ATI
+	VIDEO_DRIVER="ati"
+    elif [[ -n $(echo ${_vga} | grep "intel corporation") || -f /sys/kernel/debug/dri/0/i915_capabilities ]]; then
+	cecho Intel
+	VIDEO_DRIVER="intel"
+    fi
+}
+
+
+check_vga
+if [[ ${VIDEO_DRIVER} == nvidia ]]; then
+    package_install "nvidia{,-utils}"
+    [[ ${ARCHI} == x86_64 ]] && package_install "lib32-nvidia-utils"
+    nvidia-xconfig --add-argb-glx-visuals --allow-glx-with-composite --composite --render-accel -o /etc/X11/xorg.conf.d/20-nvidia.conf;
+elif [[ ${VIDEO_DRIVER} == ati ]]; then
+    package_install "xf86-video-ati mesa-libgl mesa-vdpau libvdpau-va-gl"
+
+elif [[ ${VIDEO_DRIVER} == intel ]]; then
+    package_install "xf86-video-intel mesa-libgl libvdpau-va-gl"
+fi
+
+if [[ ${ARCHI} == x86_64 ]]; then
+    is_package_installed "mesa-libgl" && package_install "lib32-mesa-libgl"
+    is_package_installed "mesa-vdpau" && package_install "lib32-mesa-vdpau"
+fi
+
+if is_package_installed "libvdpau-va-gl"; then
+    add_line "export VDPAU_DRIVER=va_gl" "/etc/profile"
+fi
+
+print_line
+
+
+
+
+
+
+
+
+print_info "Install Aditional Firmeware" 
+
+#critical... only if nessesery
+#aur_package_install "aic94xx-firmware b43-firmware b43-firmware-legacy bfa-firmware broadcom-wl android-udev"
+#package_install "alsa-firmware bluez-firmware ipw2100-fw ipw2200-fw libffado libmtp libraw1394"
+
+
+print_line
+
+
+
+
+
+
+print_info "Install CUPS - https://wiki.archlinux.org/index.php/Cups" 
+package_install "cups cups-filters ghostscript gsfonts"
+package_install "gutenprint foomatic-db foomatic-db-engine foomatic-db-nonfree foomatic-filters foomatic-db-ppds foomatic-db-nonfree-ppds hplip splix cups-pdf foomatic-db-gutenprint-ppds"
+system_ctl enable org.cups.cupsd.service
+
+
+
+print_info "Install Printer driver"
+aur_package_install "canon-pixma-mx920-complete"
+
+
+print_line
+
+
+
+
+
+
+
+print_info "Install synaptics - https://wiki.archlinux.de/title/Synaptics_Touchpad_Treiber" 
+package_install "xf86-input-synaptics"
+
+
+print_line
+
+
+
+
+
+print_info "Install Fonts - https://wiki.archlinux.org/index.php/fonts" 
+package_install "noto-fonts-emoji ttf-dejavu ttf-liberation ttf-bitstream-vera ttf-hack wqy-microhei noto-fonts-cjk ttf-symbola"
+aur_package_install "ttf-fira-code " #ttf-google-fonts-git  
+
+
+
+
+
+
+
+
+print_line
+
+cecho "Install KDE - https://wiki.archlinux.org/index.php/KDE" 
+
+package_install "plasma kf5 sddm"
+package_install "ark dolphin dolphin-plugins kio-extras kdeconnect quota-tools gwenview kipi-plugins kcalc konsole spectacle okular kdeutils-sweeper kwalletmanager kmix"
+
+#dont want
+#kate
+
+#dark design
+package_install "arc-kde"
+aur_package_install "papirus-icon-theme"
+
+# config xinitrc
+config_xinitrc "startkde"
+
+#fix KDE Connect
+firewall-cmd --zone=public --permanent --add-port=1714-1764/tcp
+firewall-cmd --zone=public --permanent --add-port=1714-1764/udp
+system_ctl restart firewalld.service
+
+
+#config sddm
+system_ctl enable sddm
+sddm --example-config > /etc/sddm.conf
+sed -i 's/Current=/Current=breeze/' /etc/sddm.conf
+sed -i 's/CursorTheme=/CursorTheme=breeze_cursors/' /etc/sddm.conf
+sed -i 's/Numlock=none/Numlock=on/' /etc/sddm.conf
+
+
+print_line
+
+
+
+
+
+
+
+print_info "Install KDE Tools"  
+is_package_installed "cups" && package_install "print-manager"
+
+#twitter
+#package_install "choqok"
+#photos
+package_install "digikam"
+#cd burn
+package_install "k3b cdrdao dvd+rw-tools"
+#finanze
+package_install "skrooge"
+#terminal
+package_install "yakuake" 
+
+
+
+
+
+
+
+
+cecho "Install MTP Suptort"
+if is_package_installed "libmtp" ; then
+    package_install "gvfs-mtp"
+fi
+
+
+print_line
+
+
+
+
+
+
+
+
+
+
+print_info "Install Networkmanager - https://wiki.archlinux.org/index.php/Networkmanager"  
+
+package_install "networkmanager dnsmasq plasma-nm networkmanager-qt"
+
+# vpn support
+package_install "networkmanager-openconnect networkmanager-openvpn networkmanager-pptp networkmanager-vpnc" # pulse-secure webkitgtk
+# auto update datetime from network
+if is_package_installed "ntp"; then
+    package_install "networkmanager-dispatcher-ntpd"
+    system_ctl enable NetworkManager-dispatcher.service
+fi
+
+is_package_installed "tlp" && package_install "tlp-rdw"
+
+system_ctl enable NetworkManager.service
+
+
+
+
+
+pause_function
+

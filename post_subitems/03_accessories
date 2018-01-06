@@ -1,0 +1,31 @@
+#!/bin/bash
+
+
+print_title "Install accessories APPS"
+
+
+print_info "Install conky-lua - Sensore Gadgets"  
+aur_package_install "conky-lua"
+package_install "lm_sensors"
+sensors-detect --auto
+
+
+
+
+
+
+print_info "Install conky-lua - Pacman GUI"  
+aur_package_install "pamac-aur"
+
+#enpass-bin passwort manager
+
+
+
+
+
+print_info "Install terminator - Terminal multiplexer"   
+package_install "terminator"
+
+#unified-remote-server Remote tools
+
+

@@ -13,20 +13,7 @@ check_root
 
 print_line
 
-ping -c 2 google.com
-cecho "Connect to wifi [https://wiki.archlinux.org/index.php/netctl]"
-cecho "Be sure to connect to Wifi with: wifi-menu"
-
-cecho "Or Connect to ethernet [https://bbs.archlinux.org/viewtopic.php?id=210679]"
-cecho "Be sure to connect to Ethernet with: "
-cecho "ip link set enpxxxx up  "
-cecho "dhcpcd"
-
-print_line
-
-cecho "You can test your connection with 'ping www.google.de'"
-cecho "You can scroll up with 'Shift + PgUp' and scoll down with 'Shift + PgDown'"
-cecho "You can stop the scipt at any time with 'ctr + c'"
+check_connection
 
 print_line
 
@@ -37,8 +24,8 @@ cecho "Be sure that /dev/sda is the correct device"
 lsblk
 
 
+pause_function
 
-read -p "Press enter to continue"
 print_line
 
 cecho "Load German Keymap [https://wiki.archlinux.org/index.php/Keyboard_configuration_in_console]"
@@ -278,12 +265,12 @@ print_line
 
 print_line
 
-echo "\n\n"
+cecho "\n\n"
 
 cecho "Installation finished" 
 cecho "Please execute following comands:" 
 #cecho "umount /mnt/home"
 cecho "umount /mnt/boot"
 cecho "umount /mnt"
-echo -e "\n\n" 
+cecho "\n\n" 
 cecho "reboot"
