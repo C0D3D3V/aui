@@ -231,7 +231,7 @@ aur_package_install "vmware-horizon-client" #VMware Horizon Client connect to VM
 print_info "Install Python"
 package_install "python python2 python-pip"
 aur_package_install "python2-beautifulsoup4 python2-termcolor python2-gnupg python2-colorama  python2-jedi" #python2-flake8 python-pynacl python-paramiko"
-package_install "python2-numpy python-lxml"
+package_install "python2-numpy python-lxml python2-gobject"
 
 
 
