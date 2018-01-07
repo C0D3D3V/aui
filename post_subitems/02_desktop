@@ -109,14 +109,14 @@ print_line
 
 
 
-print_info "Install Aditional Firmeware" 
+#print_info "Install Aditional Firmeware" 
 
 #critical... only if nessesery
 #aur_package_install "aic94xx-firmware b43-firmware b43-firmware-legacy bfa-firmware broadcom-wl android-udev"
 #package_install "alsa-firmware bluez-firmware ipw2100-fw ipw2200-fw libffado libmtp libraw1394"
 
 
-print_line
+#print_line
 
 
 
@@ -158,8 +158,7 @@ print_line
 
 print_info "Install Fonts - https://wiki.archlinux.org/index.php/fonts" 
 package_install "noto-fonts-emoji ttf-dejavu ttf-liberation ttf-bitstream-vera ttf-hack wqy-microhei noto-fonts-cjk ttf-symbola"
-#NOTMARCEL
-aur_package_install "ttf-fira-code " #ttf-google-fonts-git  
+#aur_package_install "ttf-fira-code " #ttf-google-fonts-git  
 
 
 
@@ -172,9 +171,39 @@ print_line
 #NOTMARCEL (ALLES ZU KDE)
 print_info "Install KDE - https://wiki.archlinux.org/index.php/KDE" 
 
-package_install "plasma kf5 sddm"
-package_install "dolphin dolphin-plugins kio-extras kdeconnect quota-tools gwenview kipi-plugins konsole spectacle okular kmix kdeutils"
-#kdeutils-sweeper
+package_install "plasma sddm" #
+
+#framework
+package_install "kf5"
+
+
+#konsole 
+package_install "konsole" 
+
+#file explorer
+package_install "dolphin dolphin-plugins"
+
+#network fileframework
+package_install "kio-extras"
+
+#picture view
+package_install "gwenview"
+#package_install "kipi-plugins" #plugins for pic view
+
+#mobile cconnection tool
+package_install "kdeconnect"
+
+#utilitys
+package_install "kdeutils"
+
+#pdf viewer
+package_install "okular"
+
+#screeshot cupture
+package_install "spectacle"
+
+#volume controll
+package_install "kmix"
 
 
 #dont want
@@ -221,11 +250,12 @@ is_package_installed "cups" && package_install "print-manager"
 #twitter
 #package_install "choqok"
 #photos
-package_install "digikam"
+#package_install "digikam"
 #cd burn
-package_install "k3b cdrdao dvd+rw-tools"
+#package_install "k3b cdrdao dvd+rw-tools"
 #finanze
-package_install "skrooge"
+#package_install "skrooge"
+
 #terminal
 package_install "yakuake"
 
