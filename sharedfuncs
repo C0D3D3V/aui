@@ -258,8 +258,8 @@ add_user_to_group() {
     fi
 
      ncecho " ${BBlue}[${Reset}${Bold}X${BBlue}]${Reset} Adding ${Bold}${_user}${Reset} to ${Bold}${_group}${Reset} "
-    groupadd ${_group}
-    gpasswd -a ${_user} ${_group}
+    groupadd ${_group} >>"$LOG" 2>&1 &
+    gpasswd -a ${_user} ${_group} >>"$LOG" 2>&1 & 
     pid=$!;progress $pid
 } 
 

@@ -29,8 +29,8 @@ print_line
 
 print_info "Load German Keymap [https://wiki.archlinux.org/index.php/Keyboard_configuration_in_console]"
 #cecho "Be sure to load Keymap with loadkeys de-latin1"
-nchecho "loadkeys de-latin1 "
-loadkeys de-latin1 &
+ncecho "loadkeys de-latin1 "
+loadkeys de-latin1 >>"$LOG" 2>&1 & 
 pid=$!;progress $pid
 
 print_line 
@@ -44,7 +44,7 @@ url="https://www.archlinux.org/mirrorlist/?country=DE&use_mirror_status=on"
 
 tmpfile=$(mktemp --suffix=-mirrorlist)
 # Get latest mirror list and save to tmpfile
-curl -so ${tmpfile} ${url} &
+curl -so ${tmpfile} ${url} >>"$LOG" 2>&1 & 
 pid=$!;progress $pid
 
 sed -i 's/^#Server/Server/g' ${tmpfile}
@@ -67,7 +67,7 @@ fi
 cp /etc/pacman.d/mirrorlist /etc/pacman.d/mirrorlist.tmp
 
 ncecho "Rank Mirrorlist "
-rankmirrors /etc/pacman.d/mirrorlist.tmp > /etc/pacman.d/mirrorlist &
+rankmirrors /etc/pacman.d/mirrorlist.tmp > /etc/pacman.d/mirrorlist >>"$LOG" 2>&1 & 
 pid=$!;progress $pid
 
 rm /etc/pacman.d/mirrorlist.tmp
@@ -121,23 +121,23 @@ print_line
 
 print_title "Create LVM [https://wiki.archlinux.org/index.php/LVM]"
 
-nchecho "pvcreate /dev/mapper/lvm "
-pvcreate /dev/mapper/lvm &
+ncecho "pvcreate /dev/mapper/lvm "
+pvcreate /dev/mapper/lvm >>"$LOG" 2>&1 & 
 pid=$!;progress $pid
 
 
-nchecho "vgcreate main /dev/mapper/lvm "
-vgcreate main /dev/mapper/lvm &
+ncecho "vgcreate main /dev/mapper/lvm "
+vgcreate main /dev/mapper/lvm >>"$LOG" 2>&1 & 
 pid=$!;progress $pid
 
 #lvcreate -L 200GB -n root main
 
-nchecho "lvcreate -L 8GB -n swap main "
-lvcreate -L 8GB -n swap main &
+ncecho "lvcreate -L 8GB -n swap main "
+lvcreate -L 8GB -n swap main >>"$LOG" 2>&1 & 
 pid=$!;progress $pid
 
-nchecho "lvcreate -l 100%FREE -n root main "
-lvcreate -l 100%FREE -n root main &  #home
+ncecho "lvcreate -l 100%FREE -n root main "
+lvcreate -l 100%FREE -n root main >>"$LOG" 2>&1 &   #home
 pid=$!;progress $pid 
 
 print_warning "If something faild use following commands to remove the partitions."
@@ -150,8 +150,8 @@ print_line
 
 print_title "Create Filesystem [https://wiki.archlinux.org/index.php/file_systems]"
 
-nchecho "mkfs.ext4 -L root -O \^64bit /dev/mapper/main-root "
-mkfs.ext4 -L root -O \^64bit /dev/mapper/main-root &
+ncecho "mkfs.ext4 -L root -O \^64bit /dev/mapper/main-root "
+mkfs.ext4 -L root -O \^64bit /dev/mapper/main-root  >>"$LOG" 2>&1 & 
 pid=$!;progress $pid
 #mkfs.ext4 -L home -O \^64bit /dev/mapper/main-home
 
@@ -161,12 +161,12 @@ pid=$!;progress $pid
 
 
 
-nchecho "mkfs.fat -F32 -n BOOT $BOOT_DISK "
-mkfs.fat -F32 -n BOOT $BOOT_DISK &
+ncecho "mkfs.fat -F32 -n BOOT $BOOT_DISK "
+mkfs.fat -F32 -n BOOT $BOOT_DISK  >>"$LOG" 2>&1 & 
 pid=$!;progress $pid
 
-nchecho "mkswap -L swap /dev/mapper/main-swap "
-mkswap -L swap /dev/mapper/main-swap &
+ncecho "mkswap -L swap /dev/mapper/main-swap "
+mkswap -L swap /dev/mapper/main-swap  >>"$LOG" 2>&1 & 
 pid=$!;progress $pid
 
 
@@ -174,16 +174,16 @@ print_line
 
 print_info "Mount Filesystem [https://wiki.archlinux.de/title/Mounten]"
 
-nchecho "mount /dev/mapper/main-root /mnt "
-mount /dev/mapper/main-root /mnt &
+ncecho "mount /dev/mapper/main-root /mnt "
+mount /dev/mapper/main-root /mnt  >>"$LOG" 2>&1 & 
 pid=$!;progress $pid
 
 #mkdir /mnt/home
 #mount /dev/mapper/main-home /mnt/home
 mkdir /mnt/boot
 
-nchecho "mount $BOOT_DISK /mnt/boot "
-mount $BOOT_DISK /mnt/boot &
+ncecho "mount $BOOT_DISK /mnt/boot "
+mount $BOOT_DISK /mnt/boot  >>"$LOG" 2>&1 & 
 pid=$!;progress $pid
 
 print_info "Activate Swap [https://wiki.archlinux.org/index.php/swap]"
@@ -197,8 +197,8 @@ read -p "Press enter to continue"
 
 print_title "Install System [https://wiki.archlinux.org/index.php/Install_from_existing_Linux]"
 
-nchecho "pacstrap /mnt base base-devel intel-ucode parted btrfs-progs f2fs-tools ntp net-tools iw wireless_tools wpa_actiond wpa_supplicant dialog "
-pacstrap /mnt base base-devel intel-ucode parted btrfs-progs f2fs-tools ntp net-tools iw wireless_tools wpa_actiond wpa_supplicant dialog &
+ncecho "pacstrap /mnt base base-devel intel-ucode parted btrfs-progs f2fs-tools ntp net-tools iw wireless_tools wpa_actiond wpa_supplicant dialog "
+pacstrap /mnt base base-devel intel-ucode parted btrfs-progs f2fs-tools ntp net-tools iw wireless_tools wpa_actiond wpa_supplicant dialog  >>"$LOG" 2>&1 & 
 pid=$!;progress $pid
 
 
@@ -208,8 +208,8 @@ print_line
 print_info "Generate Fstab [https://wiki.archlinux.org/index.php/fstab]"
 
 
-nchecho "genfstab -U /mnt >> /mnt/etc/fstab "
-genfstab -U /mnt >> /mnt/etc/fstab &
+ncecho "genfstab -U /mnt >> /mnt/etc/fstab "
+genfstab -U /mnt >> /mnt/etc/fstab  >>"$LOG" 2>&1 & 
 pid=$!;progress $pid
 
 #fix small /tmp 
@@ -340,8 +340,8 @@ print_line
 
 print_info "Install Grub  [https://wiki.archlinux.org/index.php/GRUB]"
 
-nchecho "Installing Grub "
-pacstrap /mnt grub os-prober efibootmgr &
+ncecho "Installing Grub "
+pacstrap /mnt grub os-prober efibootmgr  >>"$LOG" 2>&1 & 
 pid=$!;progress $pid
 
 sed -i -e 's/GRUB_CMDLINE_LINUX="\(.\+\)"/GRUB_CMDLINE_LINUX="\1 cryptdevice=\/dev\/sda2:cryptolvm"/g' -e 's/GRUB_CMDLINE_LINUX=""/GRUB_CMDLINE_LINUX="cryptdevice=\/dev\/sda2:cryptolvm"/g' /mnt/etc/default/grub
