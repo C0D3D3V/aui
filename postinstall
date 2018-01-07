@@ -42,7 +42,7 @@ include_file "post_subitems/02_desktop"
 include_file "post_subitems/03_accessories"
 
 #install development APPS 
-include_file "post_subitems/04_develoment"
+include_file "post_subitems/04_development"
 
 #install office APPS 
 include_file "post_subitems/05_office"

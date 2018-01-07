@@ -470,6 +470,7 @@ select_device(){
     fi
   done
   BOOT_MOUNTPOINT=$device
+  cecho "You selected $BOOT_MOUNTPOINT"
 }
 
 
@@ -490,7 +491,7 @@ select_luks(){
 	    invalid_option
 	fi
     done
-    #echo $LUKS_DISK
+    cecho "You selected $LUKS_DISK"
 }
 
 
@@ -509,5 +510,26 @@ select_boot(){
 	    invalid_option
 	fi
     done
-    #echo $BOOT_DISK
+    cecho "You selected $BOOT_DISK"
+}
+
+
+
+check_boot_system() {
+    if [[ "$(cat /sys/class/dmi/id/sys_vendor)" == 'Apple Inc.' ]] || [[ "$(cat /sys/class/dmi/id/sys_vendor)" == 'Apple Computer, Inc.' ]]; then
+      modprobe -r -q efivars || true  # if MAC
+    else
+      modprobe -q efivarfs            # all others
+    fi
+    if [[ -d "/sys/firmware/efi/" ]]; then
+      ## Mount efivarfs if it is not already mounted
+      if [[ -z $(mount | grep /sys/firmware/efi/efivars) ]]; then
+        mount -t efivarfs efivarfs /sys/firmware/efi/efivars
+      fi
+      UEFI=1
+      echo "UEFI Mode detected"
+    else
+      UEFI=0
+      echo "BIOS Mode detected"
+    fi
 }

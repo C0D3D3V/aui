@@ -90,7 +90,8 @@ package_install "ntfs-3g dosfstools exfat-utils f2fs-tools fuse exfat-utils auto
 print_line
 
 print_info "Install ZSH - https://wiki.archlinux.org/index.php/Zsh" 
-package_install "zsh wget curl git zsh-autosuggestions zsh-completions"
+package_install "zsh wget curl git zsh-completions"
+aur_package_install "zsh-autosuggestions"
 
 #set zsh as default shell
 chsh -s /bin/zsh

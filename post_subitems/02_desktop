@@ -173,7 +173,9 @@ print_line
 print_info "Install KDE - https://wiki.archlinux.org/index.php/KDE" 
 
 package_install "plasma kf5 sddm"
-package_install "ark dolphin dolphin-plugins kio-extras kdeconnect quota-tools gwenview kipi-plugins kcalc konsole spectacle okular kdeutils-sweeper kwalletmanager kmix"
+package_install "dolphin dolphin-plugins kio-extras kdeconnect quota-tools gwenview kipi-plugins konsole spectacle okular kmix kdeutils"
+#kdeutils-sweeper
+
 
 #dont want
 #kate

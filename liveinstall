@@ -78,6 +78,7 @@ cecho "Select Boot Device"
 select_device
 
 
+
 cecho "Please create two partitions. [https://wiki.archlinux.de/title/GPT]"
 cecho "First delete all partitions with: d"
 cecho "Create new partitions with: n"
@@ -94,10 +95,14 @@ read -p "Press enter to continue [Be sure you created the partitions correct]"
 
 print_line
 
+select_boot
+select_luks
+
+
+
 cecho "Setup Luks [https://wiki.archlinux.org/index.php/Dm-crypt]"
 modprobe dm-crypt
 
-select_luks
 print_warning "Confirm with YES"
 
 cryptsetup -c aes-xts-plain64 -y -s 512 luksFormat $LUKS_DISK
@@ -135,7 +140,6 @@ mkfs.ext4 -L root -O \^64bit /dev/mapper/main-root
 #tune2fs -O ^has_journal /dev/mapper/main-root
 #tune2fs -O ^has_journal /dev/mapper/main-home
 
-select_boot
 
 
 mkfs.fat -F32 -n BOOT $BOOT_DISK
@@ -259,7 +263,8 @@ cecho "Backup pacman mirrorlist and filter for German Servers [https://wiki.arch
 #grep -E -A 1 ".*Germany.*$" /mnt/etc/pacman.d/mirrorlist.bak | sed '/--/d' > /mnt/etc/pacman.d/mirrorlist
 #rankmirrors -n 6 /mnt/etc/pacman.d/mirrorlist.backup > /mnt/etc/pacman.d/mirrorlist
 cp /etc/pacman.d/mirrorlist /mnt/etc/pacman.d/mirrorlist
-cp /etc/pacman.d/mirrorlist.bak /mnt/etc/pacman.d/mirrorlist.bak
+cp /etc/pacman.d/mirrorlist.orig /mnt/etc/pacman.d/mirrorlist.orig
+chmod 644 /mnt/etc/pacman.d/mirrorlist
 
 arch_chroot "pacman -Sy"
 
