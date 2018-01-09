@@ -5,7 +5,7 @@ print_title "Install Instant Messanger"
 
 
 print_info "Install konversation, weechat" 
-package_install "konversation, weechat"
+package_install "konversation weechat"
 
 
 #print_info "Install skype" 
@@ -21,8 +21,8 @@ aur_package_install "gajim-plugin-omemo"
 
 
 #NOTMARCEL
-print_info "Install qtox" 
-aur_package_install "qtox-git"
+#print_info "Install qtox" 
+#aur_package_install "qtox-git"
 
 
 

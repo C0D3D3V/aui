@@ -142,15 +142,16 @@ package_install "dia"
 
 #NOTMARCEL
 print_info "Install electrum"   
-package_install "electrum electrum-mona"
+package_install "electrum"
+aur_package_install "electrum-mona"
 
 #only for mining
 #cecho "Install bitcoin-qt" 
 #aur_package_install "bitcoin-qt"
 
 #NOTMARCEL
-print_info "Install bisq - bitcoin p2p market" 
-aur_package_install "bisq-git"  
+#print_info "Install bisq - bitcoin p2p market" 
+#aur_package_install "bisq-git"  
 
 
 

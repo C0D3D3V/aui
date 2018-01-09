@@ -51,7 +51,7 @@ package_install "binwalk"
 
 print_info "Install Android Studio"  
 run_as_user "gpg --recv-keys 702353E0F7E48EDB"
-aur_package_install "android-sdk android-sdk-platform-tools android-sdk-build-tools android-platform  android-ndk"
+aur_package_install "android-sdk android-sdk-platform-tools android-sdk-build-tools android-platform" #android-ndk
 
 add_user_to_group $username sdkusers
 chown -R :sdkusers /opt/android-sdk/
@@ -81,7 +81,7 @@ package_install "gradle"
 
 #NOTMARCEL
 print_info "Install monodevelop - dot net shit"  
-package_install "monodevelop monodevelop-debugger-gdb"
+package_install "monodevelop-git mono-tools"
 #fix https://bugs.archlinux.org/task/52939
 ln -s /usr/lib/libgit2.so /usr/lib/libgit2-e8b8948.so
 
@@ -164,7 +164,7 @@ print_info "Install Haskel"
 package_install "ghc"
 
 print_info "Install clang"  
-package_install "linter-clang clang"
+package_install "clang"
 
 
 print_info "Install Ardoino"  

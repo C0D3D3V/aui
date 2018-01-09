@@ -103,7 +103,6 @@ print_info "Install xterm"
 package_install "xterm"
 
 
-run_as_user "mv /home/${username}/.zshrc /home/${username}/.zshrc.bak"
 run_as_user "wget https://raw.githubusercontent.com/robbyrussell/oh-my-zsh/master/tools/install.sh -O /var/tmp/install-oh-my-zsh.sh"
 
 
@@ -122,6 +121,8 @@ print_line
 read -p "Please check .zshrc - Press enter to continue"
 
 print_line
+
+run_as_user "mv /home/${username}/.zshrc /home/${username}/.zshrc.bak"
 
 run_as_user "nano /home/${username}/.zshrc"
 

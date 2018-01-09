@@ -180,7 +180,7 @@ aur_package_install() {
     for PKG in $1; do
 	if ! is_package_installed "${PKG}" ; then
 	    ncecho " ${BBlue}[${Reset}${Bold}X${BBlue}]${Reset} Installing ${AUR} ${Bold}${PKG}${Reset} "
-            su - $username -c "yaourt --noconfirm -S ${PKG}" >>"$LOG" 2>&1 &
+            su - $username -c "yaourt --noconfirm -Sy ${PKG}" >>"$LOG" 2>&1 &
 	    pid=$!;progress $pid
 	else 
             print_info "${PKG} is up to date --skipping" 
@@ -192,7 +192,7 @@ package_install() {
     #install packages using pacman
     for PKG in $1; do
 	if ! is_package_installed "${PKG}" ; then
-	    local _pkg_repo=`pacman -Sp --print-format %r ${PKG} | uniq | sed '1!d'`
+	    local _pkg_repo=`pacman -Syp --print-format %r ${PKG} | uniq | sed '1!d'`
             case $_pkg_repo in
 		"core")
 		    _pkg_repo="${BRed}${_pkg_repo}${Reset}"

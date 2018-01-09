@@ -27,8 +27,8 @@ print_info "Install grsync - Gui für Rsync"
 package_install "grsync"
 
 
-cecho "Install seafile-client"
-aur_package_install "seafile-client"
+#cecho "Install seafile-client"
+#aur_package_install "seafile-client"
 
 
 cecho "Install syncthing"
@@ -165,7 +165,7 @@ system_ctl enable firewalld
 
 
 print_info "Install virtualbox "
-package_install "virtualbox virtualbox-host-modules-arch virtualbox-guest-iso"
+package_install "virtualbox linux-headers virtualbox-guest-iso" #virtualbox-host-modules-arch
 aur_package_install "virtualbox-ext-oracle"
 add_user_to_group $username vboxusers
 modprobe vboxdrv vboxnetflt
@@ -174,7 +174,7 @@ modprobe vboxdrv vboxnetflt
 
 print_info "Install VMware Horizon Client"
 #fix package bugs -.-
-gpg --recv-keys D5E9E43F7DF9EE8C
+run_as_user "gpg --recv-keys D5E9E43F7DF9EE8C"
 aur_package_install "gstreamer0.10-base"
 aur_package_install "openssl098"
 #end of fix
@@ -242,7 +242,7 @@ package_install "xclip"
 
 print_info "Install xbindkeys"
 package_install "xbindkeys"
-aur_package_install "xbindkeys_config-gtk2"
+#aur_package_install "xbindkeys_config-gtk2"
 
 
 
