@@ -4,7 +4,9 @@
 print_title "Install base components"
 
 
-print_info "Istall yaourt - https://wiki.archlinux.de/title/Yaourt" 
+print_info "Istall yaourt - https://wiki.archlinux.de/title/Yaourt"
+#fix mirrorlist
+chmod 644 /etc/pacman.d/mirrorlist
 package_install "base-devel yajl namcap"
 aui_download_packages "package-query yaourt"
 
