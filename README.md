@@ -1,7 +1,7 @@
 # Simple AUI
 
 
-This is a simplified Version of helmuthdu's Archlinux Ultimate Install Skript https://github.com/helmuthdu/aui 
+This is a simplified Version of helmuthdu's Archlinux Ultimate Install script https://github.com/helmuthdu/aui 
 
 It is only for legacy purpose here.
 
