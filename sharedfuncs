@@ -479,7 +479,7 @@ select_device(){
 
 select_luks(){
     
-    print_danger "\tDo not use this for boot partitions"
+    #print_danger "\tDo not use this for boot partitions"
     block_list=(`lsblk | grep 'part' | awk '{print "/dev/" substr($1,3)}'`)
     PS3="$prompt1"
     echo -e "Please select the root Partition (the second partition that you created, normaly /dev/sda2): "
