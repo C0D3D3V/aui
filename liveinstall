@@ -389,7 +389,7 @@ fi
 pid=$!;progress $pid
 
 
-sed -i -e 's|GRUB_CMDLINE_LINUX="\(.\+\)"|GRUB_CMDLINE_LINUX="cryptdevice=${LUKS_DISK}:cryptolvm"|g' -e 's|GRUB_CMDLINE_LINUX=""|GRUB_CMDLINE_LINUX="cryptdevice=${LUKS_DISK}:cryptolvm"|g' /mnt/etc/default/grub
+sed -i -e "s|GRUB_CMDLINE_LINUX=\"\(.\+\)\"|GRUB_CMDLINE_LINUX=\"cryptdevice=${LUKS_DISK}:cryptolvm\"|g" -e "s|GRUB_CMDLINE_LINUX=\"\"|GRUB_CMDLINE_LINUX=\"cryptdevice=${LUKS_DISK}:cryptolvm\"|g" /mnt/etc/default/grub
 
 sed -i 's/#GRUB_ENABLE_CRYPTODISK=y/GRUB_ENABLE_CRYPTODISK=y/' /mnt/etc/default/grub
 
