@@ -81,7 +81,8 @@ package_install "gradle"
 
 #NOTMARCEL
 print_info "Install monodevelop - dot net shit"  
-package_install "monodevelop-git mono-tools"
+package_install "mono mono-tools"
+aur_package_install "monodevelop-stable"
 #fix https://bugs.archlinux.org/task/52939
 ln -s /usr/lib/libgit2.so /usr/lib/libgit2-e8b8948.so
 
