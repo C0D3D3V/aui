@@ -257,8 +257,10 @@ add_user_to_group() {
 	error_msg "ERROR! 'add_user_to_group' was not given enough parameters."
     fi
 
-     ncecho " ${BBlue}[${Reset}${Bold}X${BBlue}]${Reset} Adding ${Bold}${_user}${Reset} to ${Bold}${_group}${Reset} "
+    ncecho " ${BBlue}[${Reset}${Bold}X${BBlue}]${Reset} Adding ${Bold}${_user}${Reset} to ${Bold}${_group}${Reset} "
+    
     groupadd ${_group} >>"$LOG" 2>&1 &
+    pid=$!;progress $pid
     gpasswd -a ${_user} ${_group} >>"$LOG" 2>&1 & 
     pid=$!;progress $pid
 } 
