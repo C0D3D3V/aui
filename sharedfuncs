@@ -279,16 +279,20 @@ spinny() {
 
 progress() {
     ncecho "  ";
+    start=$(date +%s.%N)
     while true; do
       kill -0 $pid &> /dev/null;  
       if [[ $? == 0 ]]; then   #Prozess still running?
         spinny
         sleep 0.25
       else
+	end=$(date +%s.%N)
+        runtime=$( echo "$end - $start" | bc -l )
+	
         #ncecho "\b\b  \n";
         wait $pid
         retcode=$?
-        ncecho " $pid's retcode: $retcode -> "
+        ncecho " $pid returend after ${runtime}s $retcode -> "
         if [[ $retcode == 0 ]] || [[ $retcode == 255 ]]; then
           ncecho "${BGreen}success${Reset}\n\n"
         else
@@ -530,9 +534,9 @@ check_boot_system() {
         mount -t efivarfs efivarfs /sys/firmware/efi/efivars
       fi
       UEFI=1
-      echo "UEFI Mode detected"
+      cecho "UEFI Mode detected"
     else
       UEFI=0
-      echo "BIOS Mode detected"
+      cecho "BIOS Mode detected"
     fi
 }

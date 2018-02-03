@@ -9,19 +9,17 @@ else
 fi
 
 check_root
+check_boot_system
 
 
 print_line
 
 check_connection
 
-print_line
-
 pause_function
 
 print_title "This Skript will install Arch Linux"
 #lsblk
-
 
 pause_function
 
@@ -84,7 +82,14 @@ select_device
 print_info "Please create two partitions. [https://wiki.archlinux.de/title/GPT]"
 cecho "First delete all partitions with: d"
 cecho "Create new partitions with: n"
-cecho "First partition: Partition number '1'; First sector '[enter]'; Last sector '+500M'; type 'EF00'"
+cecho "First partition: Partition number '1'; First sector '[enter]'; Last sector '+500M';"
+
+if [ $UEFI == 1 ]; then
+    print_warning "type 'EF00'"
+else
+    print_warning "type 'EF02'"
+fi
+
 cecho "Second partition:  Partition number '2'; First sector '[enter]'; Last sector '[enter]'; type '[enter]'"
 cecho "At the end, wirte the partitions: w"
 cecho "You can scroll up with 'Shift + PgUp' and scoll down with 'Shift + PgDown'"
@@ -345,14 +350,19 @@ ncecho "Installing Grub "
 pacstrap /mnt grub os-prober efibootmgr  >>"$LOG" 2>&1 & 
 pid=$!;progress $pid
 
-sed -i -e 's/GRUB_CMDLINE_LINUX="\(.\+\)"/GRUB_CMDLINE_LINUX="\1 cryptdevice=\/dev\/sda2:cryptolvm"/g' -e 's/GRUB_CMDLINE_LINUX=""/GRUB_CMDLINE_LINUX="cryptdevice=\/dev\/sda2:cryptolvm"/g' /mnt/etc/default/grub
+sed -i -e 's|GRUB_CMDLINE_LINUX="\(.\+\)"|GRUB_CMDLINE_LINUX="cryptdevice=${LUKS_DISK}:cryptolvm"|g' -e 's|GRUB_CMDLINE_LINUX=""|GRUB_CMDLINE_LINUX="cryptdevice=${LUKS_DISK}:cryptolvm"|g' /mnt/etc/default/grub
 
 sed -i 's/#GRUB_ENABLE_CRYPTODISK=y/GRUB_ENABLE_CRYPTODISK=y/' /mnt/etc/default/grub
 
 arch_chroot "grub-mkconfig -o /boot/grub/grub.cfg" 
 
-arch_chroot "grub-install --target=x86_64-efi --efi-directory=/boot --bootloader-id=arch_grub" 
 
+
+if [ $UEFI == 1 ]; then
+    arch_chroot "grub-install --target=x86_64-efi --efi-directory=/boot --bootloader-id=arch_grub" 
+else
+    arch_chroot "grub-install $BOOT_DISK" 
+fi
 
 print_line
 
