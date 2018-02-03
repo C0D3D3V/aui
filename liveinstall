@@ -82,11 +82,12 @@ select_device
 print_info "Please create two partitions. [https://wiki.archlinux.de/title/GPT]"
 cecho "First delete all partitions with: d"
 cecho "Create new partitions with: n"
-cecho "First partition: Partition number '1'; First sector '[enter]'; Last sector '+500M';"
 
 if [ $UEFI == 1 ]; then
+cecho "First partition: Partition number '1'; First sector '[enter]'; Last sector '+500M';"
     print_warning "type 'EF00'"
 else
+cecho "First partition: Partition number '1'; First sector '[enter]'; Last sector '+2M';"
     print_warning "type 'EF02'"
 fi
 
@@ -120,7 +121,9 @@ done
 
 print_line
 
-select_boot
+if [ $UEFI == 1 ]; then
+    select_boot
+fi
 select_luks
 
 
@@ -190,10 +193,11 @@ pid=$!;progress $pid
 #tune2fs -O ^has_journal /dev/mapper/main-home
 
 
-
-ncecho "mkfs.fat -F32 -n BOOT $BOOT_DISK "
-mkfs.fat -F32 -n BOOT $BOOT_DISK  >>"$LOG" 2>&1 & 
-pid=$!;progress $pid
+if [ $UEFI == 1 ]; then
+    ncecho "mkfs.fat -F32 -n BOOT $BOOT_DISK "
+    mkfs.fat -F32 -n BOOT $BOOT_DISK  >>"$LOG" 2>&1 & 
+    pid=$!;progress $pid
+fi
 
 ncecho "mkswap -L swap /dev/mapper/main-swap "
 mkswap -L swap /dev/mapper/main-swap  >>"$LOG" 2>&1 & 
@@ -212,9 +216,12 @@ pid=$!;progress $pid
 #mount /dev/mapper/main-home /mnt/home
 mkdir /mnt/boot
 
-ncecho "mount $BOOT_DISK /mnt/boot "
-mount $BOOT_DISK /mnt/boot  >>"$LOG" 2>&1 & 
-pid=$!;progress $pid
+if [ $UEFI == 1 ]; then
+    ncecho "mount $BOOT_DISK /mnt/boot "
+    mount $BOOT_DISK /mnt/boot  >>"$LOG" 2>&1 & 
+    pid=$!;progress $pid
+fi
+
 
 print_info "Activate Swap [https://wiki.archlinux.org/index.php/swap]"
 
@@ -373,8 +380,14 @@ print_line
 print_info "Install Grub  [https://wiki.archlinux.org/index.php/GRUB]"
 
 ncecho "Installing Grub "
-pacstrap /mnt grub os-prober efibootmgr  >>"$LOG" 2>&1 & 
+if [ $UEFI == 1 ]; then
+    pacstrap /mnt grub os-prober efibootmgr  >>"$LOG" 2>&1 &
+else
+    pacstrap /mnt grub os-prober  >>"$LOG" 2>&1 &
+fi
+
 pid=$!;progress $pid
+
 
 sed -i -e 's|GRUB_CMDLINE_LINUX="\(.\+\)"|GRUB_CMDLINE_LINUX="cryptdevice=${LUKS_DISK}:cryptolvm"|g' -e 's|GRUB_CMDLINE_LINUX=""|GRUB_CMDLINE_LINUX="cryptdevice=${LUKS_DISK}:cryptolvm"|g' /mnt/etc/default/grub
 
@@ -399,7 +412,10 @@ cecho "\n\n"
 cecho "Installation finished" 
 cecho "Please execute following comands:" 
 #cecho "umount /mnt/home"
-cecho "umount /mnt/boot"
+if [ $UEFI == 1 ]; then
+    cecho "umount /mnt/boot"
+fi
+
 cecho "umount /mnt"
 cecho "\n\n" 
 cecho "reboot"
