@@ -96,8 +96,26 @@ cecho "You can scroll up with 'Shift + PgUp' and scoll down with 'Shift + PgDown
 
 gdisk $BOOT_MOUNTPOINT
 
-lsblk
-read -p "Press enter to continue [Be sure you created the partitions correct]"
+lsblk 
+
+ynAnswer="n"
+while [ $ynAnswer == "n" ];
+do
+	yn_question "Have you realy created two partitions like in the given description?"
+	if [ $ynAnswer == "n" ]; then
+		print_info "Please create two partitions. [https://wiki.archlinux.de/title/GPT]"
+		cecho "First delete all partitions with: d"
+		cecho "Create new partitions with: n"
+		cecho "First partition: Partition number '1'; First sector '[enter]'; Last sector '+500M'; type 'EF00'"
+		cecho "Second partition:  Partition number '2'; First sector '[enter]'; Last sector '[enter]'; type '[enter]'"
+		cecho "At the end, wirte the partitions: w"
+		cecho "You can scroll up with 'Shift + PgUp' and scoll down with 'Shift + PgDown'"
+
+		gdisk $BOOT_MOUNTPOINT
+
+		lsblk
+	fi 
+done
 
 
 print_line
@@ -115,8 +133,15 @@ print_warning "Confirm with upercase YES"
 cryptsetup -c aes-xts-plain64 -y -s 512 luksFormat $LUKS_DISK
 
 
-print_warning "Have you realy confirmed with upercase YES and did you enter two times your passphrase?"
-read -p "Press enter to continue [be sure luks is setup]"
+ynAnswer="n"
+
+while [ $ynAnswer == "n" ];
+do
+	yn_question "Have you realy confirmed with upercase YES and did you enter two times your passphrase?"
+	if [ $ynAnswer == "n" ]; then
+		cryptsetup -c aes-xts-plain64 -y -s 512 luksFormat $LUKS_DISK
+	fi 
+done
 
 cecho "Open Luks Partition"
 cryptsetup luksOpen $LUKS_DISK lvm
@@ -330,6 +355,7 @@ print_info "Change Linux Kernel Modules  [https://wiki.archlinux.org/index.php/m
 sed -i '/^HOOK/s/block/block keyboard keymap encrypt/' /mnt/etc/mkinitcpio.conf
 sed -i '/^HOOK/s/filesystems/lvm2 filesystems/' /mnt/etc/mkinitcpio.conf
 sed -i '/^HOOK/s/fsck/fsck shutdown/' /mnt/etc/mkinitcpio.conf
+sed -i '/^HOOK/s/autodetect/keyboard autodetect/' /mnt/etc/mkinitcpio.conf
 sed -i 's/MODULES=""/MODULES="ext4"/' /mnt/etc/mkinitcpio.conf
 
 arch_chroot "mkinitcpio -p linux"
