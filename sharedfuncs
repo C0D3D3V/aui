@@ -192,7 +192,7 @@ package_install() {
     #install packages using pacman
     for PKG in $1; do
 	if ! is_package_installed "${PKG}" ; then
-	    local _pkg_repo=`pacman -Syp --print-format %r ${PKG} | uniq | sed '1!d'`
+	    local _pkg_repo=`pacman -Sp --print-format %r ${PKG} | uniq | sed '1!d'`
             case $_pkg_repo in
 		"core")
 		    _pkg_repo="${BRed}${_pkg_repo}${Reset}"
@@ -208,7 +208,7 @@ package_install() {
 		    ;;
 	    esac
 	    ncecho " ${BBlue}[${Reset}${Bold}X${BBlue}]${Reset} Installing (${_pkg_repo}) ${Bold}${PKG}${Reset} "
-	    pacman -S --noconfirm --needed ${PKG} >>"$LOG" 2>&1 &
+	    pacman -Sy --noconfirm --needed ${PKG} >>"$LOG" 2>&1 &
 	    pid=$!;progress $pid
 	else 
 	    print_info "${PKG} is up to date --skipping" 
