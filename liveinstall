@@ -387,7 +387,7 @@ arch_chroot "grub-mkconfig -o /boot/grub/grub.cfg"
 if [ $UEFI == 1 ]; then
     arch_chroot "grub-install --target=x86_64-efi --efi-directory=/boot --bootloader-id=arch_grub" 
 else
-    arch_chroot "grub-install $BOOT_DISK" 
+    arch_chroot "grub-install $BOOT_MOUNTPOINT" 
 fi
 
 print_line
