@@ -59,7 +59,7 @@ package_install "aspell aspell-de aspell-en"
 #screenrecorder
 #NOTMARCEL
 print_info "Instally qt-recordmydesktop - screen recorder"
-packafe_install "qt-recordmydesktop"
+package_install "qt-recordmydesktop"
 
 
 
