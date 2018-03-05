@@ -149,18 +149,19 @@ aur_package_install "electrum-mona"
 #cecho "Install bitcoin-qt" 
 #aur_package_install "bitcoin-qt"
 
+
 #NOTMARCEL
 #print_info "Install bisq - bitcoin p2p market" 
 #aur_package_install "bisq-git"  
 
 
+#TOMUCH
+#print_info "Install zcash"   
+#package_install "zcash"
 
-print_info "Install zcash"   
-package_install "zcash"
-
-run_as_user "gpg --recv-keys 45CE8E0631DED8DE"
-print_info "Install  zcash-swing-wallet-ui-git -- Desktop GUI Wallet for ZCash" 
-aur_package_install "zcash-swing-wallet-ui-git"  
+#run_as_user "gpg --recv-keys 45CE8E0631DED8DE"
+#print_info "Install  zcash-swing-wallet-ui-git -- Desktop GUI Wallet for ZCash" 
+#aur_package_install "zcash-swing-wallet-ui-git"  
 
 
 
@@ -199,10 +200,10 @@ package_install "cheese"
 
 
 
-
+#TOMUCH
 #File upload
-print_info "Install filezilla"  
-package_install "filezilla"
+#print_info "Install filezilla"  
+#package_install "filezilla"
 
 
 

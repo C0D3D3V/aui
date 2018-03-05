@@ -1,0 +1,6 @@
+#!/bin/bash
+
+
+print_title "Install Trololol"
+
+print_info "not realy"

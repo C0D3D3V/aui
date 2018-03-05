@@ -4,8 +4,8 @@
 print_title "Install Instant Messanger"
 
 
-print_info "Install konversation, weechat" 
-package_install "konversation weechat"
+print_info "Install weechat" #konversation
+package_install "weechat" #konversation
 
 
 #print_info "Install skype" 

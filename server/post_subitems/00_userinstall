@@ -1,0 +1,90 @@
+#!/bin/bash
+
+
+print_title "Create a new user"
+USERentered=0
+user_exists=0
+skip_user_config=0
+
+while [ $user_exists -eq 0 ];
+do
+
+    while [ $USERentered -eq 0 ];
+    do
+
+	read -p "Please enter a username for the system: " username
+	print_info "This user will be a sudo user!"
+	yn_question "Do you realy want to use ${username}?"
+	if [ $ynAnswer == "y" ]; then
+	    USERentered=1
+	fi
+    done
+
+
+    user_exists=$(id -u "$username" > /dev/null 2>&1; echo $?)
+
+    if [ $user_exists -eq 0 ]; then
+	yn_question "This user already exists, do you realy want to use ${username}?"
+	if [ $ynAnswer == "y" ]; then
+	    user_exists=1
+	    skip_user_config=1
+	fi
+	if [ $ynAnswer == "n" ]; then
+	    USERentered=0
+	fi
+    fi
+
+done
+print_info "Your username is now $username"
+
+
+if [ $skip_user_config -eq 0 ]; then
+    useradd -m -g users -G wheel -s /bin/bash $username
+    chfn $username
+
+    ################# User Action ##################
+    #user data
+
+    passwd $username
+    ################# User Action ##################
+    #password eingabe
+
+fi
+
+
+pause_function
+
+print_line
+
+print_info "Load Bash Config"  
+#bash conf resource (bsp: https://github.com/helmuthdu/dotfiles)
+cp /etc/skel/.bashrc /home/$username
+#groupadd $username
+#add_user_to_group $username $username
+chown -R ${username}:users /home/$username    #config files gehören dem user
+
+print_info "Make him sudoer"
+package_install "sudo"
+
+cecho "Backup /etc/sudoers to /etc/sudoers.aui"
+
+cp -v /etc/sudoers /etc/sudoers.aui
+sed -i '/%wheel ALL=(ALL) ALL/s/^#//' /etc/sudoers
+
+cecho "Config sudo"
+echo "" >> /etc/sudoers
+echo 'Defaults !requiretty, !tty_tickets, !umask' >> /etc/sudoers
+echo 'Defaults visiblepw, path_info' >> /etc/sudoers #insults
+#loglinelen=0, logfile =/var/log/sudo.log, log_year, log_host, 
+echo 'Defaults syslog=auth' >> /etc/sudoers
+echo 'Defaults passwd_tries=3, passwd_timeout=1' >> /etc/sudoers
+echo 'Defaults env_reset' >> /etc/sudoers
+echo 'Defaults !env_editor, editor="/usr/bin/vim:/usr/bin/vi:/usr/bin/nano"' >> /etc/sudoers
+echo 'Defaults timestamp_timeout=15' >> /etc/sudoers
+echo 'Defaults passprompt="[sudo] password for %u: "' >> /etc/sudoers
+echo 'Defaults lecture=never' >> /etc/sudores
+
+
+pause_function
+
+print_line

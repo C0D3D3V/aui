@@ -14,9 +14,6 @@ sensors-detect --auto
 
 
 
-#NOTMARCEL
-print_info "Install conky-lua - Pacman GUI"  
-aur_package_install "pamac-aur"
 
 #enpass-bin passwort manager
 

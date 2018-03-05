@@ -1,0 +1,459 @@
+#!/bin/bash
+
+
+if [[ -f `pwd`/sharedfuncs ]]; then
+  source sharedfuncs
+else
+  echo "missing file: sharedfuncs"
+  exit 1
+fi
+
+check_root
+check_boot_system
+
+
+print_line
+
+check_connection
+
+pause_function
+
+print_title "This Skript will install Arch Linux"
+#lsblk
+
+pause_function
+
+print_line
+
+print_info "Load German Keymap [https://wiki.archlinux.org/index.php/Keyboard_configuration_in_console]"
+#cecho "Be sure to load Keymap with loadkeys de-latin1"
+ncecho "loadkeys de-latin1 "
+loadkeys de-latin1 >>"$LOG" 2>&1 & 
+pid=$!;progress $pid
+
+print_line 
+
+#Mirrorlist
+print_title "Backup pacman mirrorlist and filter for German Servers [https://wiki.archlinux.org/index.php/mirrors]"
+ncecho "First Dowload full Mirrorlist "
+
+
+url="https://www.archlinux.org/mirrorlist/?country=DE&use_mirror_status=on"
+
+tmpfile=$(mktemp --suffix=-mirrorlist)
+# Get latest mirror list and save to tmpfile
+curl -so ${tmpfile} ${url} >>"$LOG" 2>&1 & 
+pid=$!;progress $pid
+
+sed -i 's/^#Server/Server/g' ${tmpfile}
+
+if [[ -s ${tmpfile} ]]; then
+    { cecho " Backing up the original mirrorlist..."
+      mv -i /etc/pacman.d/mirrorlist /etc/pacman.d/mirrorlist.orig; } &&
+	{ cecho " Rotating the new list into place..."
+	  mv -i ${tmpfile} /etc/pacman.d/mirrorlist; }
+else
+    print_warning " Unable to update, could not download list."
+fi
+
+
+  
+#cp /etc/pacman.d/mirrorlist /etc/pacman.d/mirrorlist.bak
+#grep -E -A 1 ".*Germany.*$" /etc/pacman.d/mirrorlist.bak | sed '/--/d' > /etc/pacman.d/mirrorlist.backup
+
+#rankmirrors -n 6 /etc/pacman.d/mirrorlist.backup > /etc/pacman.d/mirrorlist &
+cp /etc/pacman.d/mirrorlist /etc/pacman.d/mirrorlist.tmp
+
+ncecho "Rank Mirrorlist "
+rankmirrors /etc/pacman.d/mirrorlist.tmp > /etc/pacman.d/mirrorlist & 
+pid=$!;progress $pid
+
+rm /etc/pacman.d/mirrorlist.tmp
+
+
+
+print_line
+
+print_title "Create Boot Device"
+select_device
+
+
+
+print_info "Please create two partitions. [https://wiki.archlinux.de/title/GPT]"
+cecho "First delete all partitions with: d"
+cecho "Create new partitions with: n"
+
+if [ $UEFI == 1 ]; then
+cecho "First partition: Partition number '1'; First sector '[enter]'; Last sector '+500M';"
+    print_warning "type 'EF00'"
+else
+cecho "First partition: Partition number '1'; First sector '[enter]'; Last sector '+2M';"
+    print_warning "type 'EF02'"
+fi
+
+cecho "Second partition:  Partition number '2'; First sector '[enter]'; Last sector '[enter]'; type '[enter]'"
+cecho "At the end, wirte the partitions: w"
+cecho "You can scroll up with 'Shift + PgUp' and scoll down with 'Shift + PgDown'"
+
+gdisk $BOOT_MOUNTPOINT
+
+lsblk 
+
+ynAnswer="n"
+while [ $ynAnswer == "n" ];
+do
+	yn_question "Have you realy created two partitions like in the given description?"
+	if [ $ynAnswer == "n" ]; then
+		print_info "Please create two partitions. [https://wiki.archlinux.de/title/GPT]"
+		cecho "First delete all partitions with: d"
+		cecho "Create new partitions with: n"
+		cecho "First partition: Partition number '1'; First sector '[enter]'; Last sector '+500M'; type 'EF00'"
+		cecho "Second partition:  Partition number '2'; First sector '[enter]'; Last sector '[enter]'; type '[enter]'"
+		cecho "At the end, wirte the partitions: w"
+		cecho "You can scroll up with 'Shift + PgUp' and scoll down with 'Shift + PgDown'"
+
+		gdisk $BOOT_MOUNTPOINT
+
+		lsblk
+	fi 
+done
+
+
+print_line
+
+if [ $UEFI == 1 ]; then
+    select_boot
+fi
+select_luks
+
+
+
+print_title "Setup Luks [https://wiki.archlinux.org/index.php/Dm-crypt]"
+modprobe dm-crypt
+
+print_warning "Confirm with upercase YES"
+
+cryptsetup -c aes-xts-plain64 -y -s 512 luksFormat $LUKS_DISK
+
+
+ynAnswer="n"
+
+while [ $ynAnswer == "n" ];
+do
+	yn_question "Have you realy confirmed with upercase YES and did you enter two times your passphrase?"
+	if [ $ynAnswer == "n" ]; then
+		cryptsetup -c aes-xts-plain64 -y -s 512 luksFormat $LUKS_DISK
+	fi 
+done
+
+cecho "Open Luks Partition"
+cryptsetup luksOpen $LUKS_DISK lvm
+
+
+print_line
+
+print_title "Create LVM [https://wiki.archlinux.org/index.php/LVM]"
+
+ncecho "pvcreate /dev/mapper/lvm "
+pvcreate /dev/mapper/lvm >>"$LOG" 2>&1 & 
+pid=$!;progress $pid
+
+
+ncecho "vgcreate main /dev/mapper/lvm "
+vgcreate main /dev/mapper/lvm >>"$LOG" 2>&1 & 
+pid=$!;progress $pid
+
+#lvcreate -L 200GB -n root main
+
+ncecho "lvcreate -L 8GB -n swap main "
+lvcreate -L 1GB -n swap main >>"$LOG" 2>&1 & 
+pid=$!;progress $pid
+
+ncecho "lvcreate -l 100%FREE -n root main "
+lvcreate -l 100%FREE -n root main >>"$LOG" 2>&1 &   #home
+pid=$!;progress $pid 
+
+print_warning "If something faild use following commands to remove the partitions."
+cecho "vgreduce main /dev/mapper/lvm"
+cecho "pvremove /dev/mapper/lvm"
+
+read -p "Press enter to continue [be sure partitions are created]"
+
+print_line
+
+print_title "Create Filesystem [https://wiki.archlinux.org/index.php/file_systems]"
+
+ncecho "mkfs.ext4 -L root -O \^64bit /dev/mapper/main-root "
+mkfs.ext4 -L root -O \^64bit /dev/mapper/main-root  >>"$LOG" 2>&1 & 
+pid=$!;progress $pid
+#mkfs.ext4 -L home -O \^64bit /dev/mapper/main-home
+
+#deactivate journal
+#tune2fs -O ^has_journal /dev/mapper/main-root
+#tune2fs -O ^has_journal /dev/mapper/main-home
+
+
+if [ $UEFI == 1 ]; then
+    ncecho "mkfs.fat -F32 -n BOOT $BOOT_DISK "
+    mkfs.fat -F32 -n BOOT $BOOT_DISK  >>"$LOG" 2>&1 & 
+    pid=$!;progress $pid
+fi
+
+ncecho "mkswap -L swap /dev/mapper/main-swap "
+mkswap -L swap /dev/mapper/main-swap  >>"$LOG" 2>&1 & 
+pid=$!;progress $pid
+
+
+print_line
+
+print_info "Mount Filesystem [https://wiki.archlinux.de/title/Mounten]"
+
+ncecho "mount /dev/mapper/main-root /mnt "
+mount /dev/mapper/main-root /mnt  >>"$LOG" 2>&1 & 
+pid=$!;progress $pid
+
+#mkdir /mnt/home
+#mount /dev/mapper/main-home /mnt/home
+mkdir /mnt/boot
+
+if [ $UEFI == 1 ]; then
+    ncecho "mount $BOOT_DISK /mnt/boot "
+    mount $BOOT_DISK /mnt/boot  >>"$LOG" 2>&1 & 
+    pid=$!;progress $pid
+fi
+
+
+print_info "Activate Swap [https://wiki.archlinux.org/index.php/swap]"
+
+swapon -L swap
+
+
+print_line
+
+read -p "Press enter to continue"
+
+print_title "Install System [https://wiki.archlinux.org/index.php/Install_from_existing_Linux]"
+
+ncecho "pacstrap /mnt base base-devel intel-ucode parted btrfs-progs f2fs-tools ntp net-tools iw wireless_tools wpa_actiond wpa_supplicant dialog "
+pacstrap /mnt base base-devel intel-ucode parted btrfs-progs f2fs-tools ntp net-tools iw wireless_tools wpa_actiond wpa_supplicant dialog  >>"$LOG" 2>&1 & 
+pid=$!;progress $pid
+
+
+
+print_line
+
+print_info "Generate Fstab [https://wiki.archlinux.org/index.php/fstab]"
+
+
+ncecho "genfstab -U /mnt >> /mnt/etc/fstab "
+genfstab -U /mnt >> /mnt/etc/fstab & 
+pid=$!;progress $pid
+
+#fix small /tmp 
+#add_line "tmpfs   /tmp         tmpfs   rw,nodev,nosuid,size=8G          0  0" "/mnt/etc/fstab"
+
+
+
+print_info "Edit makepkg conf [https://wiki.archlinux.org/index.php/makepkg#tmpfs]"
+
+sed -i "s|#BUILDDIR=/tmp/makepkg|BUILDDIR=/tmp/makepkg|" /mnt/etc/makepkg.conf
+sed -i "s|PKGEXT='.pkg.tar.xz'|PKGEXT='.pkg.tar'|" /mnt/etc/makepkg.conf
+
+
+
+print_info "Generate vconsole [https://wiki.archlinux.org/index.php/Keyboard_configuration_in_console]"
+
+echo "KEYMAP=de-latin1" > /mnt/etc/vconsole.conf
+echo "FONT=lat9w-16" >> /mnt/etc/vconsole.conf
+
+cecho "Generate loacls [https://wiki.archlinux.org/index.php/locale]"
+
+echo "LANG=de_DE.UTF-8" > /mnt/etc/locale.conf
+echo "LC_COLLATE=C" >> /mnt/etc/locale.conf
+echo "LANGUAGE=de_DE" >> /mnt/etc/locale.conf
+
+
+print_info "Generate Hostname [https://wiki.archlinux.org/index.php/Network_configuration#Set_the_hostname]"
+
+
+DEVICENAMEENTERED=0
+while [ $DEVICENAMEENTERED -eq 0 ];
+do
+
+    read -p "Please enter a hostname for the system: " devicename
+    yn_question "Do you realy want to use ${devicename}?"
+    if [ $ynAnswer == "y" ]; then
+	DEVICENAMEENTERED=1
+    fi
+done
+echo $devicename > /mnt/etc/hostname
+
+print_info "Generate Journalctrl config [https://wiki.archlinux.org/index.php/Systemd#Journal]"
+
+
+sed -i "s/#Storage=auto/Storage=persistent/" /mnt/etc/systemd/journald.conf
+sed -i "s/#SystemMaxUse=/SystemMaxUse=400M/" /mnt/etc/systemd/journald.conf
+sed -i "s/#SystemMaxFileSize=/SystemMaxFileSize=30M/" /mnt/etc/systemd/journald.conf
+sed -i "s/#RuntimeMaxUse=/RuntimeMaxUse=250M/" /mnt/etc/systemd/journald.conf
+sed -i "s/#RuntimeMaxFileSize=/RuntimeMaxFileSize=30M/" /mnt/etc/systemd/journald.conf
+
+
+
+print_info "Generate Timezone [https://wiki.archlinux.org/index.php/Time#Time_zone]"
+
+arch_chroot "ln -sf /usr/share/zoneinfo/Europe/Berlin /etc/localtime"
+
+print_info "Setup Hardware Clock [https://wiki.archlinux.org/index.php/Time]"
+
+arch_chroot "hwclock --systohc --localtime"
+
+
+print_line
+
+print_info "Setup Locals [https://wiki.archlinux.org/index.php/Locale]"
+
+sed -i "s/#de_DE.UTF-8 UTF-8/de_DE.UTF-8 UTF-8/" /mnt/etc/locale.gen
+sed -i "s/#de_DE ISO-8859-1/de_DE ISO-8859-1/" /mnt/etc/locale.gen
+sed -i "s/#de_DE@euro ISO-8859-15/de_DE@euro ISO-8859-15/" /mnt/etc/locale.gen
+sed -i "s/#en_US.UTF-8 UTF-8/en_US.UTF-8 UTF-8/" /mnt/etc/locale.gen
+sed -i "s/#en_US ISO-8859-1/en_US ISO-8859-1/" /mnt/etc/locale.gen
+
+arch_chroot "locale-gen"
+
+
+print_line
+
+print_info "Activate Multilib  [https://wiki.archlinux.org/index.php/multilib]"
+#SigLevel = PackageRequired TrustedOnly
+
+
+sed -i "/\[multilib\]/,/Include/"'s/^#//' /mnt/etc/pacman.conf
+
+#cecho "Please aktivate multilib by uncomment following lines: "
+#cecho "#[multilib]"
+#cecho "#Include = /etc/pacman.d/mirrorlist"
+
+#read -p "Press enter to get into editor"
+
+#nano /mnt/etc/pacman.conf
+
+print_info "Copy Mirrorlist"
+
+#Mirrorlist
+
+#print_title "Backup pacman mirrorlist and filter for German Servers [https://wiki.archlinux.org/index.php/mirrors]"
+#ncecho "First Dowload full Mirrorlist "
+
+
+#url="https://www.archlinux.org/mirrorlist/?country=DE&use_mirror_status=on"
+
+#tmpfile=$(mktemp --suffix=-mirrorlist)
+# Get latest mirror list and save to tmpfile
+#curl -so ${tmpfile} ${url} >>"$LOG" 2>&1 & 
+#pid=$!;progress $pid
+
+#sed -i 's/^#Server/Server/g' ${tmpfile}
+
+#if [[ -s ${tmpfile} ]]; then
+#    { cecho " Backing up the original mirrorlist..."
+#      mv -i /mnt/etc/pacman.d/mirrorlist /etc/pacman.d/mirrorlist.orig; } &&
+#	{ cecho " Rotating the new list into place..."
+#	  mv -i ${tmpfile} /mnt/etc/pacman.d/mirrorlist; }
+#else
+#    print_warning " Unable to update, could not download list."
+#fi
+
+
+  
+#cp /etc/pacman.d/mirrorlist /etc/pacman.d/mirrorlist.bak
+#grep -E -A 1 ".*Germany.*$" /etc/pacman.d/mirrorlist.bak | sed '/--/d' > /etc/pacman.d/mirrorlist.backup
+
+#rankmirrors -n 6 /etc/pacman.d/mirrorlist.backup > /etc/pacman.d/mirrorlist &
+#cp /mnt/etc/pacman.d/mirrorlist /mnt/etc/pacman.d/mirrorlist.tmp
+
+#ncecho "Rank Mirrorlist "
+#rankmirrors /mnt/etc/pacman.d/mirrorlist.tmp > /mnt/etc/pacman.d/mirrorlist & 
+#pid=$!;progress $pid
+
+#rm /mnt/etc/pacman.d/mirrorlist.tmp
+
+
+
+
+
+
+cp /etc/pacman.d/mirrorlist /mnt/etc/pacman.d/mirrorlist
+cp /etc/pacman.d/mirrorlist.orig /mnt/etc/pacman.d/mirrorlist.orig
+
+
+#arch_chroot "chmod 644 /etc/pacman.d/mirrorlist"
+arch_chroot "pacman -Sy"
+
+
+print_line
+
+print_info "Change Linux Kernel Modules  [https://wiki.archlinux.org/index.php/mkinitcpio]"
+
+
+#MODULES="ext4"
+#HOOKS="base udev autodetect modconf block keyboard keymap encrypt lvm2 filesystems fsck shutdown"
+sed -i '/^HOOK/s/block/block keyboard keymap encrypt/' /mnt/etc/mkinitcpio.conf
+sed -i '/^HOOK/s/filesystems/lvm2 filesystems/' /mnt/etc/mkinitcpio.conf
+sed -i '/^HOOK/s/fsck/fsck shutdown/' /mnt/etc/mkinitcpio.conf
+sed -i '/^HOOK/s/autodetect/keyboard autodetect/' /mnt/etc/mkinitcpio.conf
+sed -i 's/MODULES=""/MODULES="ext4"/' /mnt/etc/mkinitcpio.conf
+
+arch_chroot "mkinitcpio -p linux"
+
+
+print_line
+
+print_info "Set Root Password  [https://wiki.archlinux.org/index.php/users_and_groups]"
+
+arch_chroot "passwd"
+
+
+print_line
+
+print_info "Install Grub  [https://wiki.archlinux.org/index.php/GRUB]"
+
+ncecho "Installing Grub "
+if [ $UEFI == 1 ]; then
+    pacstrap /mnt grub os-prober efibootmgr  >>"$LOG" 2>&1 &
+else
+    pacstrap /mnt grub os-prober  >>"$LOG" 2>&1 &
+fi
+
+pid=$!;progress $pid
+
+
+sed -i -e "s|GRUB_CMDLINE_LINUX=\"\(.\+\)\"|GRUB_CMDLINE_LINUX=\"cryptdevice=${LUKS_DISK}:cryptolvm\"|g" -e "s|GRUB_CMDLINE_LINUX=\"\"|GRUB_CMDLINE_LINUX=\"cryptdevice=${LUKS_DISK}:cryptolvm\"|g" /mnt/etc/default/grub
+
+sed -i 's/#GRUB_ENABLE_CRYPTODISK=y/GRUB_ENABLE_CRYPTODISK=y/' /mnt/etc/default/grub
+
+arch_chroot "grub-mkconfig -o /boot/grub/grub.cfg" 
+
+
+
+if [ $UEFI == 1 ]; then
+    arch_chroot "grub-install --target=x86_64-efi --efi-directory=/boot --bootloader-id=arch_grub" 
+else
+    arch_chroot "grub-install $BOOT_MOUNTPOINT" 
+fi
+
+print_line
+
+print_line
+
+cecho "\n\n"
+
+cecho "Installation finished" 
+cecho "Please execute following comands:" 
+#cecho "umount /mnt/home"
+if [ $UEFI == 1 ]; then
+    cecho "umount /mnt/boot"
+fi
+
+cecho "umount /mnt"
+cecho "\n\n" 
+cecho "reboot"

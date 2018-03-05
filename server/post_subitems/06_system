@@ -1,0 +1,134 @@
+#!/bin/bash
+
+
+print_title "Install system APPS"
+
+
+
+print_info "Install gparted - Partitionsmanager"
+package_install "gparted"
+
+cecho "Install truecrypt"
+package_install "truecrypt"
+
+
+
+
+
+
+print_info "Install rsync"
+package_install "rsync"
+ 
+
+#cecho "Install seafile-client"
+#aur_package_install "seafile-client"
+
+
+
+
+print_info "Install pv - A terminal-based tool for monitoring the progress of data through a pipeline"
+package_install "pv"
+
+print_info "Install gdb with peda"
+package_install "gdb peda"
+
+print_info "Install lsof"
+package_install "lsof"
+
+print_info "Install nasm"
+package_install "nasm"
+
+print_info "Install radare2"
+package_install "radare2"
+
+print_info "Install strace ltrace"
+package_install "strace ltrace"
+ 
+print_info "Install traceroute"
+package_install "traceroute"
+
+print_info "Install whois"
+package_install "whois"
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+#Monitor
+
+#cecho "Install cockpit - Systemd web monitor"  #for servers
+#aur_package_install "cockpit storaged linux-user-chroot ostree"  
+
+
+
+
+print_info "Install htop - Systemmonitor"
+package_install "htop"
+
+
+#print_info "Install netdata  - System informations"
+#package_install "netdata"
+#system_ctl enable netdata.service
+
+
+
+#plex - https://wiki.archlinux.org/index.php/Plex ?? Media center
+
+
+
+
+
+#print_info "Install putty"
+#package_install "putty"
+#aur_package_install "putty-freedesktop"
+
+
+print_info "Install Python"
+package_install "python python2 python-pip"
+aur_package_install "python2-beautifulsoup4 python2-termcolor python2-gnupg python2-colorama  python2-jedi" #python2-flake8 python-pynacl python-paramiko"
+package_install "python2-numpy python-lxml python2-gobject"
+
+
+
+
+
+print_info "Install xclip"
+package_install "xclip"
+
+#System Information
+print_info "Install hwinfo and hardinfo"
+package_install "hwinfo"
+
+
+print_info "Install tree"
+package_install "tree"
+
+print_info "Install nmap"
+package_install "nmap"
+
+print_info "Install gnu-netcat"
+package_install "gnu-netcat"
+
+print_info "Install pkgfile"
+package_install "pkgfile"
+
+
+print_info "Install bind-tools"
+package_install "bind-tools"
+
+
+
+
+
+
+
+
