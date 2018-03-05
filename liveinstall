@@ -84,14 +84,23 @@ cecho "First delete all partitions with: d"
 cecho "Create new partitions with: n"
 
 if [ $UEFI == 1 ]; then
-cecho "First partition: Partition number '1'; First sector '[enter]'; Last sector '+500M';"
-    print_warning "type 'EF00'"
+	cecho "First partition: Partition number '1'; First sector '[enter]'; Last sector '+500M';"
+		print_warning "type 'EF00'"
+		
+	cecho "Second partition:  Partition number '2'; First sector '[enter]'; Last sector '[enter]';"
+		print_warning "type '8E00'"
 else
-cecho "First partition: Partition number '1'; First sector '[enter]'; Last sector '+2M';"
-    print_warning "type 'EF02'"
+	cecho "First partition: Partition number '1'; First sector '[enter]'; Last sector '+3M';"
+		print_warning "type 'EF02'"
+		
+	cecho "Second partition:  Partition number '2'; First sector '[enter]'; Last sector '+500M';"
+		print_warning "type '8300'"
+		
+	cecho "Third partition:  Partition number '3'; First sector '[enter]'; Last sector '[enter]';"
+		print_warning "type '8E00'"
 fi
 
-cecho "Second partition:  Partition number '2'; First sector '[enter]'; Last sector '[enter]'; type '[enter]'"
+
 cecho "At the end, wirte the partitions: w"
 cecho "You can scroll up with 'Shift + PgUp' and scoll down with 'Shift + PgDown'"
 
@@ -107,8 +116,23 @@ do
 		print_info "Please create two partitions. [https://wiki.archlinux.de/title/GPT]"
 		cecho "First delete all partitions with: d"
 		cecho "Create new partitions with: n"
-		cecho "First partition: Partition number '1'; First sector '[enter]'; Last sector '+500M'; type 'EF00'"
-		cecho "Second partition:  Partition number '2'; First sector '[enter]'; Last sector '[enter]'; type '[enter]'"
+		if [ $UEFI == 1 ]; then
+			cecho "First partition: Partition number '1'; First sector '[enter]'; Last sector '+500M';"
+				print_warning "type 'EF00'"
+				
+			cecho "Second partition:  Partition number '2'; First sector '[enter]'; Last sector '[enter]';"
+				print_warning "type '8E00'"
+		else
+			cecho "First partition: Partition number '1'; First sector '[enter]'; Last sector '+3M';"
+				print_warning "type 'EF02'"
+				
+			cecho "Second partition:  Partition number '2'; First sector '[enter]'; Last sector '+500M';"
+				print_warning "type '8300'"
+				
+			cecho "Third partition:  Partition number '3'; First sector '[enter]'; Last sector '[enter]';"
+				print_warning "type '8E00'"
+		fi
+
 		cecho "At the end, wirte the partitions: w"
 		cecho "You can scroll up with 'Shift + PgUp' and scoll down with 'Shift + PgDown'"
 
@@ -121,9 +145,7 @@ done
 
 print_line
 
-if [ $UEFI == 1 ]; then
-    select_boot
-fi
+select_boot
 select_luks
 
 
@@ -200,11 +222,9 @@ pid=$!;progress $pid
 #tune2fs -O ^has_journal /dev/mapper/main-home
 
 
-if [ $UEFI == 1 ]; then
-    ncecho "mkfs.fat -F32 -n BOOT $BOOT_DISK "
-    mkfs.fat -F32 -n BOOT $BOOT_DISK  >>"$LOG" 2>&1 & 
-    pid=$!;progress $pid
-fi
+ncecho "mkfs.fat -F32 -n BOOT $BOOT_DISK "
+mkfs.fat -F32 -n BOOT $BOOT_DISK  >>"$LOG" 2>&1 & 
+pid=$!;progress $pid
 
 ncecho "mkswap -L swap /dev/mapper/main-swap "
 mkswap -L swap /dev/mapper/main-swap  >>"$LOG" 2>&1 & 
@@ -223,11 +243,9 @@ pid=$!;progress $pid
 #mount /dev/mapper/main-home /mnt/home
 mkdir /mnt/boot
 
-if [ $UEFI == 1 ]; then
-    ncecho "mount $BOOT_DISK /mnt/boot "
-    mount $BOOT_DISK /mnt/boot  >>"$LOG" 2>&1 & 
-    pid=$!;progress $pid
-fi
+ncecho "mount $BOOT_DISK /mnt/boot "
+mount $BOOT_DISK /mnt/boot  >>"$LOG" 2>&1 & 
+pid=$!;progress $pid
 
 
 print_info "Activate Swap [https://wiki.archlinux.org/index.php/swap]"
@@ -366,9 +384,8 @@ print_info "Change Linux Kernel Modules  [https://wiki.archlinux.org/index.php/m
 
 
 #MODULES="ext4"
-#HOOKS="base udev autodetect modconf block keyboard keymap encrypt lvm2 filesystems fsck shutdown"
-sed -i '/^HOOK/s/block/block encrypt/' /mnt/etc/mkinitcpio.conf
-sed -i '/^HOOK/s/filesystems/lvm2 filesystems/' /mnt/etc/mkinitcpio.conf
+#HOOKS="base udev keyboard keymap autodetect modconf block encrypt lvm2 filesystems fsck shutdown"
+sed -i '/^HOOK/s/block/block encrypt lvm2/' /mnt/etc/mkinitcpio.conf
 sed -i '/^HOOK/s/fsck/fsck shutdown/' /mnt/etc/mkinitcpio.conf
 sed -i '/^HOOK/s/autodetect/keyboard keymap autodetect/' /mnt/etc/mkinitcpio.conf
 sed -i 's/MODULES=()/MODULES=(ext4)/' /mnt/etc/mkinitcpio.conf
@@ -420,9 +437,7 @@ cecho "\n\n"
 cecho "Installation finished" 
 cecho "Please execute following comands:" 
 #cecho "umount /mnt/home"
-if [ $UEFI == 1 ]; then
-    cecho "umount /mnt/boot"
-fi
+cecho "umount /mnt/boot"
 
 cecho "umount /mnt"
 cecho "\n\n" 
