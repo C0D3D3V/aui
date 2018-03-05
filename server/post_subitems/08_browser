@@ -1,0 +1,13 @@
+#!/bin/bash
+
+
+print_title "Install browser APPS"
+
+
+
+print_info "Install links"  
+package_install "links"
+
+
+
+

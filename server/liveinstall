@@ -137,6 +137,7 @@ cryptsetup -c aes-xts-plain64 -y -s 512 luksFormat $LUKS_DISK
 
 
 ynAnswer="n"
+
 while [ $ynAnswer == "n" ];
 do
 	yn_question "Have you realy confirmed with upercase YES and did you enter two times your passphrase?"
@@ -148,15 +149,7 @@ done
 cecho "Open Luks Partition"
 cryptsetup luksOpen $LUKS_DISK lvm
 
-ynAnswer="n"
-while [ $ynAnswer == "n" ];
-do
-	yn_question "Did you open the encrypted partion?"
-	if [ $ynAnswer == "n" ]; then
-		cryptsetup luksOpen $LUKS_DISK lvm
-	fi 
-done
-	
+
 print_line
 
 print_title "Create LVM [https://wiki.archlinux.org/index.php/LVM]"
@@ -173,7 +166,7 @@ pid=$!;progress $pid
 #lvcreate -L 200GB -n root main
 
 ncecho "lvcreate -L 8GB -n swap main "
-lvcreate -L 8GB -n swap main >>"$LOG" 2>&1 & 
+lvcreate -L 1GB -n swap main >>"$LOG" 2>&1 & 
 pid=$!;progress $pid
 
 ncecho "lvcreate -l 100%FREE -n root main "
@@ -190,8 +183,8 @@ print_line
 
 print_title "Create Filesystem [https://wiki.archlinux.org/index.php/file_systems]"
 
-ncecho "mkfs.ext4 -L root /dev/mapper/main-root "			#-O \^64bit
-mkfs.ext4 -L root /dev/mapper/main-root  >>"$LOG" 2>&1 & 	#-O \^64bit
+ncecho "mkfs.ext4 -L root -O \^64bit /dev/mapper/main-root "
+mkfs.ext4 -L root -O \^64bit /dev/mapper/main-root  >>"$LOG" 2>&1 & 
 pid=$!;progress $pid
 #mkfs.ext4 -L home -O \^64bit /dev/mapper/main-home
 
@@ -256,11 +249,10 @@ ncecho "genfstab -U /mnt >> /mnt/etc/fstab "
 genfstab -U /mnt >> /mnt/etc/fstab & 
 pid=$!;progress $pid
 
-#fix small /tmp 	
-yn_question "Do you want to increase the tmpfs to max. 8GB?"
-if [ $ynAnswer == "y" ]; then
-	add_line "tmpfs   /tmp         tmpfs   rw,nodev,nosuid,size=8G          0  0" "/mnt/etc/fstab"
-fi
+#fix small /tmp 
+#add_line "tmpfs   /tmp         tmpfs   rw,nodev,nosuid,size=8G          0  0" "/mnt/etc/fstab"
+
+
 
 print_info "Edit makepkg conf [https://wiki.archlinux.org/index.php/makepkg#tmpfs]"
 
@@ -348,10 +340,48 @@ sed -i "/\[multilib\]/,/Include/"'s/^#//' /mnt/etc/pacman.conf
 print_info "Copy Mirrorlist"
 
 #Mirrorlist
-#cecho "Backup pacman mirrorlist and filter for German Servers [https://wiki.archlinux.org/index.php/mirrors]"
-#cp /mnt/etc/pacman.d/mirrorlist /mnt/etc/pacman.d/mirrorlist.bak
-#grep -E -A 1 ".*Germany.*$" /mnt/etc/pacman.d/mirrorlist.bak | sed '/--/d' > /mnt/etc/pacman.d/mirrorlist
-#rankmirrors -n 6 /mnt/etc/pacman.d/mirrorlist.backup > /mnt/etc/pacman.d/mirrorlist
+
+#print_title "Backup pacman mirrorlist and filter for German Servers [https://wiki.archlinux.org/index.php/mirrors]"
+#ncecho "First Dowload full Mirrorlist "
+
+
+#url="https://www.archlinux.org/mirrorlist/?country=DE&use_mirror_status=on"
+
+#tmpfile=$(mktemp --suffix=-mirrorlist)
+# Get latest mirror list and save to tmpfile
+#curl -so ${tmpfile} ${url} >>"$LOG" 2>&1 & 
+#pid=$!;progress $pid
+
+#sed -i 's/^#Server/Server/g' ${tmpfile}
+
+#if [[ -s ${tmpfile} ]]; then
+#    { cecho " Backing up the original mirrorlist..."
+#      mv -i /mnt/etc/pacman.d/mirrorlist /etc/pacman.d/mirrorlist.orig; } &&
+#	{ cecho " Rotating the new list into place..."
+#	  mv -i ${tmpfile} /mnt/etc/pacman.d/mirrorlist; }
+#else
+#    print_warning " Unable to update, could not download list."
+#fi
+
+
+  
+#cp /etc/pacman.d/mirrorlist /etc/pacman.d/mirrorlist.bak
+#grep -E -A 1 ".*Germany.*$" /etc/pacman.d/mirrorlist.bak | sed '/--/d' > /etc/pacman.d/mirrorlist.backup
+
+#rankmirrors -n 6 /etc/pacman.d/mirrorlist.backup > /etc/pacman.d/mirrorlist &
+#cp /mnt/etc/pacman.d/mirrorlist /mnt/etc/pacman.d/mirrorlist.tmp
+
+#ncecho "Rank Mirrorlist "
+#rankmirrors /mnt/etc/pacman.d/mirrorlist.tmp > /mnt/etc/pacman.d/mirrorlist & 
+#pid=$!;progress $pid
+
+#rm /mnt/etc/pacman.d/mirrorlist.tmp
+
+
+
+
+
+
 cp /etc/pacman.d/mirrorlist /mnt/etc/pacman.d/mirrorlist
 cp /etc/pacman.d/mirrorlist.orig /mnt/etc/pacman.d/mirrorlist.orig
 
@@ -367,11 +397,11 @@ print_info "Change Linux Kernel Modules  [https://wiki.archlinux.org/index.php/m
 
 #MODULES="ext4"
 #HOOKS="base udev autodetect modconf block keyboard keymap encrypt lvm2 filesystems fsck shutdown"
-sed -i '/^HOOK/s/block/block encrypt/' /mnt/etc/mkinitcpio.conf
+sed -i '/^HOOK/s/block/block keyboard keymap encrypt/' /mnt/etc/mkinitcpio.conf
 sed -i '/^HOOK/s/filesystems/lvm2 filesystems/' /mnt/etc/mkinitcpio.conf
 sed -i '/^HOOK/s/fsck/fsck shutdown/' /mnt/etc/mkinitcpio.conf
-sed -i '/^HOOK/s/autodetect/keyboard keymap autodetect/' /mnt/etc/mkinitcpio.conf
-sed -i 's/MODULES=()/MODULES=(ext4)/' /mnt/etc/mkinitcpio.conf
+sed -i '/^HOOK/s/autodetect/keyboard autodetect/' /mnt/etc/mkinitcpio.conf
+sed -i 's/MODULES=""/MODULES="ext4"/' /mnt/etc/mkinitcpio.conf
 
 arch_chroot "mkinitcpio -p linux"
 

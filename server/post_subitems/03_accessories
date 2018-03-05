@@ -1,0 +1,10 @@
+#!/bin/bash
+
+
+print_title "Install accessories APPS"
+
+
+print_info "Install tmux - Terminal multiplexer"   
+package_install "tmux"
+
+

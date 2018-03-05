@@ -1,0 +1,142 @@
+#!/bin/bash
+
+if [[ -f `pwd`/sharedfuncs ]]; then
+  source sharedfuncs
+else
+  echo "missing file: sharedfuncs"
+  exit 1
+fi
+
+check_root
+
+print_line
+
+check_connection
+
+
+print_line
+
+cecho "This Skript will install my lovely system"
+cecho "Be sure that you want to install all the software"
+
+print_line
+
+cecho "A clean Arch installation is requested" 
+
+pause_function
+
+print_line
+
+
+
+#create user
+include_file "post_subitems/00_userinstall"
+
+#install zsh and few basic components
+include_file "post_subitems/01_basecomponents"
+
+#install KDE Desktop
+include_file "post_subitems/02_desktop"
+
+#install accessories APPS (thinks that does not match the other categories :D ??)
+include_file "post_subitems/03_accessories"
+
+#install development APPS 
+include_file "post_subitems/04_development"
+
+#install office APPS 
+include_file "post_subitems/05_office"
+
+#install system APPS 
+include_file "post_subitems/06_system"
+
+#install graphics APPS 
+include_file "post_subitems/07_graphics"
+
+#install browser APPS 
+include_file "post_subitems/08_browser"
+
+#install DOWNLOAD tools 
+include_file "post_subitems/09_download"
+
+#install email tools 
+include_file "post_subitems/10_email"
+
+#install Instant Messanger 
+include_file "post_subitems/11_im"
+
+#install Mapping Tools 
+include_file "post_subitems/12_mapping"
+
+#install Audio Tools 
+include_file "post_subitems/13_audio"
+
+#install VIDEO APPS 
+include_file "post_subitems/14_video"
+
+#install Games 
+include_file "post_subitems/15_games"
+
+#install trololol 
+include_file "post_subitems/16_trololol"
+
+
+
+
+
+print_line
+
+
+
+
+
+cecho "Fix Firewall shit"
+
+#To the end
+#fix KDE Connect
+firewall-cmd --zone=public --permanent --add-port=1714-1764/tcp
+firewall-cmd --zone=public --permanent --add-port=1714-1764/udp
+system_ctl restart firewalld.service
+
+
+
+
+
+
+
+
+read -p "Finish up - Press enter to continue"
+
+print_line
+cecho "Set System Time"
+timedatectl set-local-rtc true
+
+system_ctl enable systemd-timesyncd.service
+system_ctl start systemd-timesyncd.service
+
+
+
+#setup global menu maybe 
+#aur_package_install "gtk2-appmenu gtk3-appmenu" 
+#aur_package_install "appmenu-qt appmenu-gtk"
+#aur_package_install "kdeplasma-applets-menubar" 
+
+
+
+
+cecho "CLEAN ORPHAN PACKAGES - https://wiki.archlinux.org/index.php/Pacman/Tips_and_tricks#Removing_unused_packages_.28orphans.29" 
+
+pacman -Rns $(pacman -Qtdq)
+pacman-optimize
+
+
+#load config from git
+
+
+
+print_line
+print_line
+cecho "\n\n" 
+
+cecho "Finish :)" 
+cecho "Please reboot and enjoy" 

@@ -1,0 +1,8 @@
+#!/bin/bash
+
+
+print_title "Install Desktop"
+
+print_info "Not realy bro"
+pause_function
+
