@@ -78,68 +78,37 @@ print_title "Create Boot Device"
 select_device
 
 
-
-print_info "Please create two partitions. [https://wiki.archlinux.de/title/GPT]"
-cecho "First delete all partitions with: d"
-cecho "Create new partitions with: n"
-
-if [ $UEFI == 1 ]; then
-	cecho "First partition: Partition number '1'; First sector '[enter]'; Last sector '+500M';"
-		print_warning "type 'EF00'"
-		
-	cecho "Second partition:  Partition number '2'; First sector '[enter]'; Last sector '[enter]';"
-		print_warning "type '8E00'"
-else
-	cecho "First partition: Partition number '1'; First sector '[enter]'; Last sector '+3M';"
-		print_warning "type 'EF02'"
-		
-	cecho "Second partition:  Partition number '2'; First sector '[enter]'; Last sector '+500M';"
-		print_warning "type '8300'"
-		
-	cecho "Third partition:  Partition number '3'; First sector '[enter]'; Last sector '[enter]';"
-		print_warning "type '8E00'"
-fi
-
-
-cecho "At the end, wirte the partitions: w"
-cecho "You can scroll up with 'Shift + PgUp' and scoll down with 'Shift + PgDown'"
-
-gdisk $BOOT_MOUNTPOINT
-
-lsblk 
-
 ynAnswer="n"
 while [ $ynAnswer == "n" ];
 do
-	yn_question "Have you realy created two partitions like in the given description?"
-	if [ $ynAnswer == "n" ]; then
-		print_info "Please create two partitions. [https://wiki.archlinux.de/title/GPT]"
-		cecho "First delete all partitions with: d"
-		cecho "Create new partitions with: n"
-		if [ $UEFI == 1 ]; then
-			cecho "First partition: Partition number '1'; First sector '[enter]'; Last sector '+500M';"
-				print_warning "type 'EF00'"
-				
-			cecho "Second partition:  Partition number '2'; First sector '[enter]'; Last sector '[enter]';"
-				print_warning "type '8E00'"
-		else
-			cecho "First partition: Partition number '1'; First sector '[enter]'; Last sector '+3M';"
-				print_warning "type 'EF02'"
-				
-			cecho "Second partition:  Partition number '2'; First sector '[enter]'; Last sector '+500M';"
-				print_warning "type '8300'"
-				
-			cecho "Third partition:  Partition number '3'; First sector '[enter]'; Last sector '[enter]';"
-				print_warning "type '8E00'"
-		fi
+    print_info "Please create two partitions. [https://wiki.archlinux.de/title/GPT]"
+    cecho "First delete all partitions with: d"
+    cecho "Create new partitions with: n"
+    if [ $UEFI == 1 ]; then
+	cecho "First partition: Partition number '1'; First sector '[enter]'; Last sector '+500M';"
+	print_warning "type 'EF00'"
+	
+	cecho "Second partition:  Partition number '2'; First sector '[enter]'; Last sector '[enter]';"
+	print_warning "type '8E00'"
+    else
+	cecho "First partition: Partition number '1'; First sector '[enter]'; Last sector '+3M';"
+	print_warning "type 'EF02'"
+	
+	cecho "Second partition:  Partition number '2'; First sector '[enter]'; Last sector '+500M';"
+	print_warning "type '8300'"
+	
+	cecho "Third partition:  Partition number '3'; First sector '[enter]'; Last sector '[enter]';"
+	print_warning "type '8E00'"
+    fi
 
-		cecho "At the end, wirte the partitions: w"
-		cecho "You can scroll up with 'Shift + PgUp' and scoll down with 'Shift + PgDown'"
+    cecho "At the end, wirte the partitions: w"
+    cecho "You can scroll up with 'Shift + PgUp' and scoll down with 'Shift + PgDown'"
 
-		gdisk $BOOT_MOUNTPOINT
+    gdisk $BOOT_MOUNTPOINT
 
-		lsblk
-	fi 
+    lsblk
+    yn_question "Have you realy created two partitions like in the given description?"
+	
 done
 
 
@@ -155,28 +124,22 @@ modprobe dm-crypt
 
 print_warning "Confirm with upercase YES"
 
-cryptsetup -c aes-xts-plain64 -y -s 512 luksFormat $LUKS_DISK
 
 
 ynAnswer="n"
 while [ $ynAnswer == "n" ];
 do
-	yn_question "Have you realy confirmed with upercase YES and did you enter two times your passphrase?"
-	if [ $ynAnswer == "n" ]; then
-		cryptsetup -c aes-xts-plain64 -y -s 512 luksFormat $LUKS_DISK
-	fi 
+    cryptsetup -c aes-xts-plain64 -y -s 512 luksFormat $LUKS_DISK
+    yn_question "Have you realy confirmed with upercase YES and did you enter two times your passphrase?"
 done
 
 cecho "Open Luks Partition"
-cryptsetup luksOpen $LUKS_DISK lvm
 
 ynAnswer="n"
 while [ $ynAnswer == "n" ];
 do
-	yn_question "Did you open the encrypted partion?"
-	if [ $ynAnswer == "n" ]; then
-		cryptsetup luksOpen $LUKS_DISK lvm
-	fi 
+    cryptsetup luksOpen $LUKS_DISK lvm
+    yn_question "Did you open the encrypted partion?"
 done
 	
 print_line
@@ -277,7 +240,7 @@ pid=$!;progress $pid
 #fix small /tmp 	
 yn_question "Do you want to increase the tmpfs to max. 8GB?"
 if [ $ynAnswer == "y" ]; then
-	add_line "tmpfs   /tmp         tmpfs   rw,nodev,nosuid,size=8G          0  0" "/mnt/etc/fstab"
+    add_line "tmpfs   /tmp         tmpfs   rw,nodev,nosuid,size=8G          0  0" "/mnt/etc/fstab"
 fi
 
 print_info "Edit makepkg conf [https://wiki.archlinux.org/index.php/makepkg#tmpfs]"
@@ -305,7 +268,7 @@ print_info "Generate Hostname [https://wiki.archlinux.org/index.php/Network_conf
 DEVICENAMEENTERED=0
 while [ $DEVICENAMEENTERED -eq 0 ];
 do
-
+    
     read -p "Please enter a hostname for the system: " devicename
     yn_question "Do you realy want to use ${devicename}?"
     if [ $ynAnswer == "y" ]; then
@@ -396,8 +359,12 @@ arch_chroot "mkinitcpio -p linux"
 print_line
 
 print_info "Set Root Password  [https://wiki.archlinux.org/index.php/users_and_groups]"
-
-arch_chroot "passwd"
+ynAnswer="n"
+while [ $ynAnswer == "n" ];
+do
+    arch_chroot "passwd"
+    yn_question "Did you set the password correct?"
+done
 
 
 print_line

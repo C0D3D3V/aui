@@ -44,8 +44,13 @@ if [ $skip_user_config -eq 0 ]; then
 
     ################# User Action ##################
     #user data
-
-    passwd $username
+    ynAnswer="n"
+    while [ $ynAnswer == "n" ];
+    do
+        passwd $username
+	yn_question "Did you set the password correct?"
+    done
+    
     ################# User Action ##################
     #password eingabe
 
