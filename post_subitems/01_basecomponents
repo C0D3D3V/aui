@@ -97,7 +97,7 @@ aur_package_install "zsh-autosuggestions"
 
 #set zsh as default shell
 chsh -s /bin/zsh
-
+sed -i 's|^SHELL=/bin/bash|SHELL=/bin/zsh|g' /etc/default/useradd
 
 print_info "Install xterm"  
 package_install "xterm"
@@ -113,6 +113,7 @@ read -p "Press enter to continue - Please exit zsh after finsh install with: exi
 print_line
 
 run_as_user "sh /var/tmp/install-oh-my-zsh.sh"
+
 run_as_user "rm /var/tmp/install-oh-my-zsh.sh"
 
 
@@ -122,9 +123,26 @@ read -p "Please check .zshrc - Press enter to continue"
 
 print_line
 
-run_as_user "mv /home/${username}/.zshrc /home/${username}/.zshrc.bak"
+run_as_user "cp /home/${username}/.zshrc /home/${username}/.zshrc.bak"
 
 run_as_user "nano /home/${username}/.zshrc"
+
+run_as_user "chsh -s /bin/zsh"
+
+#HOOK Script needed
+#cp /home/${username}/.oh-my-zsh/ /etc/skel -r
+#chmod 644 /etc/skel/.oh-my-zsh -R
+#chown root:root /etc/skel/.oh-my-zsh -R
+
+#cp /home/${username}/.zshrc /etc/skel
+#chmod 644 /etc/skel/.zshrc
+#chown root:root /etc/skel/.zshrc
+
+
+
+print_info "Install Oh my Zsh for root 
+sh -c "$(wget https://raw.github.com/robbyrussell/oh-my-zsh/master/tools/install.sh -O -)"
+
 
 pause_function
 

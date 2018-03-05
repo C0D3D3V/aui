@@ -145,14 +145,14 @@ package_install "sslstrip"
 
 
 
-
-#System
-
-#realy this firewall is only a try ...
-#NOTMARCEL
-print_info "Install firewalld - Firewall gui"
-package_install "firewalld"
-system_ctl enable firewalld
+#TOMUCH
+##System
+#
+##realy this firewall is only a try ...
+##NOTMARCEL
+#print_info "Install firewalld - Firewall gui"
+#package_install "firewalld"
+#system_ctl enable firewalld
 
 
 

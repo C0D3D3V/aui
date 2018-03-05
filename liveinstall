@@ -78,52 +78,43 @@ print_title "Create Boot Device"
 select_device
 
 
-
-print_info "Please create two partitions. [https://wiki.archlinux.de/title/GPT]"
-cecho "First delete all partitions with: d"
-cecho "Create new partitions with: n"
-
-if [ $UEFI == 1 ]; then
-cecho "First partition: Partition number '1'; First sector '[enter]'; Last sector '+500M';"
-    print_warning "type 'EF00'"
-else
-cecho "First partition: Partition number '1'; First sector '[enter]'; Last sector '+2M';"
-    print_warning "type 'EF02'"
-fi
-
-cecho "Second partition:  Partition number '2'; First sector '[enter]'; Last sector '[enter]'; type '[enter]'"
-cecho "At the end, wirte the partitions: w"
-cecho "You can scroll up with 'Shift + PgUp' and scoll down with 'Shift + PgDown'"
-
-gdisk $BOOT_MOUNTPOINT
-
-lsblk 
-
 ynAnswer="n"
 while [ $ynAnswer == "n" ];
 do
-	yn_question "Have you realy created two partitions like in the given description?"
-	if [ $ynAnswer == "n" ]; then
-		print_info "Please create two partitions. [https://wiki.archlinux.de/title/GPT]"
-		cecho "First delete all partitions with: d"
-		cecho "Create new partitions with: n"
-		cecho "First partition: Partition number '1'; First sector '[enter]'; Last sector '+500M'; type 'EF00'"
-		cecho "Second partition:  Partition number '2'; First sector '[enter]'; Last sector '[enter]'; type '[enter]'"
-		cecho "At the end, wirte the partitions: w"
-		cecho "You can scroll up with 'Shift + PgUp' and scoll down with 'Shift + PgDown'"
+    print_info "Please create two partitions. [https://wiki.archlinux.de/title/GPT]"
+    cecho "First delete all partitions with: d"
+    cecho "Create new partitions with: n"
+    if [ $UEFI == 1 ]; then
+	cecho "First partition: Partition number '1'; First sector '[enter]'; Last sector '+500M';"
+	print_warning "type 'EF00'"
+	
+	cecho "Second partition:  Partition number '2'; First sector '[enter]'; Last sector '[enter]';"
+	print_warning "type '8E00'"
+    else
+	cecho "First partition: Partition number '1'; First sector '[enter]'; Last sector '+3M';"
+	print_warning "type 'EF02'"
+	
+	cecho "Second partition:  Partition number '2'; First sector '[enter]'; Last sector '+500M';"
+	print_warning "type '8300'"
+	
+	cecho "Third partition:  Partition number '3'; First sector '[enter]'; Last sector '[enter]';"
+	print_warning "type '8E00'"
+    fi
 
-		gdisk $BOOT_MOUNTPOINT
+    cecho "At the end, wirte the partitions: w"
+    cecho "You can scroll up with 'Shift + PgUp' and scoll down with 'Shift + PgDown'"
 
-		lsblk
-	fi 
+    gdisk $BOOT_MOUNTPOINT
+
+    lsblk
+    yn_question "Have you realy created two partitions like in the given description?"
+	
 done
 
 
 print_line
 
-if [ $UEFI == 1 ]; then
-    select_boot
-fi
+select_boot
 select_luks
 
 
@@ -133,23 +124,24 @@ modprobe dm-crypt
 
 print_warning "Confirm with upercase YES"
 
-cryptsetup -c aes-xts-plain64 -y -s 512 luksFormat $LUKS_DISK
 
 
 ynAnswer="n"
-
 while [ $ynAnswer == "n" ];
 do
-	yn_question "Have you realy confirmed with upercase YES and did you enter two times your passphrase?"
-	if [ $ynAnswer == "n" ]; then
-		cryptsetup -c aes-xts-plain64 -y -s 512 luksFormat $LUKS_DISK
-	fi 
+    cryptsetup -c aes-xts-plain64 -y -s 512 luksFormat $LUKS_DISK
+    yn_question "Have you realy confirmed with upercase YES and did you enter two times your passphrase?"
 done
 
 cecho "Open Luks Partition"
-cryptsetup luksOpen $LUKS_DISK lvm
 
-
+ynAnswer="n"
+while [ $ynAnswer == "n" ];
+do
+    cryptsetup luksOpen $LUKS_DISK lvm
+    yn_question "Did you open the encrypted partion?"
+done
+	
 print_line
 
 print_title "Create LVM [https://wiki.archlinux.org/index.php/LVM]"
@@ -183,8 +175,8 @@ print_line
 
 print_title "Create Filesystem [https://wiki.archlinux.org/index.php/file_systems]"
 
-ncecho "mkfs.ext4 -L root -O \^64bit /dev/mapper/main-root "
-mkfs.ext4 -L root -O \^64bit /dev/mapper/main-root  >>"$LOG" 2>&1 & 
+ncecho "mkfs.ext4 -L root /dev/mapper/main-root "			#-O \^64bit
+mkfs.ext4 -L root /dev/mapper/main-root  >>"$LOG" 2>&1 & 	#-O \^64bit
 pid=$!;progress $pid
 #mkfs.ext4 -L home -O \^64bit /dev/mapper/main-home
 
@@ -193,11 +185,9 @@ pid=$!;progress $pid
 #tune2fs -O ^has_journal /dev/mapper/main-home
 
 
-if [ $UEFI == 1 ]; then
-    ncecho "mkfs.fat -F32 -n BOOT $BOOT_DISK "
-    mkfs.fat -F32 -n BOOT $BOOT_DISK  >>"$LOG" 2>&1 & 
-    pid=$!;progress $pid
-fi
+ncecho "mkfs.fat -F32 -n BOOT $BOOT_DISK "
+mkfs.fat -F32 -n BOOT $BOOT_DISK  >>"$LOG" 2>&1 & 
+pid=$!;progress $pid
 
 ncecho "mkswap -L swap /dev/mapper/main-swap "
 mkswap -L swap /dev/mapper/main-swap  >>"$LOG" 2>&1 & 
@@ -216,11 +206,9 @@ pid=$!;progress $pid
 #mount /dev/mapper/main-home /mnt/home
 mkdir /mnt/boot
 
-if [ $UEFI == 1 ]; then
-    ncecho "mount $BOOT_DISK /mnt/boot "
-    mount $BOOT_DISK /mnt/boot  >>"$LOG" 2>&1 & 
-    pid=$!;progress $pid
-fi
+ncecho "mount $BOOT_DISK /mnt/boot "
+mount $BOOT_DISK /mnt/boot  >>"$LOG" 2>&1 & 
+pid=$!;progress $pid
 
 
 print_info "Activate Swap [https://wiki.archlinux.org/index.php/swap]"
@@ -249,10 +237,11 @@ ncecho "genfstab -U /mnt >> /mnt/etc/fstab "
 genfstab -U /mnt >> /mnt/etc/fstab & 
 pid=$!;progress $pid
 
-#fix small /tmp 
-add_line "tmpfs   /tmp         tmpfs   rw,nodev,nosuid,size=8G          0  0" "/mnt/etc/fstab"
-
-
+#fix small /tmp 	
+yn_question "Do you want to increase the tmpfs to max. 8GB?"
+if [ $ynAnswer == "y" ]; then
+    add_line "tmpfs   /tmp         tmpfs   rw,nodev,nosuid,size=8G          0  0" "/mnt/etc/fstab"
+fi
 
 print_info "Edit makepkg conf [https://wiki.archlinux.org/index.php/makepkg#tmpfs]"
 
@@ -279,7 +268,7 @@ print_info "Generate Hostname [https://wiki.archlinux.org/index.php/Network_conf
 DEVICENAMEENTERED=0
 while [ $DEVICENAMEENTERED -eq 0 ];
 do
-
+    
     read -p "Please enter a hostname for the system: " devicename
     yn_question "Do you realy want to use ${devicename}?"
     if [ $ynAnswer == "y" ]; then
@@ -358,12 +347,11 @@ print_info "Change Linux Kernel Modules  [https://wiki.archlinux.org/index.php/m
 
 
 #MODULES="ext4"
-#HOOKS="base udev autodetect modconf block keyboard keymap encrypt lvm2 filesystems fsck shutdown"
-sed -i '/^HOOK/s/block/block keyboard keymap encrypt/' /mnt/etc/mkinitcpio.conf
-sed -i '/^HOOK/s/filesystems/lvm2 filesystems/' /mnt/etc/mkinitcpio.conf
+#HOOKS="base udev keyboard keymap autodetect modconf block encrypt lvm2 filesystems fsck shutdown"
+sed -i '/^HOOK/s/block/block encrypt lvm2/' /mnt/etc/mkinitcpio.conf
 sed -i '/^HOOK/s/fsck/fsck shutdown/' /mnt/etc/mkinitcpio.conf
-sed -i '/^HOOK/s/autodetect/keyboard autodetect/' /mnt/etc/mkinitcpio.conf
-sed -i 's/MODULES=""/MODULES="ext4"/' /mnt/etc/mkinitcpio.conf
+sed -i '/^HOOK/s/autodetect/keyboard keymap autodetect/' /mnt/etc/mkinitcpio.conf
+sed -i 's/MODULES=()/MODULES=(ext4)/' /mnt/etc/mkinitcpio.conf
 
 arch_chroot "mkinitcpio -p linux"
 
@@ -371,8 +359,12 @@ arch_chroot "mkinitcpio -p linux"
 print_line
 
 print_info "Set Root Password  [https://wiki.archlinux.org/index.php/users_and_groups]"
-
-arch_chroot "passwd"
+ynAnswer="n"
+while [ $ynAnswer == "n" ];
+do
+    arch_chroot "passwd"
+    yn_question "Did you set the password correct?"
+done
 
 
 print_line
@@ -412,9 +404,7 @@ cecho "\n\n"
 cecho "Installation finished" 
 cecho "Please execute following comands:" 
 #cecho "umount /mnt/home"
-if [ $UEFI == 1 ]; then
-    cecho "umount /mnt/boot"
-fi
+cecho "umount /mnt/boot"
 
 cecho "umount /mnt"
 cecho "\n\n" 

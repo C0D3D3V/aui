@@ -81,7 +81,7 @@ check_vga() {
 
 check_vga
 if [[ ${VIDEO_DRIVER} == nvidia ]]; then
-    package_install "nvidia{,-utils}"
+    package_install "nvidia nvidia-utils"
     [[ ${ARCHI} == x86_64 ]] && package_install "lib32-nvidia-utils"
     nvidia-xconfig --add-argb-glx-visuals --allow-glx-with-composite --composite --render-accel -o /etc/X11/xorg.conf.d/20-nvidia.conf;
 elif [[ ${VIDEO_DRIVER} == ati ]]; then

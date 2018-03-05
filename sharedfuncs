@@ -257,10 +257,15 @@ add_user_to_group() {
 	error_msg "ERROR! 'add_user_to_group' was not given enough parameters."
     fi
 
-    ncecho " ${BBlue}[${Reset}${Bold}X${BBlue}]${Reset} Adding ${Bold}${_user}${Reset} to ${Bold}${_group}${Reset} "
+
+    if [ ! $(getent group ${_group}) ]; then
+	
+	ncecho " ${BBlue}[${Reset}${Bold}X${BBlue}]${Reset} Creating group: ${Bold}${_group}${Reset} "
+	groupadd ${_group} >>"$LOG" 2>&1 &
+	pid=$!;progress $pid
+    fi
     
-    groupadd ${_group} >>"$LOG" 2>&1 &
-    pid=$!;progress $pid
+    ncecho " ${BBlue}[${Reset}${Bold}X${BBlue}]${Reset} Adding ${Bold}${_user}${Reset} to ${Bold}${_group}${Reset} "
     gpasswd -a ${_user} ${_group} >>"$LOG" 2>&1 & 
     pid=$!;progress $pid
 } 
@@ -488,8 +493,12 @@ select_luks(){
     #print_danger "\tDo not use this for boot partitions"
     block_list=(`lsblk | grep 'part' | awk '{print "/dev/" substr($1,3)}'`)
     PS3="$prompt1"
-    echo -e "Please select the root Partition (the second partition that you created, normaly /dev/sda2): "
-
+	
+	if [ $UEFI == 1 ]; then
+		echo -e "Please select the root Partition (the second partition that you created, normaly /dev/sda2): "
+	else
+		echo -e "Please select the root Partition (the third partition that you created, normaly /dev/sda3): "
+	fi
     select OPT in "${block_list[@]}"; do
 	if contains_element "$OPT" "${block_list[@]}"; then
 	    
@@ -507,8 +516,14 @@ select_luks(){
 select_boot(){
     block_list=(`lsblk | grep 'part' | awk '{print "/dev/" substr($1,3)}'`)
     PS3="$prompt1"
-    echo -e "Please select the boot Partition (the first partition that you created, normaly /dev/sda1): "
-
+	
+	if [ $UEFI == 1 ]; then
+		echo -e "Please select the boot Partition (the first partition that you created, normaly /dev/sda1): "
+	else
+		echo -e "Please select the boot Partition (the second partition that you created, normaly /dev/sda2): "
+	fi
+	
+	
     select OPT in "${block_list[@]}"; do
 	if contains_element "$OPT" "${block_list[@]}"; then
 	    
