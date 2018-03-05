@@ -127,12 +127,22 @@ run_as_user "cp /home/${username}/.zshrc /home/${username}/.zshrc.bak"
 
 run_as_user "nano /home/${username}/.zshrc"
 
-cp /home/${username}/.oh-my-zsh/ /etc/skel -r
-chmod 644 /etc/skel/.oh-my-zsh -R
-chown root:root /etc/skel/.oh-my-zsh -R
+run_as_user "chsh -s /bin/zsh"
 
-cp /home/${username}/.zshrc /etc/skel
-chmod 644 /etc/skel/.zshrc
-chown root:root /etc/skel/.zshrc
+#HOOK Script needed
+#cp /home/${username}/.oh-my-zsh/ /etc/skel -r
+#chmod 644 /etc/skel/.oh-my-zsh -R
+#chown root:root /etc/skel/.oh-my-zsh -R
+
+#cp /home/${username}/.zshrc /etc/skel
+#chmod 644 /etc/skel/.zshrc
+#chown root:root /etc/skel/.zshrc
+
+
+
+print_info "Install Oh my Zsh for root 
+sh -c "$(wget https://raw.github.com/robbyrussell/oh-my-zsh/master/tools/install.sh -O -)"
+
+
 pause_function
 

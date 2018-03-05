@@ -39,9 +39,11 @@ print_info "Your username is now $username"
 
 
 if [ $skip_user_config -eq 0 ]; then
+    
     useradd -m -g users -G wheel -s /bin/bash $username
+    add_user_to_group $username $username
     chfn $username
-
+    
     ################# User Action ##################
     #user data
     ynAnswer="n"
@@ -66,7 +68,7 @@ print_info "Load Bash Config"
 cp /etc/skel/.bashrc /home/$username
 #groupadd $username
 #add_user_to_group $username $username
-chown -R ${username}:users /home/$username    #config files gehören dem user
+chown -R ${username}:${username} /home/$username    #config files gehören dem user
 
 print_info "Make him sudoer"
 package_install "sudo"
