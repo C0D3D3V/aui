@@ -222,8 +222,14 @@ read -p "Press enter to continue"
 
 print_title "Install System [https://wiki.archlinux.org/index.php/Install_from_existing_Linux]"
 
-ncecho "pacstrap /mnt base base-devel intel-ucode parted btrfs-progs f2fs-tools ntp net-tools iw wireless_tools wpa_actiond wpa_supplicant dialog "
-pacstrap /mnt base base-devel intel-ucode parted btrfs-progs f2fs-tools ntp net-tools iw wireless_tools wpa_actiond wpa_supplicant dialog  >>"$LOG" 2>&1 & 
+yn_question "Do you want to add wifi support?"
+if [ $ynAnswer == "y" ]; then
+    ncecho "pacstrap /mnt base base-devel intel-ucode parted btrfs-progs f2fs-tools ntp net-tools iw wireless_tools wpa_actiond wpa_supplicant dialog "
+    pacstrap /mnt base base-devel intel-ucode parted btrfs-progs f2fs-tools ntp net-tools iw wireless_tools wpa_actiond wpa_supplicant dialog  >>"$LOG" 2>&1 & 
+else
+    ncecho "pacstrap /mnt base base-devel intel-ucode parted btrfs-progs f2fs-tools ntp net-tools iw"
+    pacstrap /mnt base base-devel intel-ucode parted btrfs-progs f2fs-tools ntp net-tools iw  >>"$LOG" 2>&1 & 
+fi
 pid=$!;progress $pid
 
 

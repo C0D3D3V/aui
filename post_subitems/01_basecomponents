@@ -10,7 +10,7 @@ chmod 644 /etc/pacman.d/mirrorlist
 package_install "base-devel yajl namcap"
 aui_download_packages "package-query yaourt"
 
-print_warning "This is the last pause! Be sure the installation of yaourt succeeded!"
+print_warning "Be sure the installation of yaourt succeeded!"
 pause_function
 
 print_line
@@ -119,6 +119,7 @@ run_as_user "rm /var/tmp/install-oh-my-zsh.sh"
 
 
 print_line
+print_warning "This is the last pause!"
 
 read -p "Please check .zshrc - Press enter to continue"
 

@@ -5,13 +5,13 @@ print_title "Install office APPS"
 
 if [ $isServer == "n" ]; then
     #bücher
-    print_info "Install keepassxc"  
-    package_install "keepassxc"
 
     print_info "Install calibre"  
     package_install "calibre"
 
-
+    #keepass
+    print_info "Install keepassxc"  
+    package_install "keepassxc"
 
 
     #git docu

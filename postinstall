@@ -177,7 +177,7 @@ print_line
 
 
 
-read -p "Finish up - Press enter to continue"
+#read -p "Finish up - Press enter to continue"
 
 print_line
 cecho "Set System Time"
