@@ -10,6 +10,7 @@ chmod 644 /etc/pacman.d/mirrorlist
 package_install "base-devel yajl namcap"
 aui_download_packages "package-query yaourt"
 
+print_warning "This is the last pause! Be sure the installation of yaourt succeeded!"
 pause_function
 
 print_line
@@ -35,13 +36,13 @@ system_ctl enable avahi-daemon
 
 print_line
 
+if [ $isServer == "n" ]; then
+    print_info "Install ALSA - https://wiki.archlinux.org/index.php/Alsa" 
+    package_install "alsa-utils alsa-plugins"
 
-print_info "Install ALSA - https://wiki.archlinux.org/index.php/Alsa" 
-package_install "alsa-utils alsa-plugins"
 
-
-print_line
-
+    print_line
+fi
 
 
 print_info "Install NTP - https://wiki.archlinux.de/title/NTP" 
@@ -77,12 +78,12 @@ system_ctl enable cronie
 
 print_line
 
+if [ $isServer == "n" ]; then
+    print_info "Install PULSEAUDIO - https://wiki.archlinux.org/index.php/Pulseaudio" 
+    package_install "pulseaudio pulseaudio-alsa"
 
-print_info "Install PULSEAUDIO - https://wiki.archlinux.org/index.php/Pulseaudio" 
-package_install "pulseaudio pulseaudio-alsa"
-
-print_line
-
+    print_line
+fi
 
 print_info "Install NTFS/FAT/exFAT/F2FS - https://wiki.archlinux.org/index.php/File_Systems" 
 package_install "ntfs-3g dosfstools exfat-utils f2fs-tools fuse exfat-utils autofs mtpfs"
@@ -144,5 +145,6 @@ print_info "Install Oh my Zsh for root
 sh -c "$(wget https://raw.github.com/robbyrussell/oh-my-zsh/master/tools/install.sh -O -)"
 
 
-pause_function
+#pause_function
+
 

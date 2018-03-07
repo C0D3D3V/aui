@@ -3,8 +3,11 @@
 
 print_title "Install VIDEO APPS"
 
+if [ $isServer == "n" ]; then
+
+    print_info "Install vlc"
+    package_install "vlc"
+    #package_install "phonon-qt5-vlc"
 
 
-print_info "Install vlc"
-package_install "vlc"
-#package_install "phonon-qt5-vlc"
+fi

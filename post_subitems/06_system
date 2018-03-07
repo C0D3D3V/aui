@@ -22,56 +22,68 @@ package_install "truecrypt"
 
 
 
-
-print_info "Install grsync - Gui für Rsync"
-package_install "grsync"
-
-
-#cecho "Install seafile-client"
-#aur_package_install "seafile-client"
-
-#TOMUCH
-#cecho "Install syncthing"
-#package_install "syncthing"
+if [ $isServer == "n" ]; then
+    
+    print_info "Install grsync - Gui für Rsync"
+    package_install "grsync"
 
 
+    #cecho "Install seafile-client"
+    #aur_package_install "seafile-client"
 
+    #TOMUCH
+    #cecho "Install syncthing"
+    #package_install "syncthing"
 
 
 
-print_info "Install wireshark  - https://wiki.archlinux.org/index.php/wireshark"
-package_install "wireshark-qt"
-#package_install "wireshark-gtk"  #for gnome
-add_user_to_group $username wireshark
-
-
-print_info "Install ettercap"
-package_install "ettercap-gtk"
 
 
 
-#print_info "Install trace-cmd ... kernel debug"
-#aur_package_install "trace-cmd"
+    print_info "Install wireshark  - https://wiki.archlinux.org/index.php/wireshark"
+    package_install "wireshark-qt"
+    #package_install "wireshark-gtk"  #for gnome
+    add_user_to_group $username wireshark
 
 
-print_info "Install grub-customizer  - https://wiki.archlinux.de/title/GRUB"
-aur_package_install "grub-customizer"
-#Theme: https://www.gnome-look.org/p/1111545/
+    print_info "Install ettercap"
+    package_install "ettercap-gtk"
 
 
-#cecho "Install partitionmanager  - https://wiki.archlinux.org/index.php/partitioning#Partitioning_tools"
-#package_install "partitionmanager"
 
-#print_info "Install gnome-disk-utility  - https://wiki.archlinux.org/index.php/partitioning#Partitioning_tools"
-#package_install "gnome-disk-utility"
+    #print_info "Install trace-cmd ... kernel debug"
+    #aur_package_install "trace-cmd"
+
+
+    print_info "Install grub-customizer  - https://wiki.archlinux.de/title/GRUB"
+    aur_package_install "grub-customizer"
+    #Theme: https://www.gnome-look.org/p/1111545/
+
+
+    #cecho "Install partitionmanager  - https://wiki.archlinux.org/index.php/partitioning#Partitioning_tools"
+    #package_install "partitionmanager"
+
+    #print_info "Install gnome-disk-utility  - https://wiki.archlinux.org/index.php/partitioning#Partitioning_tools"
+    #package_install "gnome-disk-utility"
+
+
+
+
+
+
+
+    print_info "Install gdb with peda"
+    package_install "gdb peda"
+
+fi
+
+
+
 
 
 
 print_info "Install pv - A terminal-based tool for monitoring the progress of data through a pipeline"
 package_install "pv"
-
-print_info "Install gdb with peda"
-package_install "gdb peda"
 
 print_info "Install lsof"
 package_install "lsof"
@@ -133,13 +145,19 @@ package_install "htop"
 #aur_package_install "putty-freedesktop"
 
 
-print_info "Install Aircrack-ng"
-package_install "aircrack-ng cowpatty"
-aur_package_install "reaver-wps-fork-t6x-git pyrit-git wifite-git" #pixiewps-git
+if [ $isServer == "n" ]; then
 
-print_info "Install sslstrip"
-package_install "sslstrip"
+    if [ $wifiPenTools == "n" ]; then
+    
+	print_info "Install Aircrack-ng"
+	package_install "aircrack-ng cowpatty"
+	aur_package_install "reaver-wps-fork-t6x pyrit-git wifite-git" #pixiewps-git  #reaver-wps-fork-t6x-git
+    fi
 
+
+    print_info "Install sslstrip"
+    package_install "sslstrip"
+fi
 
 
 
@@ -162,62 +180,62 @@ package_install "sslstrip"
 
 
 
+if [ $isServer == "n" ]; then
+    
+    print_info "Install virtualbox "
+    package_install "virtualbox linux-headers virtualbox-guest-iso" #virtualbox-host-modules-arch
+    aur_package_install "virtualbox-ext-oracle"
+    add_user_to_group $username vboxusers
+    modprobe vboxdrv vboxnetflt
 
 
-print_info "Install virtualbox "
-package_install "virtualbox linux-headers virtualbox-guest-iso" #virtualbox-host-modules-arch
-aur_package_install "virtualbox-ext-oracle"
-add_user_to_group $username vboxusers
-modprobe vboxdrv vboxnetflt
-
-
-#TOMUCH
-#print_info "Install VMware Horizon Client"
-##fix package bugs -.-
-#run_as_user "gpg --recv-keys D5E9E43F7DF9EE8C"
-#aur_package_install "gstreamer0.10-base"
-#aur_package_install "openssl098"
-##end of fix
-#aur_package_install "vmware-horizon-client" #VMware Horizon Client connect to VMware Horizon virtual desktop
-
-
-
-
-
-
-
-#alterrnative für yaourt 
-#print_info "Install pacaur  - https://wiki.archlinux.org/index.php/AUR_helpers"
-#run_as_user "gpg --recv-keys 1EB2638FF56C0C53"
-#aur_package_install "pacaur"
+    #TOMUCH
+    #print_info "Install VMware Horizon Client"
+    ##fix package bugs -.-
+    #run_as_user "gpg --recv-keys D5E9E43F7DF9EE8C"
+    #aur_package_install "gstreamer0.10-base"
+    #aur_package_install "openssl098"
+    ##end of fix
+    #aur_package_install "vmware-horizon-client" #VMware Horizon Client connect to VMware Horizon virtual desktop
 
 
 
 
 
 
-#Update erinnerung
-#cecho "Install aarchup  - https://wiki.archlinux.org/index.php/AUR_helpers"
-#aur_package_install "aarchup" #notification-daemon
-#    echo "# Comments are ignored
-# The [main] line defines the group main
-# You need to include this and no arguments
-# can be placed before it.
-# also notice that all options should be in the long form
-# ie: for loop-time use only loop-time do not try to use 'l' or '-l'
-#    [main]
-# Argument on the left then '=' then the value of it
-# ie:
-#    loop-time=30
-#    timeout=60
-# Arguments without a value must have the '=' sign
-# ie:
-#    aur=" > "/etc/aarchup.conf"
-#system_ctl enable aarchup.timer
+
+    #alterrnative für yaourt 
+    #print_info "Install pacaur  - https://wiki.archlinux.org/index.php/AUR_helpers"
+    #run_as_user "gpg --recv-keys 1EB2638FF56C0C53"
+    #aur_package_install "pacaur"
 
 
 
 
+
+
+    #Update erinnerung
+    #cecho "Install aarchup  - https://wiki.archlinux.org/index.php/AUR_helpers"
+    #aur_package_install "aarchup" #notification-daemon
+    #    echo "# Comments are ignored
+    # The [main] line defines the group main
+    # You need to include this and no arguments
+    # can be placed before it.
+    # also notice that all options should be in the long form
+    # ie: for loop-time use only loop-time do not try to use 'l' or '-l'
+    #    [main]
+    # Argument on the left then '=' then the value of it
+    # ie:
+    #    loop-time=30
+    #    timeout=60
+    # Arguments without a value must have the '=' sign
+    # ie:
+    #    aur=" > "/etc/aarchup.conf"
+    #system_ctl enable aarchup.timer
+
+
+
+fi
 
 
 
@@ -240,30 +258,33 @@ package_install "python2-numpy python-lxml python2-gobject"
 print_info "Install xclip"
 package_install "xclip"
 
-print_info "Install xbindkeys"
-package_install "xbindkeys"
-#aur_package_install "xbindkeys_config-gtk2"
 
 
+if [ $isServer == "n" ]; then
+    print_info "Install xbindkeys"
+    package_install "xbindkeys"
+    #aur_package_install "xbindkeys_config-gtk2"
 
-
-#System Suport.... Driver
-#NOTMARCEL
-yn_question "Do you want to install Wacom suport"
-if [[ $ynAnswer == y ]]; then
-    print_info "Install Wacom suport - https://wiki.archlinux.org/index.php/wacom_tablet"
-    package_install "xf86-input-wacom libwacom" 
-    aur_package_install "kcm-wacomtablet" 
-fi
-
-#NOTMARCEL
-yn_question "Do you want to install Tablet suport"
-if [[ $ynAnswer == y ]]; then
-    print_info "Install Tablet suport - https://wiki.archlinux.org/index.php/Tablet_PC"
-    aur_package_install "iio-sensor-proxy" 
 fi
 
 
+if [ $isServer == "n" ]; then
+
+    #System Suport.... Driver
+    #NOTMARCEL
+    if [[ $wacomSupport == y ]]; then
+	print_info "Install Wacom suport - https://wiki.archlinux.org/index.php/wacom_tablet"
+	package_install "xf86-input-wacom libwacom" 
+	aur_package_install "kcm-wacomtablet" 
+    fi
+
+    #NOTMARCEL
+    if [[ $tebletSupport == y ]]; then
+	print_info "Install Tablet suport - https://wiki.archlinux.org/index.php/Tablet_PC"
+	aur_package_install "iio-sensor-proxy" 
+    fi
+
+fi
 
 
 
@@ -272,9 +293,12 @@ fi
 print_info "Install hwinfo and hardinfo"
 package_install "hwinfo hardinfo"
 
-print_info "Install HDD info"
-package_install "smartmontools gsmartcontrol"
 
+if [ $isServer == "n" ]; then
+    print_info "Install HDD info"
+    package_install "smartmontools gsmartcontrol"
+
+fi
 
 print_info "Install tree"
 package_install "tree"
@@ -285,8 +309,12 @@ package_install "nmap"
 print_info "Install gnu-netcat"
 package_install "gnu-netcat"
 
-print_info "Install powertop"
-package_install "powertop"
+
+if [ $isServer == "n" ]; then
+    print_info "Install powertop"
+    package_install "powertop"
+fi
+
 
 print_info "Install pkgfile"
 package_install "pkgfile"
@@ -298,11 +326,11 @@ package_install "bind-tools"
 
 
 
+if [ $isServer == "n" ]; then
+    print_info "Install smartcard things"
+    package_install "ccid pcsc-tools opensc"
 
-print_info "Install smartcard things"
-package_install "ccid pcsc-tools opensc"
-
-
+fi
 
 
 

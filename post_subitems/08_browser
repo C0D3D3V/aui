@@ -4,17 +4,21 @@
 print_title "Install browser APPS"
 
 
-print_info "Install chromium" 
-package_install "chromium"
-aur_package_install "chromium-widevine" #chromium-widevine für DRM
+if [ $isServer == "n" ]; then
+
+    print_info "Install chromium" 
+    package_install "chromium"
+    aur_package_install "chromium-widevine" #chromium-widevine für DRM
 
 
-print_info "Install firefox" 
-package_install "firefox firefox-i18n-de"
+    print_info "Install firefox" 
+    package_install "firefox firefox-i18n-de"
 
-print_info "Install tor-browser" 
-run_as_user "gpg --recv-keys D1483FA6C3C07136"
-aur_package_install "tor-browser-de"
+    print_info "Install tor-browser" 
+    run_as_user "gpg --recv-keys D1483FA6C3C07136"
+    aur_package_install "tor-browser-de"
+
+fi
 
 
 print_info "Install links"  

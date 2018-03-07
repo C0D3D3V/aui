@@ -3,11 +3,14 @@
 
 print_title "Install Trololol"
 
+if [ $isServer == "n" ]; then
+    print_info "Install ddnet"
 
-print_info "Install ddnet"
+    print_info "Install sl" 
+    package_install "sl"
+    
+    print_info "Install cmatrix" 
+    package_install "cmatrix"
 
-print_info "Install sl" 
-package_install "sl"
- 
-print_info "Install cmatrix" 
-package_install "cmatrix"
+
+fi

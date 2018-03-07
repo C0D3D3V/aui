@@ -29,6 +29,78 @@ print_line
 
 
 
+#Options
+yn_question "Is this a server installation? Then no gui/desktop application will be installed!"
+isServer=$ynAnswer
+
+
+
+if [ $isServer == "n" ]; then
+
+    yn_question "Do you want to install WiFi penetration testing tools?"
+    wifiPenTools=$ynAnswer
+
+
+    yn_question "Do you want to install Wacom suport"
+    wacomSupport=$ynAnswer
+
+    yn_question "Do you want to install Tablet suport"
+    tebletSupport=$ynAnswer
+
+    yn_question "Do you want to install TLP?"
+    tplManager=$ynAnswer
+
+    if [[ $tplManager == y ]]; then
+	yn_question "Install Lenovo TLP tools"
+	lenovoTplManager=$ynAnswer
+    fi
+
+
+    
+fi
+
+
+print_info "Set sudo username"
+USERentered=0
+user_exists=0
+skip_user_config=0
+
+while [ $user_exists -eq 0 ];
+do
+
+    while [ $USERentered -eq 0 ];
+    do
+
+	read -p "Please enter a username for the system: " username
+	print_info "This user will be a sudo user!"
+	yn_question "Do you realy want to use ${username}?"
+	if [ $ynAnswer == "y" ]; then
+	    USERentered=1
+	fi
+    done
+
+
+    user_exists=$(id -u "$username" > /dev/null 2>&1; echo $?)
+
+    if [ $user_exists -eq 0 ]; then
+	yn_question "This user already exists, do you realy want to use ${username}?"
+	if [ $ynAnswer == "y" ]; then
+	    user_exists=1
+	    skip_user_config=1
+	fi
+	if [ $ynAnswer == "n" ]; then
+	    USERentered=0
+	fi
+    fi
+
+done
+print_info "Your username is now $username"
+
+
+
+
+
+
 #create user
 include_file "post_subitems/00_userinstall"
 

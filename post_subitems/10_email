@@ -3,11 +3,12 @@
 
 print_title "Install email tools"
 
+if [ $isServer == "n" ]; then
+    print_info "Install thunderbird" 
+    package_install "thunderbird"
+    package_install "thunderbird-i18n-de"
 
-print_info "Install thunderbird" 
-package_install "thunderbird"
-package_install "thunderbird-i18n-de"
-
-#NOTMARCEL
-print_info "Install liferea" 
-package_install "liferea"
+    #NOTMARCEL
+    print_info "Install liferea" 
+    package_install "liferea"
+fi

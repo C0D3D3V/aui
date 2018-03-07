@@ -3,143 +3,153 @@
 
 print_title "Install DEVELOPMENT APPS"
 
+if [ $isServer == "n" ]; then
+    #Editors
+    print_info "Install emacs - Best Editor"  
+    package_install "emacs terminus-font" 
 
-#Editors
-print_info "Install emacs - Best Editor"  
-package_install "emacs terminus-font" 
+    #print_info "Install vim - Some Editor"  
+    #package_install "vim" 
 
-#print_info "Install vim - Some Editor"  
-#package_install "vim" 
-
-print_info "Install gvim - Vi with gui"  
-package_install "gvim" 
-
-
-
-
-#NOTMARCEL
-print_info "Install sublime3 - Nice Editor"  
-aur_package_install "sublime-text-dev" 
-#aur_package_install "sublime-text" 
+    print_info "Install gvim - Vi with gui"  
+    package_install "gvim" 
 
 
 
 
-
-print_info "Install diffuse"  
-package_install "diffuse"
-
-
-
-print_info "Install bless Hex-Editor"  
-package_install "bless"
-
-
-
-print_info "Install codeblocks"  
-package_install "codeblocks"
-
-
-print_info "Install cmake"  
-package_install "cmake"
-
-print_info "Install binwalk"  
-package_install "binwalk"
-
-
-
-#TOMUCH
-#print_info "Install Android Studio"  
-#run_as_user "gpg --recv-keys 702353E0F7E48EDB"
-#aur_package_install "android-sdk android-sdk-platform-tools android-sdk-build-tools android-platform" #android-ndk
-#
-#add_user_to_group $username sdkusers
-#chown -R :sdkusers /opt/android-sdk/
-#chmod -R g+w /opt/android-sdk/
-#add_line "export ANDROID_HOME=/opt/android-sdk" "/home/${username}/.bashrc"
-#
-#
-#
-#
-#aur_package_install "android-studio"
-#touch /opt/android-studio/bin/studio64.vmoptions
-#add_line "-Djava.io.tmpdir=/var/tmp/" "/opt/android-studio/bin/studio64.vmoptions"
-#
-#
-#add_user_to_group $username plugdev
-#
-#
-#
-#print_info "Install gradle"  
-#package_install "gradle"
+    #NOTMARCEL
+    print_info "Install sublime3 - Nice Editor"  
+    aur_package_install "sublime-text-dev" 
+    #aur_package_install "sublime-text" 
 
 
 
 
 
-#TOMUCH
-#NOTMARCEL
-#print_info "Install monodevelop - dot net shit"  
-#package_install "mono mono-tools"
-#aur_package_install "monodevelop-stable"
-#fix https://bugs.archlinux.org/task/52939
-#ln -s /usr/lib/libgit2.so /usr/lib/libgit2-e8b8948.so
+    print_info "Install diffuse"  
+    package_install "diffuse"
 
 
 
-#TOMUCH
-#NOTMARCEL
-#print_info "Install qtcreator"  
-#package_install "qtcreator qt5-doc" #android-qt5-arm64-v8a #dont install this .... shitty compile time 8h
+    print_info "Install bless Hex-Editor"  
+    package_install "bless"
+
+
+    #TOMUCH
+    #print_info "Install codeblocks"  
+    #package_install "codeblocks"
+
+
+    print_info "Install cmake"  
+    package_install "cmake"
+
+    print_info "Install binwalk"  
+    package_install "binwalk"
+
+
+
+    #TOMUCH
+    #print_info "Install Android Studio"  
+    #run_as_user "gpg --recv-keys 702353E0F7E48EDB"
+    #aur_package_install "android-sdk android-sdk-platform-tools android-sdk-build-tools android-platform" #android-ndk
+    #
+    #add_user_to_group $username sdkusers
+    #chown -R :sdkusers /opt/android-sdk/
+    #chmod -R g+w /opt/android-sdk/
+    #add_line "export ANDROID_HOME=/opt/android-sdk" "/home/${username}/.bashrc"
+    #
+    #
+    #
+    #
+    #aur_package_install "android-studio"
+    #touch /opt/android-studio/bin/studio64.vmoptions
+    #add_line "-Djava.io.tmpdir=/var/tmp/" "/opt/android-studio/bin/studio64.vmoptions"
+    #
+    #
+    #add_user_to_group $username plugdev
+    #
+    #
+    #
+    #print_info "Install gradle"  
+    #package_install "gradle"
 
 
 
 
-#NOTMARCEL
-print_info "Install MySQL Workbench"  
-package_install "mysql-workbench"
 
-#NOTMARCEL
-print_info "Install postgress Admin"
-package_install "pgadmin4"
+    #TOMUCH
+    #NOTMARCEL
+    #print_info "Install monodevelop - dot net shit"  
+    #package_install "mono mono-tools"
+    #aur_package_install "monodevelop-stable"
+    #fix https://bugs.archlinux.org/task/52939
+    #ln -s /usr/lib/libgit2.so /usr/lib/libgit2-e8b8948.so
+
+
+
+    #TOMUCH
+    #NOTMARCEL
+    #print_info "Install qtcreator"  
+    #package_install "qtcreator qt5-doc" #android-qt5-arm64-v8a #dont install this .... shitty compile time 8h
+
+
+
+
+    #NOTMARCEL
+    print_info "Install MySQL Workbench"  
+    package_install "mysql-workbench"
+
+    #NOTMARCEL
+    print_info "Install postgress Admin"
+    package_install "pgadmin4"
+
+fi
+
+
+
 
 #NOTMARCEL
 print_info "Install sqlite3"  
 package_install "sqlite3"
 
-print_info "Install H2"  
-aur_package_install "h2"
-
-cecho "Install sqlitebrowser"  
-package_install "sqlitebrowser"
 
 
+if [ $isServer == "n" ]; then
+    print_info "Install H2"  
+    aur_package_install "h2"
 
-
-
-
-print_info "Install OpenJDK"  
-#maybe switch to oracle shit
-package_install "jdk8-openjdk icedtea-web"  
-archlinux-java set java-8-openjdk/jre
-
-#TOMUCH
-#NOTMARCEL
-#print_info "Install eclipse"  
-#package_install "eclipse-jee tomcat8"
-#add_user_to_group $username tomcat8
-
-
-#NOTMARCEL
-print_info "Install intellij - just more shit"  
-package_install "intellij-idea-community-edition"
-
-
-print_info "Install jadx - decompiler for java"  
-package_install "jadx"
+    cecho "Install sqlitebrowser"  
+    package_install "sqlitebrowser"
 
 
 
+
+
+
+    print_info "Install OpenJDK"  
+    #maybe switch to oracle shit
+    package_install "jdk8-openjdk icedtea-web"  
+    archlinux-java set java-8-openjdk/jre
+
+    #TOMUCH
+    #NOTMARCEL
+    #print_info "Install eclipse"  
+    #package_install "eclipse-jee tomcat8"
+    #add_user_to_group $username tomcat8
+
+
+    #NOTMARCEL
+    print_info "Install intellij - just more shit"  
+    package_install "intellij-idea-community-edition"
+
+
+    print_info "Install jadx - decompiler for java"  
+    package_install "jadx"
+
+
+
+
+fi
 
 
 
@@ -169,8 +179,10 @@ print_info "Install clang"
 package_install "clang"
 
 
-print_info "Install Ardoino"  
-package_install "arduino arduino-avr-core"
+
+if [ $isServer == "n" ]; then
+    print_info "Install Ardoino"  
+    package_install "arduino arduino-avr-core"
 
 
 
@@ -179,18 +191,18 @@ package_install "arduino arduino-avr-core"
 
 
 
-#tools
-#NOTMARCEL
-print_info "Install gource"  
-package_install "gource"
+    #tools
+    #NOTMARCEL
+    print_info "Install gource"  
+    package_install "gource"
 
 
 
 
-#mockups
-#cecho "Install balsamiqmockups"  
-#aur_package_install "balsamiqmockups" #dont install this shit... Hat wine als Dep.
+    #mockups
+    #cecho "Install balsamiqmockups"  
+    #aur_package_install "balsamiqmockups" #dont install this shit... Hat wine als Dep.
 
 
-
+fi
 

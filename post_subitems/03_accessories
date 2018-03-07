@@ -3,22 +3,22 @@
 
 print_title "Install accessories APPS"
 
-
-#NOTMARCEL
-print_info "Install conky-lua - Sensore Gadgets"  
-aur_package_install "conky-lua"
-package_install "lm_sensors"
-sensors-detect --auto
-
-
+if [ $isServer == "n" ]; then
+    #NOTMARCEL
+    print_info "Install conky-lua - Sensore Gadgets"  
+    aur_package_install "conky-lua"
+    package_install "lm_sensors"
+    sensors-detect --auto
 
 
 
 
-#enpass-bin passwort manager
 
 
+    #enpass-bin passwort manager
 
+
+fi
 
 
 #print_info "Install terminator - Terminal multiplexer"   

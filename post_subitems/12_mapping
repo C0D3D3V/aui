@@ -3,6 +3,9 @@
 
 print_title "Install Mapping Tools"
 
-print_info "Install google-earth" 
-aur_package_install "google-earth"
+if [ $isServer == "n" ]; then
+    
+    print_info "Install google-earth" 
+    aur_package_install "google-earth"
 
+fi

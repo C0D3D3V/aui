@@ -3,216 +3,221 @@
 
 print_title "Install office APPS"
 
+if [ $isServer == "n" ]; then
+    #bücher
+    print_info "Install keepassxc"  
+    package_install "keepassxc"
 
-#bücher
-print_info "Install keepassxc"  
-package_install "keepassxc"
+    print_info "Install calibre"  
+    package_install "calibre"
 
-print_info "Install calibre"  
-package_install "calibre"
 
 
 
+    #git docu
+    #cecho "Install haroopad"  
+    #aur_package_install "haroopad"
 
-#git docu
-#cecho "Install haroopad"  
-#aur_package_install "haroopad"
 
+    #cecho "Install remarkable"  
+    #aur_package_install "remarkable"
 
-#cecho "Install remarkable"  
-#aur_package_install "remarkable"
 
 
 
 
+    #finanze
+    #print_info "Install homebank - finanze manager"  
+    #package_install "homebank"
 
-#finanze
-#print_info "Install homebank - finanze manager"  
-#package_install "homebank"
 
 
 
+    #latex
+    print_info "Install latex + texstudio"  
+    package_install "texlive-most  texlive-bin texstudio" #texlive-lang
 
-#latex
-print_info "Install latex + texstudio"  
-package_install "texlive-most  texlive-bin texstudio" #texlive-lang
 
 
 
 
 
+    #office
+    print_info "Install Libreoffice - https://wiki.archlinux.org/index.php/LibreOffice"
+    #package_install "libreoffice-fresh"
+    package_install "libreoffice-fresh-de"
+    #NOTMARCEL
+    package_install "hunspell hunspell-de"
+    #NOTMARCEL
+    package_install "aspell aspell-de aspell-en"
 
-#office
-print_info "Install Libreoffice - https://wiki.archlinux.org/index.php/LibreOffice"
-#package_install "libreoffice-fresh"
-package_install "libreoffice-fresh-de"
-#NOTMARCEL
-package_install "hunspell hunspell-de"
-#NOTMARCEL
-package_install "aspell aspell-de aspell-en"
 
 
 
 
 
+    #screenrecorder
+    #NOTMARCEL
+    print_info "Instally qt-recordmydesktop - screen recorder"
+    package_install "qt-recordmydesktop"
 
-#screenrecorder
-#NOTMARCEL
-print_info "Instally qt-recordmydesktop - screen recorder"
-package_install "qt-recordmydesktop"
 
 
 
+    #ocr analyse
+    #NOTMARCEL
+    print_info "Install ocrfeeder"   #require aspell
+    package_install "ocrfeeder tesseract gocr"
 
-#ocr analyse
-#NOTMARCEL
-print_info "Install ocrfeeder"   #require aspell
-package_install "ocrfeeder tesseract gocr"
 
 
 
 
 
+    #Scan Tools
+    #NOTMARCEL
+    print_info "Install gscan2pdf - Scan tool" 
+    aur_package_install "gscan2pdf"
 
-#Scan Tools
-#NOTMARCEL
-print_info "Install gscan2pdf - Scan tool" 
-aur_package_install "gscan2pdf"
 
 
 
 
 
 
+    #PDF READER
+    #cecho "Install xmind - Mindmaps"   
+    #aur_package_install "xmind"
 
-#PDF READER
-#cecho "Install xmind - Mindmaps"   
-#aur_package_install "xmind"
+    #cecho "Install Foxit pdf reader"   
+    #aur_package_install "foxitreader"
 
-#cecho "Install Foxit pdf reader"   
-#aur_package_install "foxitreader"
 
 
 
+    print_info "Install masterpdfeditor"   
+    aur_package_install "masterpdfeditor"
 
-print_info "Install masterpdfeditor"   
-aur_package_install "masterpdfeditor"
 
+    print_info "Install diffpdf pdf-decrypt pdf2png pdfgrep"  
+    package_install "pdfgrep"
+    aur_package_install "diffpdf pdf-decrypt pdf2png"
 
-print_info "Install diffpdf pdf-decrypt pdf2png pdfgrep"  
-package_install "pdfgrep"
-aur_package_install "diffpdf pdf-decrypt pdf2png"
 
 
 
 
 
+    #MATH-TOOLS
+    print_info "Install geogebra"   
+    package_install "geogebra"
 
-#MATH-TOOLS
-print_info "Install geogebra"   
-package_install "geogebra"
+    echo "Install maxima"
+    package_install "maxima"
 
-echo "Install maxima"
-package_install "maxima"
 
 
 
 
+    #DIAGRAM TOOLS
+    #cecho "Install yed"   
+    #aur_package_install "yed"
 
-#DIAGRAM TOOLS
-#cecho "Install yed"   
-#aur_package_install "yed"
+    #NOTMARCEL
+    print_info "Install dia - uml tool"   
+    package_install "dia"
 
-#NOTMARCEL
-print_info "Install dia - uml tool"   
-package_install "dia"
+    #cecho "Install dbvis - dbvison tool"
+    #aur_package_install "dbvis"
 
-#cecho "Install dbvis - dbvison tool"
-#aur_package_install "dbvis"
+    #print_info "Install umbrello"   
+    #package_install "umbrello"
 
-#print_info "Install umbrello"   
-#package_install "umbrello"
 
 
 
 
 
+    #Cryptocurrency Tools
 
-#Cryptocurrency Tools
+    #NOTMARCEL
+    print_info "Install electrum"   
+    package_install "electrum"
+    aur_package_install "electrum-mona"
 
-#NOTMARCEL
-print_info "Install electrum"   
-package_install "electrum"
-aur_package_install "electrum-mona"
+    #only for mining
+    #cecho "Install bitcoin-qt" 
+    #aur_package_install "bitcoin-qt"
 
-#only for mining
-#cecho "Install bitcoin-qt" 
-#aur_package_install "bitcoin-qt"
 
+    #NOTMARCEL
+    #print_info "Install bisq - bitcoin p2p market" 
+    #aur_package_install "bisq-git"  
 
-#NOTMARCEL
-#print_info "Install bisq - bitcoin p2p market" 
-#aur_package_install "bisq-git"  
 
+    #TOMUCH
+    #print_info "Install zcash"   
+    #package_install "zcash"
 
-#TOMUCH
-#print_info "Install zcash"   
-#package_install "zcash"
+    #run_as_user "gpg --recv-keys 45CE8E0631DED8DE"
+    #print_info "Install  zcash-swing-wallet-ui-git -- Desktop GUI Wallet for ZCash" 
+    #aur_package_install "zcash-swing-wallet-ui-git"  
 
-#run_as_user "gpg --recv-keys 45CE8E0631DED8DE"
-#print_info "Install  zcash-swing-wallet-ui-git -- Desktop GUI Wallet for ZCash" 
-#aur_package_install "zcash-swing-wallet-ui-git"  
 
 
 
 
+    #cecho "Install matlab - huge math tool ~23GB" 
+    #aur_package_install "matlab"  
 
-#cecho "Install matlab - huge math tool ~23GB" 
-#aur_package_install "matlab"  
 
+    #aur_package_install "bitcoin-core"
+    #run_as_user "mkdir -p ~/.bitcoin" 
+    #run_as_user "cat > ~/.bitcoin/bitcoin.conf <<'EOF'                       ##
+    #rpcconnect=127.0.0.1                                          ##
+    #rpcport=8332                                                  ##
+    #rpcuser=bitcoin                                               ##
+    #rpcpassword=secret                                            ##
+    #EOF"
 
-#aur_package_install "bitcoin-core"
-#run_as_user "mkdir -p ~/.bitcoin" 
-#run_as_user "cat > ~/.bitcoin/bitcoin.conf <<'EOF'                       ##
-#rpcconnect=127.0.0.1                                          ##
-#rpcport=8332                                                  ##
-#rpcuser=bitcoin                                               ##
-#rpcpassword=secret                                            ##
-#EOF"
 
 
 
+    #NOTES
+    print_info "Install xournal" 
+    package_install "xournal"
 
-#NOTES
-print_info "Install xournal" 
-package_install "xournal"
 
 
 
 
 
+    #webcam
+    print_info "Install cheese" 
+    package_install "cheese"
 
-#webcam
-print_info "Install cheese" 
-package_install "cheese"
 
 
 
 
+    #TOMUCH
+    #File upload
+    #print_info "Install filezilla"  
+    #package_install "filezilla"
 
-#TOMUCH
-#File upload
-#print_info "Install filezilla"  
-#package_install "filezilla"
 
 
 
 
 
+    #RAT
+    print_info "Install x11vnc - VNC client" 
+    package_install "x11vnc"
 
-#RAT
-print_info "Install x11vnc - VNC client" 
-package_install "x11vnc"
+    #cecho "Install RAT"  
+    #package_install "remmina"    #Remote desktop
 
-#cecho "Install RAT"  
-#package_install "remmina"    #Remote desktop
+
+
+
+fi

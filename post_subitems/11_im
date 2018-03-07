@@ -3,26 +3,27 @@
 
 print_title "Install Instant Messanger"
 
-
-print_info "Install weechat" #konversation
-package_install "weechat" #konversation
-
-
-#print_info "Install skype" 
-#aur_package_install "skypeforlinux-bin"
+if [ $isServer == "n" ]; then
+    print_info "Install weechat" #konversation
+    package_install "weechat" #konversation
 
 
-print_info "Install teamspeak3" 
-package_install "teamspeak3"
-
-print_info "Install gajim" 
-package_install "gajim"
-aur_package_install "gajim-plugin-omemo"
+    #print_info "Install skype" 
+    #aur_package_install "skypeforlinux-bin"
 
 
-#NOTMARCEL
-#print_info "Install qtox" 
-#aur_package_install "qtox-git"
+    print_info "Install teamspeak3" 
+    package_install "teamspeak3"
+
+    print_info "Install gajim" 
+    package_install "gajim"
+    aur_package_install "gajim-plugin-omemo"
+
+
+    #NOTMARCEL
+    #print_info "Install qtox" 
+    #aur_package_install "qtox-git"
 
 
 
+fi

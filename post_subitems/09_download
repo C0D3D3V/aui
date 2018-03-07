@@ -3,21 +3,24 @@
 
 print_title "Install DOWNLOAD tools"
 
+if [ $isServer == "n" ]; then
+    #cecho "Install deluge - bittorrent client" 
+    #package_install "deluge"
 
-#cecho "Install deluge - bittorrent client" 
-#package_install "deluge"
-
-#cecho "Install rslsync - bittorrent sync" 
-#aur_package_install "rslsync"
+    #cecho "Install rslsync - bittorrent sync" 
+    #aur_package_install "rslsync"
 
 
 
-print_info "Install JDownlaoder2" 
-aur_package_install "jdownloader2"
+    print_info "Install JDownlaoder2" 
+    aur_package_install "jdownloader2"
 
-#NOTMARCEL
-print_info "owncloud client"
-package_install "owncloud-client"
+    #NOTMARCEL
+    print_info "owncloud client"
+    package_install "owncloud-client"
 
-print_info "Install transmission-qt - BitTorrent client" 
-package_install "transmission-qt"
+    print_info "Install transmission-qt - BitTorrent client" 
+    package_install "transmission-qt"
+
+
+fi
