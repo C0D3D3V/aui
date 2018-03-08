@@ -10,4 +10,5 @@ It was intendet to be used by beginners. But as it got bigger and bigger... ther
 If you want to try it out, see https://github.com/helmuthdu/aui for instructions. 
 
 liveinstall equates to fifo
+
 postinstall equates to lilo
