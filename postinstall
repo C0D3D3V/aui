@@ -7,6 +7,9 @@ else
   exit 1
 fi
 
+pls_enter "What do you want to add to the begin of the new log?" 
+cecho "$sthInsertion"
+
 check_root
 
 print_line
@@ -67,7 +70,7 @@ skip_user_config=0
 
 while [ $user_exists -eq 0 ];
 do
-
+    
     while [ $USERentered -eq 0 ];
     do
 

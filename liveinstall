@@ -8,6 +8,9 @@ else
   exit 1
 fi
 
+pls_enter "What do you want to add to the begin of the new log?" 
+cecho "$sthInsertion"
+
 check_root
 check_boot_system
 
@@ -151,22 +154,33 @@ pvcreate /dev/mapper/lvm >>"$LOG" 2>&1 &
 pid=$!;progress $pid
 
 
-ncecho "vgcreate main /dev/mapper/lvm "
-vgcreate main /dev/mapper/lvm >>"$LOG" 2>&1 & 
+pls_enter "How should the volume group be named?" 
+volumeGroup=$sthInsertion
+
+
+ncecho "vgcreate ${volumeGroup} /dev/mapper/lvm "
+vgcreate ${volumeGroup} /dev/mapper/lvm >>"$LOG" 2>&1 & 
 pid=$!;progress $pid
 
-#lvcreate -L 200GB -n root main
+#lvcreate -L 200GB -n ${rootName} ${volumeGroup}
 
-ncecho "lvcreate -L 8GB -n swap main "
-lvcreate -L 8GB -n swap main >>"$LOG" 2>&1 & 
+pls_enter "How should the swap partition be named?" 
+swapName=$sthInsertion
+
+ncecho "lvcreate -L 8GB -n swap ${volumeGroup} "
+lvcreate -L 8GB -n ${swapName} ${volumeGroup} >>"$LOG" 2>&1 & 
 pid=$!;progress $pid
 
-ncecho "lvcreate -l 100%FREE -n root main "
-lvcreate -l 100%FREE -n root main >>"$LOG" 2>&1 &   #home
+
+pls_enter "How should the root partition be named?" 
+rootName=$sthInsertion
+
+ncecho "lvcreate -l 100%FREE -n root ${volumeGroup} "
+lvcreate -l 100%FREE -n ${rootName} ${volumeGroup} >>"$LOG" 2>&1 &   #home
 pid=$!;progress $pid 
 
 print_warning "If something faild use following commands to remove the partitions."
-cecho "vgreduce main /dev/mapper/lvm"
+cecho "vgreduce ${volumeGroup} /dev/mapper/lvm"
 cecho "pvremove /dev/mapper/lvm"
 
 read -p "Press enter to continue [be sure partitions are created]"
@@ -175,22 +189,35 @@ print_line
 
 print_title "Create Filesystem [https://wiki.archlinux.org/index.php/file_systems]"
 
-ncecho "mkfs.ext4 -L root /dev/mapper/main-root "			#-O \^64bit
-mkfs.ext4 -L root /dev/mapper/main-root  >>"$LOG" 2>&1 & 	#-O \^64bit
+ncecho "mkfs.ext4 -L ${rootName} ${volumeGroup} >>"$LOG" 2>&1 &   #home
+pid=$!;progress $pid 
+
+print_warning "If something faild use following commands to remove the partitions."
+cecho "vgreduce ${volumeGroup} /dev/mapper/lvm"
+cecho "pvremove /dev/mapper/lvm"
+
+read -p "Press enter to continue [be sure partitions are created]"
+
+print_line
+
+print_title "Create Filesystem [https://wiki.archlinux.org/index.php/file_systems]"
+
+ncecho "mkfs.ext4 -L  /dev/mapper/${volumeGroup}-${rootName}"			#-O \^64bit
+mkfs.ext4 -L ${rootName} /dev/mapper/${volumeGroup}-${rootName}  >>"$LOG" 2>&1 & 	#-O \^64bit
 pid=$!;progress $pid
-#mkfs.ext4 -L home -O \^64bit /dev/mapper/main-home
+#mkfs.ext4 -L home -O \^64bit /dev/mapper/${volumeGroup}-home
 
 #deactivate journal
-#tune2fs -O ^has_journal /dev/mapper/main-root
-#tune2fs -O ^has_journal /dev/mapper/main-home
+#tune2fs -O ^has_journal /dev/mapper/${volumeGroup}-${rootName}
+#tune2fs -O ^has_journal /dev/mapper/${volumeGroup}-home
 
 
 ncecho "mkfs.fat -F32 -n BOOT $BOOT_DISK "
 mkfs.fat -F32 -n BOOT $BOOT_DISK  >>"$LOG" 2>&1 & 
 pid=$!;progress $pid
 
-ncecho "mkswap -L swap /dev/mapper/main-swap "
-mkswap -L swap /dev/mapper/main-swap  >>"$LOG" 2>&1 & 
+ncecho "mkswap -L ${swapName} /dev/mapper/${volumeGroup}-swap "
+mkswap -L  ${swapName} /dev/mapper/${volumeGroup}-${swapName}  >>"$LOG" 2>&1 & 
 pid=$!;progress $pid
 
 
@@ -198,12 +225,12 @@ print_line
 
 print_info "Mount Filesystem [https://wiki.archlinux.de/title/Mounten]"
 
-ncecho "mount /dev/mapper/main-root /mnt "
-mount /dev/mapper/main-root /mnt  >>"$LOG" 2>&1 & 
+ncecho "mount /dev/mapper/${volumeGroup}-${rootName} /mnt "
+mount /dev/mapper/${volumeGroup}-${rootName}  /mnt  >>"$LOG" 2>&1 & 
 pid=$!;progress $pid
 
 #mkdir /mnt/home
-#mount /dev/mapper/main-home /mnt/home
+#mount /dev/mapper/${volumeGroup}-home /mnt/home
 mkdir /mnt/boot
 
 ncecho "mount $BOOT_DISK /mnt/boot "
@@ -213,7 +240,7 @@ pid=$!;progress $pid
 
 print_info "Activate Swap [https://wiki.archlinux.org/index.php/swap]"
 
-swapon -L swap
+swapon -L ${swapName}
 
 
 print_line
@@ -354,6 +381,7 @@ print_info "Change Linux Kernel Modules  [https://wiki.archlinux.org/index.php/m
 
 #MODULES="ext4"
 #HOOKS="base udev keyboard keymap autodetect modconf block encrypt lvm2 filesystems fsck shutdown"
+sed -i '/^HOOK/s/keyboard//' /mnt/etc/mkinitcpio.conf
 sed -i '/^HOOK/s/block/block encrypt lvm2/' /mnt/etc/mkinitcpio.conf
 sed -i '/^HOOK/s/fsck/fsck shutdown/' /mnt/etc/mkinitcpio.conf
 sed -i '/^HOOK/s/autodetect/keyboard keymap autodetect/' /mnt/etc/mkinitcpio.conf
@@ -387,7 +415,11 @@ fi
 pid=$!;progress $pid
 
 
-sed -i -e "s|GRUB_CMDLINE_LINUX=\"\(.\+\)\"|GRUB_CMDLINE_LINUX=\"cryptdevice=${LUKS_DISK}:cryptolvm\"|g" -e "s|GRUB_CMDLINE_LINUX=\"\"|GRUB_CMDLINE_LINUX=\"cryptdevice=${LUKS_DISK}:cryptolvm\"|g" /mnt/etc/default/grub
+#get uuid of luks_disk
+luksUUDI=$(blkid -s UUID -o value ${LUKS_DISK})
+
+
+sed -i -e "s|GRUB_CMDLINE_LINUX=\"\(.\+\)\"|GRUB_CMDLINE_LINUX=\"cryptdevice=UUID=${luksUUDI}:cryptlvm root=/dev/mapper/${volumeGroup}-${rootName}\"|g" -e "s|GRUB_CMDLINE_LINUX=\"\"|GRUB_CMDLINE_LINUX=\"cryptdevice=UUID=${luksUUDI}:cryptlvm root=/dev/mapper/${volumeGroup}-${rootName}\"|g" /mnt/etc/default/grub
 
 sed -i 's/#GRUB_ENABLE_CRYPTODISK=y/GRUB_ENABLE_CRYPTODISK=y/' /mnt/etc/default/grub
 

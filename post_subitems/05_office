@@ -143,7 +143,7 @@ if [ $isServer == "n" ]; then
     #NOTMARCEL
     print_info "Install electrum"   
     package_install "electrum"
-    aur_package_install "electrum-mona"
+  #  aur_package_install "electrum-mona"
 
     #only for mining
     #cecho "Install bitcoin-qt" 
