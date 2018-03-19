@@ -179,6 +179,9 @@ print_info "Install clang"
 package_install "clang"
 
 
+print_info "Install pastebinit"  
+package_install "pastebinit"
+
 
 if [ $isServer == "n" ]; then
     print_info "Install Ardoino"  
