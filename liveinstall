@@ -187,24 +187,12 @@ cecho "pvremove /dev/mapper/lvm"
 
 read -p "Press enter to continue [be sure partitions are created]"
 
-print_line
-
-print_title "Create Filesystem [https://wiki.archlinux.org/index.php/file_systems]"
-
-ncecho "mkfs.ext4 -L ${rootName} ${volumeGroup} >>"$LOG" 2>&1 &   #home
-pid=$!;progress $pid 
-
-print_warning "If something faild use following commands to remove the partitions."
-cecho "vgreduce ${volumeGroup} /dev/mapper/lvm"
-cecho "pvremove /dev/mapper/lvm"
-
-read -p "Press enter to continue [be sure partitions are created]"
 
 print_line
 
 print_title "Create Filesystem [https://wiki.archlinux.org/index.php/file_systems]"
 
-ncecho "mkfs.ext4 -L  /dev/mapper/${volumeGroup}-${rootName}"			#-O \^64bit
+ncecho "mkfs.ext4 -L ${rootName} /dev/mapper/${volumeGroup}-${rootName}"  			#-O \^64bit
 mkfs.ext4 -L ${rootName} /dev/mapper/${volumeGroup}-${rootName}  >>"$LOG" 2>&1 & 	#-O \^64bit
 pid=$!;progress $pid
 #mkfs.ext4 -L home -O \^64bit /dev/mapper/${volumeGroup}-home
@@ -213,13 +201,15 @@ pid=$!;progress $pid
 #tune2fs -O ^has_journal /dev/mapper/${volumeGroup}-${rootName}
 #tune2fs -O ^has_journal /dev/mapper/${volumeGroup}-home
 
+pls_enter "How should the boot partition be named?" 
+bootName=$sthInsertion
 
-ncecho "mkfs.fat -F32 -n BOOT $BOOT_DISK "
-mkfs.fat -F32 -n BOOT $BOOT_DISK  >>"$LOG" 2>&1 & 
+ncecho "mkfs.fat -F32 -n ${bootName} $BOOT_DISK "
+mkfs.fat -F32 -n ${bootName} $BOOT_DISK  >>"$LOG" 2>&1 & 
 pid=$!;progress $pid
 
 ncecho "mkswap -L ${swapName} /dev/mapper/${volumeGroup}-swap "
-mkswap -L  ${swapName} /dev/mapper/${volumeGroup}-${swapName}  >>"$LOG" 2>&1 & 
+mkswap -L ${swapName} /dev/mapper/${volumeGroup}-${swapName}  >>"$LOG" 2>&1 & 
 pid=$!;progress $pid
 
 
