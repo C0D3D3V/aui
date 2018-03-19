@@ -103,6 +103,14 @@ package_install "traceroute"
 print_info "Install whois"
 package_install "whois"
 
+print_info "Install gdisk"
+package_install "gptfdisk"
+
+print_info "Install arch-install-scripts"
+package_install "arch-install-scripts"
+
+
+
 
 
 
