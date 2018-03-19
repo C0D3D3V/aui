@@ -406,6 +406,7 @@ check_connection(){
 	cecho "Connection found!"
         ping -c 2 google.com
     fi
+    ping -c 2 google.com
 }
 
 
