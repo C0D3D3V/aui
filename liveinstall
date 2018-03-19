@@ -17,6 +17,12 @@ check_boot_system
 
 print_line
 
+print_info "Load German Keymap [https://wiki.archlinux.org/index.php/Keyboard_configuration_in_console]"
+#cecho "Be sure to load Keymap with loadkeys de-latin1"
+ncecho "loadkeys de-latin1 "
+loadkeys de-latin1 >>"$LOG" 2>&1 & 
+pid=$!;progress $pid
+
 check_connection
 
 pause_function
@@ -28,11 +34,7 @@ pause_function
 
 print_line
 
-print_info "Load German Keymap [https://wiki.archlinux.org/index.php/Keyboard_configuration_in_console]"
-#cecho "Be sure to load Keymap with loadkeys de-latin1"
-ncecho "loadkeys de-latin1 "
-loadkeys de-latin1 >>"$LOG" 2>&1 & 
-pid=$!;progress $pid
+
 
 print_line 
 
