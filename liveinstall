@@ -61,6 +61,7 @@ else
     print_warning " Unable to update, could not download list."
 fi
 
+chmod 644 /etc/pacman.d/mirrorlist
 
   
 #cp /etc/pacman.d/mirrorlist /etc/pacman.d/mirrorlist.bak
@@ -74,6 +75,7 @@ rankmirrors /etc/pacman.d/mirrorlist.tmp > /etc/pacman.d/mirrorlist &
 pid=$!;progress $pid
 
 rm /etc/pacman.d/mirrorlist.tmp
+chmod 644 /etc/pacman.d/mirrorlist
 
 
 
