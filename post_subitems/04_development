@@ -12,7 +12,11 @@ if [ $isServer == "n" ]; then
     #package_install "vim" 
 
     print_info "Install gvim - Vi with gui"  
-    package_install "gvim" 
+    package_install "gvim"
+    #install spacevim
+    run_as_user "curl -sLf https://spacevim.org/install.sh | bash"
+    
+    
 
 
 

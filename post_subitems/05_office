@@ -35,7 +35,7 @@ if [ $isServer == "n" ]; then
 
     #latex
     print_info "Install latex + texstudio"  
-    package_install "texlive-most  texlive-bin texstudio" #texlive-lang
+    package_install "texlive-most  texlive-bin texstudio biber" #texlive-lang
 
 
 

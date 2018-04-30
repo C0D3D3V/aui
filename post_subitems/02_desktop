@@ -206,7 +206,7 @@ if [ $isServer == "n" ]; then
     #kate
 
     #dark design
-    package_install "arc-kde"
+    package_install "arc-kde arc-gtk-theme"
     aur_package_install "papirus-icon-theme"
 
     # config xinitrc
@@ -305,8 +305,15 @@ if [ $isServer == "n" ]; then
 
 
 
+
+
+    #install mtp
+    package_install "mtpfs android-file-transfer"
+
+
 fi
 
-
+ print_info "Install Server Fonts" 
+    package_install "nerd-fonts-complete"
 #pause_function
 
