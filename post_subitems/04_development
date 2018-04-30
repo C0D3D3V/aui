@@ -186,6 +186,12 @@ package_install "clang"
 print_info "Install pastebinit"  
 package_install "pastebinit"
 
+if [ $isServer == "y" ]; then
+  print_info "Install vim - Some Editor"  
+  package_install "vim" 
+
+   
+fi
 
 if [ $isServer == "n" ]; then
     print_info "Install Ardoino"  
