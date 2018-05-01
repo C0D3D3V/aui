@@ -104,19 +104,19 @@ print_info "Install xterm"
 package_install "xterm"
 
 
-run_as_user "wget https://raw.githubusercontent.com/robbyrussell/oh-my-zsh/master/tools/install.sh -O /var/tmp/install-oh-my-zsh.sh"
+#run_as_user "wget https://raw.githubusercontent.com/robbyrussell/oh-my-zsh/master/tools/install.sh -O /var/tmp/install-oh-my-zsh.sh"
 
 
-print_line
+#print_line
 
-read -p "Press enter to continue - Please exit zsh after finsh install with: exit"
+#read -p "Press enter to continue - Please exit zsh after finsh install with: exit"
 
-print_line
+#print_line
 
-run_as_user "sh /var/tmp/install-oh-my-zsh.sh"
+#run_as_user "sh /var/tmp/install-oh-my-zsh.sh"
 
-run_as_user "rm /var/tmp/install-oh-my-zsh.sh"
-
+#run_as_user "rm /var/tmp/install-oh-my-zsh.sh"
+aur_package_install "oh-my-zsh-git"
 
 print_line
 print_warning "This is the last pause!"
@@ -142,8 +142,8 @@ run_as_user "chsh -s /bin/zsh"
 
 
 
-print_info "Install Oh my Zsh for root 
-sh -c "$(wget https://raw.github.com/robbyrussell/oh-my-zsh/master/tools/install.sh -O -)"
+#print_info "Install Oh my Zsh for root" 
+#sh -c "$(wget https://raw.github.com/robbyrussell/oh-my-zsh/master/tools/install.sh -O -)"
 
 
 #pause_function
