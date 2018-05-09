@@ -267,10 +267,10 @@ if [ $isServer == "n" ]; then
 
 
 
-    if is_package_installed "libmtp" ; then
+    #if is_package_installed "libmtp" ; then
 	print_info "Install MTP Suptort"
-	package_install "gvfs-mtp"
-    fi
+	package_install "gvfs-mtp go-mtpfs"
+    #fi
 
 
     print_line
