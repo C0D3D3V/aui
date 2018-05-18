@@ -128,7 +128,7 @@ if [ $isServer == "n" ]; then
 
     print_info "Install Printer driver"
     #Canon MX920
-    aur_package_install "canon-pixma-mx920-complete"
+    aur_package_install "cups-bjnp cnijfilter-mx920 scangearmp2"
     #Samsunf
     aur_package_install "samsung-unified-driver"
     package_install "splix"
@@ -269,7 +269,7 @@ if [ $isServer == "n" ]; then
 
     #if is_package_installed "libmtp" ; then
 	print_info "Install MTP Suptort"
-	package_install "gvfs-mtp go-mtpfs"
+	package_install "gvfs-mtp gvfs-gphoto2 gvfs-nfs gvfs-afc gvfs-goa gvfs-google gvfs-smb"
     #fi
 
 

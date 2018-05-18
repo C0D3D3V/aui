@@ -4,8 +4,8 @@
 print_title "Install Instant Messanger"
 
 if [ $isServer == "n" ]; then
-    print_info "Install weechat" #konversation
-    package_install "weechat" #konversation
+    print_info "Install weechat and konversaion" #konversation
+    package_install "weechat konversation" #konversation
 
 
     #print_info "Install skype" 

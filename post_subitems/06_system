@@ -314,6 +314,7 @@ package_install "tree"
 print_info "Install nmap"
 package_install "nmap"
 
+
 print_info "Install gnu-netcat"
 package_install "gnu-netcat"
 
@@ -444,6 +445,79 @@ fi
 #name_servers=127.0.0.1' > /etc/resolvconf.conf
 #
 #system_ctl enable unbound.service
+
+
+
+
+
+print_info "Install mtr - ping tool"
+package_install "mtr"
+
+
+print_info "Install oping - ping tool"
+package_install "liboping"
+
+print_info "Install httpie - liefert http comand"
+package_install "httpie"
+
+print_info "Install aria2 - super downloader "
+package_install "aria2"
+
+print_info "Install jq - json file tool"
+package_install "jq"
+
+print_info "Install ripgrep - rg schnelles grep"
+package_install "ripgrep"
+
+print_info "Install fd - schnelles find - smartCase"
+package_install "fd"
+
+print_info "Install exa - schönes ls"
+package_install "exa"
+
+print_info "Install fzf - fuzzy scanner integriert in vim tmux zsh -- ctr+t alt+c -- kill"
+package_install "fzf"
+
+
+#if [ $isServer == "n" ]; then
+  print_info "Install ranger - cli explorer"
+  package_install "ranger atool ffmpegthumbnailer highlight lynx mediainfo odt2txt transmission-cli w3m "
+#fi
+#if [ $isServer == "y" ]; then
+#  print_info "Install ranger - cli explorer"
+#  package_install "ranger"
+#fi
+
+if [ $isServer == "n" ]; then
+  print_info "Install icdiff - netter diff"
+  package_install "icdiff"
+ # print_info "Install howdoi - find solutions"
+ # package_install "howdoi"
+
+  print_info "Install mosh -- better ssh"
+  package_install "mosh"
+
+
+fi
+print_info "Install colordiff - buntes diff"
+package_install "colordiff"
+
+print_info "Install progress -- fortshritt"
+package_install "progress"
+
+
+print_info "Install ncdu -- dateigroesse"
+package_install "ncdu"
+
+print_info "Install moreutils -- nice tools like ts"
+package_install "moreutils"
+
+
+
+
+
+
+
 
 
 

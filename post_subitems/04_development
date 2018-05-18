@@ -65,12 +65,13 @@ if [ $isServer == "n" ]; then
     #
     #
     #
-    #aur_package_install "android-studio"
+    aur_package_install "android-studio"
+    package_install "android-tools android-udev "
     #touch /opt/android-studio/bin/studio64.vmoptions
     #add_line "-Djava.io.tmpdir=/var/tmp/" "/opt/android-studio/bin/studio64.vmoptions"
     #
     #
-    #add_user_to_group $username plugdev
+    add_user_to_group $username plugdev
     #
     #
     #
