@@ -3,19 +3,21 @@
 
 print_title "Install base components"
 
-
-print_info "Istall yaourt - https://wiki.archlinux.de/title/Yaourt"
-#fix mirrorlist
-chmod 644 /etc/pacman.d/mirrorlist
-package_install "base-devel yajl namcap"
-aui_download_packages "package-query yaourt"
-
-print_warning "Be sure the installation of yaourt succeeded!"
-pause_function
-
-print_line
+if ! is_package_installed "yaourt" ; then
 
 
+  print_info "Istall yaourt - https://wiki.archlinux.de/title/Yaourt"
+  #fix mirrorlist
+  chmod 644 /etc/pacman.d/mirrorlist
+  package_install "base-devel yajl namcap"
+  aui_download_packages "package-query yaourt"
+
+  print_warning "Be sure the installation of yaourt succeeded!"
+  pause_function
+
+  print_line
+
+fi
 
 print_info "Install Bash tools" 
 package_install "bc rsync mlocate bash-completion" #pkgstats arch-wiki-lite
