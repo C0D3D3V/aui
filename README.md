@@ -49,7 +49,7 @@ Postinstall will install a clean Arch base. No software will be installed. No ch
 - Configure hostname
 - Configure timezone [German Timezone is deafult (line 320)]
 - Configure hardware clock
-- Configure locale [German locals are default (331 to 335)]
+- Configure locale [German locals are default (line 331 to 335)]
 - Configure mkinitcpio
 - Install/Configure bootloader [GRUB 2]
 - Configure mirrorlist
