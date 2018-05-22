@@ -494,11 +494,10 @@ if [ $isServer == "n" ]; then
  # print_info "Install howdoi - find solutions"
  # package_install "howdoi"
 
+fi
   print_info "Install mosh -- better ssh"
   package_install "mosh"
 
-
-fi
 print_info "Install colordiff - buntes diff"
 package_install "colordiff"
 
