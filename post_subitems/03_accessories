@@ -18,6 +18,10 @@ if [ $isServer == "n" ]; then
     #enpass-bin passwort manager
 
 
+    print_info "Install Anki, Nitrokey, evince PDF reader" 
+    package_install "anki nitrokey-app evince"
+    
+    
 fi
 
 

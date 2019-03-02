@@ -40,6 +40,9 @@ if [ $isServer == "n" ]; then
 
 
 
+    cecho "Install Audio firmeware"
+    package_install "alsa-firmware pulseaudio-equalizer pulseaudio-jack pulseaudio-lirc pulseaudio-zeroconf"
+
 
 
 

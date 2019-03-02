@@ -508,14 +508,22 @@ package_install "progress"
 print_info "Install ncdu -- dateigroesse"
 package_install "ncdu"
 
+print_info "Install git-lfs -- push große dateien auf github"
+package_install "git-lfs"
+
+
 print_info "Install moreutils -- nice tools like ts"
 package_install "moreutils"
 
+print_info "Install Bluetooth"
+package_install "bluez bluez-utils pulseaudio-bluetooth "
 
+system_ctl enable bluetooth
+add_user_to_group $username lp
 
-
-
-
+print_info "Install paccache --- clean pacman cache"
+package_install "pacman-contrib"
+system_ctl enable paccache.timer
 
 
 

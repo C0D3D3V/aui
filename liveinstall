@@ -324,6 +324,11 @@ print_info "Setup Hardware Clock [https://wiki.archlinux.org/index.php/Time]"
 arch_chroot "hwclock --systohc --localtime"
 
 
+
+print_info "Deaktivate Beep"
+echo "blacklist pcspkr" > /mnt/etc/modprobe.d/nobeep.conf
+
+
 print_line
 
 print_info "Setup Locals [https://wiki.archlinux.org/index.php/Locale]"

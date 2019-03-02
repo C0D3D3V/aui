@@ -173,6 +173,9 @@ if [ $isServer == "n" ]; then
     package_install "kf5"
 
 
+    #nautilus extension
+    aur_package_install "nautilus-wipe"
+    
     #konsole 
     package_install "konsole" 
 
@@ -310,10 +313,12 @@ if [ $isServer == "n" ]; then
     #install mtp
     package_install "mtpfs android-file-transfer"
 
-
+    print_info "Scrennshot cli" 
+    package-install "scrot"
+    
 fi
 
- print_info "Install Server Fonts" 
-    package_install "nerd-fonts-complete"
+print_info "Install Server Fonts" 
+package_install "nerd-fonts-complete"
 #pause_function
 

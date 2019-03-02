@@ -101,8 +101,8 @@ if [ $isServer == "n" ]; then
 
 
     #NOTMARCEL
-    print_info "Install MySQL Workbench"  
-    package_install "mysql-workbench"
+    #print_info "Install MySQL Workbench"  
+    #package_install "mysql-workbench"
 
     #NOTMARCEL
     print_info "Install postgress Admin"
@@ -217,6 +217,21 @@ if [ $isServer == "n" ]; then
     #cecho "Install balsamiqmockups"  
     #aur_package_install "balsamiqmockups" #dont install this shit... Hat wine als Dep.
 
+
+
+    #Python shit
+
+    print_info "Install python dev shit"  
+    package_install "libappindicator3 flake8 python-jedi autopep8 yapf python-xlib python-pyautogui python-speechrecognition geckodriver python-selenium"
+
+
+    #emacs shit
+
+    print_info "Install emacs dev shit"
+    aur_package_install "emacs-elpy"
+    package_install "the_silver_searcher ripgrep"
+    
+    
 
 fi
 

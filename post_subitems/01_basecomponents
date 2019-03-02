@@ -44,6 +44,10 @@ if [ $isServer == "n" ]; then
 
 
     print_line
+
+    print_info "Install Yaourt Alternatives"
+    
+    aur_package_install "yay"
 fi
 
 
