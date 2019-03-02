@@ -34,7 +34,7 @@ pause_function
 
 print_line
 
-
+pacman -Sy  pacman-contrib
 
 print_line 
 
@@ -42,6 +42,7 @@ print_line
 print_title "Backup pacman mirrorlist and filter for German Servers [https://wiki.archlinux.org/index.php/mirrors]"
 ncecho "First Dowload full Mirrorlist "
 
+ls /etc/pacman.d/ -la
 
 url="https://www.archlinux.org/mirrorlist/?country=DE&use_mirror_status=on"
 
@@ -76,6 +77,12 @@ pid=$!;progress $pid
 
 rm /etc/pacman.d/mirrorlist.tmp
 chmod 644 /etc/pacman.d/mirrorlist
+
+head -10 /etc/pacman.d/mirrorlist 
+ls /etc/pacman.d/ -la
+
+
+read -p "Press enter to continue [be sure mirrorlist is not empty]"
 
 
 
