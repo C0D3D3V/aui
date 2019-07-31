@@ -6,21 +6,24 @@ print_title "Install browser APPS"
 
 if [ $isServer == "n" ]; then
 
+    # Chromium
     print_info "Install chromium" 
     package_install "chromium"
-    aur_package_install "chromium-widevine" #chromium-widevine für DRM
+    aur_package_install "chromium-widevine" #chromium-widevine für DRM .. Watch NEtflix
 
 
+    # Firefox
     print_info "Install firefox" 
     package_install "firefox firefox-i18n-de"
 
+    # Tor Browser
     print_info "Install tor-browser" 
     run_as_user "gpg --recv-keys D1483FA6C3C07136"
     aur_package_install "tor-browser-de"
 
 fi
 
-
+# Terminal Browser
 print_info "Install links"  
 package_install "links"
 

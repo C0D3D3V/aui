@@ -5,9 +5,12 @@ print_title "Install VIDEO APPS"
 
 if [ $isServer == "n" ]; then
 
+    # overloaded movie player
     print_info "Install vlc"
     package_install "vlc"
-    #package_install "phonon-qt5-vlc"
 
+    # light movie player
+    print_info "Install mpv" 
+    package_install "mpv"
 
 fi

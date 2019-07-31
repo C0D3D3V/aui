@@ -4,33 +4,35 @@
 print_title "Install accessories APPS"
 
 if [ $isServer == "n" ]; then
-    #NOTMARCEL
+
+    # conky liefert systeminformationen ... gatget das man auf dem desktop starten kann
     print_info "Install conky-lua - Sensore Gadgets"  
     aur_package_install "conky-lua"
     package_install "lm_sensors"
     sensors-detect --auto
-
-
-
-
-
-
-    #enpass-bin passwort manager
-
-
-    print_info "Install Anki, Nitrokey, evince PDF reader" 
-    package_install "anki nitrokey-app evince"
+    # lm_sensors - triber um temperatursensoren und sonstige sensoren zu überwachen
     
+
+
+    print_info "Install Nitrokey" 
+    package_install "nitrokey-app"
+    # Nitrokey - ... für mein Nitrokey
+   
+
+    # keepass passwort verwaltung
+    print_info "Install keepassxc"  
+    package_install "keepassxc"
+
+    
+    # mobile cconnection tool
+    package_install "kdeconnect"
+
+
+    # zum einfachen bedienen von rsync
+    print_info "Install grsync - Gui für Rsync"
+    package_install "grsync"
+
+
     
 fi
-
-
-#print_info "Install terminator - Terminal multiplexer"   
-#package_install "terminator"
-
-print_info "Install tmux - Terminal multiplexer"   
-package_install "tmux"
-
-#unified-remote-server Remote tools
-
 

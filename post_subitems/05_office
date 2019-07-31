@@ -4,220 +4,69 @@
 print_title "Install office APPS"
 
 if [ $isServer == "n" ]; then
-    #bücher
-
+    # bücher lesen
     print_info "Install calibre"  
     package_install "calibre"
 
-    #keepass
-    print_info "Install keepassxc"  
-    package_install "keepassxc"
-
-
-    #git docu
-    #cecho "Install haroopad"  
-    #aur_package_install "haroopad"
-
-
-    #cecho "Install remarkable"  
-    #aur_package_install "remarkable"
-
-
-
-
-
-    #finanze
-    #print_info "Install homebank - finanze manager"  
-    #package_install "homebank"
-
-
-
-
-    #latex
+    # latex mit texstudio als basic editr ... emacs kann auch gut mit latex umgehen
     print_info "Install latex + texstudio"  
     package_install "texlive-most  texlive-bin texstudio biber" #texlive-lang
 
 
 
-
-
-
     #office
     print_info "Install Libreoffice - https://wiki.archlinux.org/index.php/LibreOffice"
-    #package_install "libreoffice-fresh"
     package_install "libreoffice-fresh-de"
-    #NOTMARCEL
     package_install "hunspell hunspell-de"
-    #NOTMARCEL
     package_install "aspell aspell-de aspell-en"
 
 
 
-
-
-
-    #screenrecorder
-    #NOTMARCEL
-    print_info "Instally qt-recordmydesktop - screen recorder"
-    package_install "qt-recordmydesktop"
-
-
-
-
-    #ocr analyse
-    #NOTMARCEL
-    print_info "Install ocrfeeder"   #require aspell
-    package_install "ocrfeeder tesseract gocr"
-
-
-
-
-
-
-    #Scan Tools
-    #NOTMARCEL
-    print_info "Install gscan2pdf - Scan tool" 
+    # Scan Tools
+    print_info "Install gscan2pdf - Simple scan tool" 
     aur_package_install "gscan2pdf"
 
+    print_info "Install simple-scan" 
+    package_install "simple-scan"
 
-
-
-
-
-
-    #PDF READER
-    #cecho "Install xmind - Mindmaps"   
-    #aur_package_install "xmind"
-
-    #cecho "Install Foxit pdf reader"   
-    #aur_package_install "foxitreader"
-
-
-
-
+    # einfache Druckerverwaltung
+    package_install "print-manager"
+    
+    
+    #pdf viewer
+    package_install "okular evince"
+    # evince - noch ein pdf viewer ... manchmal ist der besser als okular
+    
+    # PDF Editor
     print_info "Install masterpdfeditor"   
     aur_package_install "masterpdfeditor"
 
 
+    # Diverse PDF tools
     print_info "Install diffpdf pdf-decrypt pdf2png pdfgrep"  
     package_install "pdfgrep"
     aur_package_install "diffpdf pdf-decrypt pdf2png"
-
-
-
-
-
-
-    #MATH-TOOLS
-    print_info "Install geogebra"   
-    package_install "geogebra"
-
-    echo "Install maxima"
-    package_install "maxima"
-
-
-
-
-
-    #DIAGRAM TOOLS
-    #cecho "Install yed"   
-    #aur_package_install "yed"
-
-    #NOTMARCEL
+    # pdfgrep - suchen in pdfs
+    # diffpdf - pdfs vergleichen
+    # pdf-decrypt - verschlüsselte pdfs ... entschlüsseln
+    # pdf2png - pdfs in pngs umwandelnd
+    
+    # UML Diagramme etc.
     print_info "Install dia - uml tool"   
     package_install "dia"
 
-    #cecho "Install dbvis - dbvison tool"
-    #aur_package_install "dbvis"
-
-    #print_info "Install umbrello"   
-    #package_install "umbrello"
 
 
-
-
-
-
-    #Cryptocurrency Tools
-
-    #NOTMARCEL
-    print_info "Install electrum"   
-    package_install "electrum"
-  #  aur_package_install "electrum-mona"
-
-    #only for mining
-    #cecho "Install bitcoin-qt" 
-    #aur_package_install "bitcoin-qt"
-
-
-    #NOTMARCEL
-    #print_info "Install bisq - bitcoin p2p market" 
-    #aur_package_install "bisq-git"  
-
-
-    #TOMUCH
-    #print_info "Install zcash"   
-    #package_install "zcash"
-
-    #run_as_user "gpg --recv-keys 45CE8E0631DED8DE"
-    #print_info "Install  zcash-swing-wallet-ui-git -- Desktop GUI Wallet for ZCash" 
-    #aur_package_install "zcash-swing-wallet-ui-git"  
-
-
-
-
-
-    #cecho "Install matlab - huge math tool ~23GB" 
-    #aur_package_install "matlab"  
-
-
-    #aur_package_install "bitcoin-core"
-    #run_as_user "mkdir -p ~/.bitcoin" 
-    #run_as_user "cat > ~/.bitcoin/bitcoin.conf <<'EOF'                       ##
-    #rpcconnect=127.0.0.1                                          ##
-    #rpcport=8332                                                  ##
-    #rpcuser=bitcoin                                               ##
-    #rpcpassword=secret                                            ##
-    #EOF"
-
-
-
-
-    #NOTES
+    # Notizen mit Stylus
     print_info "Install xournal" 
     package_install "xournal"
 
 
-
-
-
-
-    #webcam
-    print_info "Install cheese" 
-    package_install "cheese"
-
-
-
-
-
-    #TOMUCH
-    #File upload
-    #print_info "Install filezilla"  
-    #package_install "filezilla"
-
-
-
-
-
-
-    #RAT
-    print_info "Install x11vnc - VNC client" 
-    package_install "x11vnc"
-
-    #cecho "Install RAT"  
-    #package_install "remmina"    #Remote desktop
-
-
-
+    
+    # Anki - Karteikarten Software
+    print_info "Install Anki" 
+    package_install "anki"
+    
+    
 
 fi

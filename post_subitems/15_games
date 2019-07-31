@@ -6,12 +6,8 @@ print_title "Install Games"
 
 if [ $isServer == "n" ]; then
 
-    
+    # teeworlds - gutes spiel
     print_info "Install ddnet"
     aur_package_install "ddnet ddnet-maps-git ddnet-skins"
-
-    print_info "Install bomberclone" 
-    package_install "bomberclone"
-
 
 fi

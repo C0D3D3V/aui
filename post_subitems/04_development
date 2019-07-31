@@ -7,231 +7,101 @@ if [ $isServer == "n" ]; then
     #Editors
     print_info "Install emacs - Best Editor"  
     package_install "emacs terminus-font" 
-
-    #print_info "Install vim - Some Editor"  
-    #package_install "vim" 
+    # emacs is nicer editor
 
     print_info "Install gvim - Vi with gui"  
     package_install "gvim"
-    #install spacevim
-    run_as_user "curl -sLf https://spacevim.org/install.sh | bash"
+    # vim is auch mindestens genauso krass
     
-    
-
-
-
-
-    #NOTMARCEL
-    print_info "Install sublime3 - Nice Editor"  
-    aur_package_install "sublime-text-dev" 
-    #aur_package_install "sublime-text" 
-
-
-
-
 
     print_info "Install diffuse"  
     package_install "diffuse"
-
+    # diffuse - mergen von dateien mit einer gui
 
 
     print_info "Install bless Hex-Editor"  
     package_install "bless"
+    # guter hex editor
 
-
-    #TOMUCH
-    #print_info "Install codeblocks"  
-    #package_install "codeblocks"
-
-
+    
+    print_info "Install radare2"
+    package_install "radare2"
+    # hex editor cli
+    
     print_info "Install cmake"  
     package_install "cmake"
-
+    # willst du etwas c compilieren?
+    
     print_info "Install binwalk"  
     package_install "binwalk"
+    # willst bar images ausenander pflücken?
 
 
-
-    #TOMUCH
-    #print_info "Install Android Studio"  
-    #run_as_user "gpg --recv-keys 702353E0F7E48EDB"
-    #aur_package_install "android-sdk android-sdk-platform-tools android-sdk-build-tools android-platform" #android-ndk
-    #
-    #add_user_to_group $username sdkusers
-    #chown -R :sdkusers /opt/android-sdk/
-    #chmod -R g+w /opt/android-sdk/
-    #add_line "export ANDROID_HOME=/opt/android-sdk" "/home/${username}/.bashrc"
-    #
-    #
-    #
-    #
+    # Android Studio
     aur_package_install "android-studio"
     package_install "android-tools android-udev "
-    #touch /opt/android-studio/bin/studio64.vmoptions
-    #add_line "-Djava.io.tmpdir=/var/tmp/" "/opt/android-studio/bin/studio64.vmoptions"
-    #
-    #
     add_user_to_group $username plugdev
-    #
-    #
-    #
-    #print_info "Install gradle"  
-    #package_install "gradle"
 
 
-
-
-
-    #TOMUCH
-    #NOTMARCEL
-    #print_info "Install monodevelop - dot net shit"  
-    #package_install "mono mono-tools"
-    #aur_package_install "monodevelop-stable"
-    #fix https://bugs.archlinux.org/task/52939
-    #ln -s /usr/lib/libgit2.so /usr/lib/libgit2-e8b8948.so
-
-
-
-    #TOMUCH
-    #NOTMARCEL
-    #print_info "Install qtcreator"  
-    #package_install "qtcreator qt5-doc" #android-qt5-arm64-v8a #dont install this .... shitty compile time 8h
-
-
-
-
-    #NOTMARCEL
-    #print_info "Install MySQL Workbench"  
-    #package_install "mysql-workbench"
-
-    #NOTMARCEL
-    print_info "Install postgress Admin"
-    package_install "pgadmin4"
-
-fi
-
-
-
-
-#NOTMARCEL
-print_info "Install sqlite3"  
-package_install "sqlite3"
-
-
-
-if [ $isServer == "n" ]; then
-    print_info "Install H2"  
-    aur_package_install "h2"
-
+    
     cecho "Install sqlitebrowser"  
     package_install "sqlitebrowser"
-
-
-
+    # browse sqllite database
 
 
 
     print_info "Install OpenJDK"  
-    #maybe switch to oracle shit
     package_install "jdk8-openjdk icedtea-web"  
     archlinux-java set java-8-openjdk/jre
+    # run java
 
-    #TOMUCH
-    #NOTMARCEL
-    #print_info "Install eclipse"  
-    #package_install "eclipse-jee tomcat8"
-    #add_user_to_group $username tomcat8
-
-
-    #NOTMARCEL
-    print_info "Install intellij - just more shit"  
+    
+    print_info "Install intellij"  
     package_install "intellij-idea-community-edition"
-
+    # for noobs some gui
+    
 
     print_info "Install jadx - decompiler for java"  
     package_install "jadx"
+    # decompile java
 
 
-
-
-fi
-
-
-
-
-#languages
-#NOTMARCEL ALLE SPRECHEN
-print_info "Install nodejs"  
-package_install "nodejs npm"
-
-
-print_info "Install ruby"  
-package_install "ruby"
-aur_package_install "rbenv ruby-build"
-
-
-print_info "Install elixir"  
-package_install "elixir"
-
-
-print_info "Install go"  
-package_install "go"
-
-print_info "Install Haskel"  
-package_install "ghc"
-
-print_info "Install clang"  
-package_install "clang"
-
-
-print_info "Install pastebinit"  
-package_install "pastebinit"
-
-if [ $isServer == "y" ]; then
-  print_info "Install vim - Some Editor"  
-  package_install "vim" 
-
-   
-fi
-
-if [ $isServer == "n" ]; then
+    # Arduino Studio
     print_info "Install Ardoino"  
     package_install "arduino arduino-avr-core"
 
 
-
-
-
-
-
-
-    #tools
-    #NOTMARCEL
+    # git version tree
     print_info "Install gource"  
     package_install "gource"
 
 
-
-
-    #mockups
-    #cecho "Install balsamiqmockups"  
-    #aur_package_install "balsamiqmockups" #dont install this shit... Hat wine als Dep.
-
-
-
-    #Python shit
-
-    print_info "Install python dev shit"  
-    package_install "libappindicator3 flake8 python-jedi autopep8 yapf python-xlib python-pyautogui python-speechrecognition geckodriver python-selenium"
-
-
-    #emacs shit
-
-    print_info "Install emacs dev shit"
+    
+    print_info "Install emacs plugins"
     aur_package_install "emacs-elpy"
     package_install "the_silver_searcher ripgrep"
-    
-    
 
+
+    print_info "Install nasm"
+    package_install "nasm"
+    # netwide assembler - willst bissel assembler programmieren?
+
+    # Wichtige Sprachen
+    print_info "Install Python"
+    package_install "python python2 python-pip"
+
+    
+    print_info "Install Go"
+    package_install "go"
 fi
 
+# upload output to pastebin
+print_info "Install pastebinit"  
+package_install "pastebinit"
+
+
+if [ $isServer == "y" ]; then
+  print_info "Install vim - Some Editor"  
+  package_install "vim" 
+  
+fi

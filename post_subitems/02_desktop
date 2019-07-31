@@ -6,10 +6,16 @@ print_title "Install Desktop"
 if [ $isServer == "n" ]; then
     print_info "Install XORG - https://wiki.archlinux.org/index.php/Xorg" 
 
-    package_install "xorg-server xorg-xinit xorg-apps xorg-xkill xorg-xinput xf86-input-libinput" #xorg-server-xwayland
+    package_install "xorg-server xorg-xinit xorg-apps xf86-input-libinput" #xorg-server-xwayland
+
+    # xorg-server - xorg basis
+    # xorg-apps - konfig tools
+    # xorg-xinit - start mit startx xorg
+    # xf86-input-libinput - default Input treiber
 
     package_install "mesa"
     modprobe uinput
+    # mesa = opengl treiber - default grafik treiber
 
 
 
@@ -20,9 +26,10 @@ if [ $isServer == "n" ]; then
 
     print_info "Install FONTS CONFIGURATION - https://wiki.archlinux.org/index.php/Font_Configuration" 
 
-    package_install "cairo fontconfig freetype2"
+    package_install "fontconfig freetype2"
 
-
+    # fontconfig - gibt eine liste der verfügbaren fonts
+    # freetype2 - rendert die fonts 
 
     #pause_function
 
@@ -36,10 +43,12 @@ if [ $isServer == "n" ]; then
 	print_info "Install TLP - https://wiki.archlinux.org/index.php/Tlp" 
 
 	package_install "tlp "
+	# power saving methoden ... spart akku
 
 	if [[ $lenovoTplManager == y ]]; then
-	    package_install "acpi_call"
-	    #package_install "tp_smapi"
+	    package_install "acpi_call" # für neue Lenovo modelle 
+	    
+	    #package_install "tp_smapi" # eig. für recalibration etc.
 	fi
 
 	system_ctl enable tlp
@@ -58,6 +67,8 @@ if [ $isServer == "n" ]; then
 
     print_line
 
+    # Installation der wichtigen Video Card Treiber ... bisher keine Probleme damit ... bei High-End Grakas evtl. genauer hinschauen
+    
     print_info "Install VIDEO CARD Driver" 
     VIDEO_DRIVER=""
     ARCHI=`uname -m` # ARCHITECTURE
@@ -102,28 +113,24 @@ if [ $isServer == "n" ]; then
 
 
 
-
-
-
-
-
-    #print_info "Install Aditional Firmeware" 
-
-    #critical... only if nessesery
-    #aur_package_install "aic94xx-firmware b43-firmware b43-firmware-legacy bfa-firmware broadcom-wl android-udev"
-    #package_install "alsa-firmware bluez-firmware ipw2100-fw ipw2200-fw libffado libmtp libraw1394"
-
-
-    #print_line
-
-
-
+    
 
     print_info "Install CUPS - https://wiki.archlinux.org/index.php/Cups" 
     package_install "cups cups-filters ghostscript gsfonts"
     package_install "gutenprint foomatic-db foomatic-db-engine foomatic-db-nonfree foomatic-db-ppds foomatic-db-nonfree-ppds hplip splix cups-pdf foomatic-db-gutenprint-ppds" #foomatic-filters-lprng
     system_ctl enable org.cups.cupsd.service
 
+    # cups - drucker server
+    # cups-filter - alte backends
+    # gohstscript - druckt alles was nicht postscript kann
+    # gsfonts - core font set
+
+    # gutenprint - treiber für die meisten drucker --- wichtig nach jedem update "cups-genppdupdate" ausführen
+    # foomatic-db-...-ppds - prebuild ppds (postscript print descriptions)
+    # cups-pdf - zum drucken in pdf files
+    # Foomatic - generell alles mit ppd files
+    # hplip - mehr treiber (HP, DeskJet ... )
+    # splix - samsung treiber
 
 
     print_info "Install Printer driver"
@@ -131,8 +138,12 @@ if [ $isServer == "n" ]; then
     aur_package_install "cups-bjnp cnijfilter-mx920 scangearmp2"
     #Samsunf
     aur_package_install "samsung-unified-driver"
-    package_install "splix"
 
+    # cups-bjnp - canon printer
+    # mx920 - mein drucker treiber
+    # samsung-unified-driver - mehr samsung treiber
+    # scangearmp2 - canon scan treiber
+    
 
     print_line
 
@@ -145,6 +156,7 @@ if [ $isServer == "n" ]; then
     print_info "Install synaptics - https://wiki.archlinux.de/title/Synaptics_Touchpad_Treiber" 
     package_install "xf86-input-synaptics"
 
+    # Touchpad support
 
     print_line
 
@@ -153,69 +165,48 @@ if [ $isServer == "n" ]; then
 
 
     print_info "Install Fonts - https://wiki.archlinux.org/index.php/fonts" 
-    package_install "noto-fonts-emoji ttf-dejavu ttf-liberation ttf-bitstream-vera ttf-hack wqy-microhei noto-fonts-cjk ttf-symbola"
+    package_install "noto-fonts-emoji ttf-dejavu ttf-liberation ttf-bitstream-vera ttf-hack wqy-microhei noto-fonts-cjk ttf-symbola nerd-fonts-complete"
     #aur_package_install "ttf-fira-code " #ttf-google-fonts-git  
 
-
-
-
+    # Noch mehr Fonts
+    # noto-fonts-emoji - Google's own emoji font
+    # ttf-dejavu - Bitstream Vera modified for greater Unicode coverage
+    # ttf-liberation -  free metric-compatible substitute for the Arial ... Windows Fonts
+    # ttf-bitstream-vera - serif, sans-serif, and monospace
+    # ttf-hack - monospaced font, used as the default in KDE Plasma
+    # wqy-microhei - high quiality sans-serif style
+    # noto-fonts-cjk - Large collection of fonts for asia languages
+    # ttf-symbola - provides many Unicode symbols
+    # nerd-fonts-complete - 40+ patched fonts... common hack fonts
+    
 
 
 
 
     print_line
-    #NOTMARCEL (ALLES ZU KDE)
-    print_info "Install KDE - https://wiki.archlinux.org/index.php/KDE" 
+    print_info "Install I3 - https://wiki.archlinux.org/index.php/I3" 
 
-    package_install "plasma sddm" #
+    package_install "sddm"
+    # sddm Diplay manager - Login Maske
 
     #framework
     package_install "kf5"
 
+ 
+    # drop down trerminal
+    package_install "guake"
 
-    #nautilus extension
-    aur_package_install "nautilus-wipe"
-    
-    #konsole 
-    package_install "konsole" 
-
-    #file explorer
-    package_install "dolphin dolphin-plugins"
-
-    #network fileframework
-    package_install "kio-extras"
-
-    #picture view
-    package_install "gwenview"
-    #package_install "kipi-plugins" #plugins for pic view
-
-    #mobile cconnection tool
-    package_install "kdeconnect"
-
-    #utilitys
-    package_install "kdeutils"
-
-    #pdf viewer
-    package_install "okular"
-
-    #screeshot cupture
-    package_install "spectacle"
-
-    #volume controll
-    package_install "kmix"
+    # legendäre tmux ... Mehrere Terminals in einem ... nice
+    print_info "Install tmux - Terminal multiplexer"   
+    package_install "tmux"
 
 
-    #dont want
-    #kate
 
     #dark design
     package_install "arc-kde arc-gtk-theme"
     aur_package_install "papirus-icon-theme"
 
-    # config xinitrc
-    config_xinitrc "startkde"
-
-
+    
     #config sddm
     system_ctl enable sddm
     sddm --example-config > /etc/sddm.conf
@@ -223,57 +214,8 @@ if [ $isServer == "n" ]; then
     sed -i 's/CursorTheme=/CursorTheme=breeze_cursors/' /etc/sddm.conf
     sed -i 's/Numlock=none/Numlock=on/' /etc/sddm.conf
 
+ 
 
-    print_line
-
-
-
-
-
-    #NOTMARCEL DOCH SCHON
-    #print_info "Install GNOME - https://wiki.archlinux.org/index.php/GNOME"
-    #package_install "gnome"
-    #TODO
-    #config_xinitrc "gnome-session"
-
-
-
-
-
-
-
-
-    print_info "Install KDE Tools"  
-    is_package_installed "cups" && package_install "print-manager"
-
-    #twitter
-    #package_install "choqok"
-    #photos
-    #package_install "digikam"
-    #cd burn
-    #package_install "k3b cdrdao dvd+rw-tools"
-    #finanze
-    #package_install "skrooge"
-
-    #terminal
-    package_install "yakuake"
-
-    #cecho "Install guake - Terminal "  #for gnome  
-    #package_install "guake"
-
-
-
-
-
-
-
-
-
-
-    #if is_package_installed "libmtp" ; then
-	print_info "Install MTP Suptort"
-	package_install "gvfs-mtp gvfs-gphoto2 gvfs-nfs gvfs-afc gvfs-goa gvfs-google gvfs-smb"
-    #fi
 
 
     print_line
@@ -309,16 +251,7 @@ if [ $isServer == "n" ]; then
 
 
 
-
-    #install mtp
-    package_install "mtpfs android-file-transfer"
-
-    print_info "Scrennshot cli" 
-    package-install "scrot"
-    
 fi
 
-print_info "Install Server Fonts" 
-package_install "nerd-fonts-complete"
 #pause_function
 
