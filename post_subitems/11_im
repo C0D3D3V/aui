@@ -16,7 +16,7 @@ if [ $isServer == "n" ]; then
     # xmpp client
     print_info "Install gajim" 
     package_install "gajim"
-    aur_package_install "gajim-plugin-omemo"
+
 
 
 fi

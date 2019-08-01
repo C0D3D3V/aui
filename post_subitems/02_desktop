@@ -186,8 +186,8 @@ if [ $isServer == "n" ]; then
     print_line
     print_info "Install I3 - https://wiki.archlinux.org/index.php/I3" 
 
-    package_install "sddm"
-    # sddm Diplay manager - Login Maske
+    package_install "lightdm"
+    # lightdm Diplay manager - Login Maske
 
     #framework
     package_install "kf5"

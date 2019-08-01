@@ -178,7 +178,7 @@ package_install "mtr"
 
 #print_info "Install jq - json file tool"
 #package_install "jq"
-# jason in einer shell
+# json in einer shell
 
 print_info "Install ripgrep - rg schnelles grep"
 package_install "ripgrep"
@@ -188,8 +188,8 @@ print_info "Install fd - schnelles find - smartCase"
 package_install "fd"
 # schnelleres find gefälligst?
 
-print_info "Install exa - schönes ls"
-package_install "exa"
+print_info "Install lsd - schönes ls"
+package_install "lsd"
 # ls mit colors
 
 print_info "Install bat - schönes cat"
