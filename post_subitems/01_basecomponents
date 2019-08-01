@@ -134,9 +134,6 @@ chsh -s /bin/zsh
 sed -i 's|^SHELL=/bin/bash|SHELL=/bin/zsh|g' /etc/default/useradd
 
 
-aur_package_install "oh-my-zsh-git"
-# makes zsh even better
-
 print_line
 print_warning "This is the last pause!"
 
