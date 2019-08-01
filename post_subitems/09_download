@@ -17,6 +17,11 @@ if [ $isServer == "n" ]; then
     print_info "Install syncthing"
     package_install "syncthing"
 
+    # ultra fast cli downloader
+    print_info "Install aria2 - super downloader "
+    package_install "aria2"
+
+
 
 
 fi

@@ -16,11 +16,8 @@ if [ $isServer == "n" ]; then
     print_info "Install cheese" 
     package_install "cheese"
 
-
-    #screeshot cupture
-    package_install "spectacle"
     # via cli
-    package-install "scrot"
+    package-install "maim"
     
     #picture view - feh einer der schnellsten Image Viewer
     package_install "feh"

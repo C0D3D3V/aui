@@ -80,6 +80,14 @@ if [ $isServer == "n" ]; then
     # noch ein diff tool für Dateien - cli - weils so schön ist
     print_info "Install icdiff - netter diff"
     package_install "icdiff"
+
+    
+    print_info "Install Bluetooth"
+    package_install "bluez bluez-utils pulseaudio-bluetooth "
+    system_ctl enable bluetooth
+    add_user_to_group $username lp
+    # Bluetooth ist toll
+
 fi
 
 
@@ -105,11 +113,6 @@ package_install "strace ltrace"
 # trace system calls
 
  
-print_info "Install traceroute"
-package_install "traceroute"
-# trace the route of packages
-
-
 print_info "Install whois"
 package_install "whois"
 # who is behind a domain
@@ -140,89 +143,97 @@ package_install "hwinfo hardinfo"
 
 print_info "Install tree"
 package_install "tree"
+# listet den inhalt eines Ordners recrusiv auf
 
 print_info "Install nmap"
 package_install "nmap"
-
+# wichtiges netzwerk analyse tool
 
 print_info "Install gnu-netcat"
 package_install "gnu-netcat"
-
-
+# einfacher tcp client
 
 
 print_info "Install pkgfile"
 package_install "pkgfile"
+# in welchem pakgage ist eine datei
 
 
 print_info "Install bind-tools"
 package_install "bind-tools"
-
+# dns tools
 
 
 print_info "Install mtr - ping tool"
 package_install "mtr"
+# traceroute + ping
 
 
-print_info "Install oping - ping tool"
-package_install "liboping"
 
-print_info "Install httpie - liefert http comand"
-package_install "httpie"
+#print_info "Install httpie - liefert http comand"
+#package_install "httpie"
+# in der shell einfache http anfragen ... bissel besser als curl
 
-print_info "Install aria2 - super downloader "
-package_install "aria2"
 
-print_info "Install jq - json file tool"
-package_install "jq"
+
+#print_info "Install jq - json file tool"
+#package_install "jq"
+# jason in einer shell
 
 print_info "Install ripgrep - rg schnelles grep"
 package_install "ripgrep"
+# schnelleres grep gefälligst?
 
 print_info "Install fd - schnelles find - smartCase"
 package_install "fd"
+# schnelleres find gefälligst?
 
 print_info "Install exa - schönes ls"
 package_install "exa"
+# ls mit colors
+
+print_info "Install bat - schönes cat"
+package_install "bat"
+# schönes cat
+
 
 print_info "Install fzf - fuzzy scanner integriert in vim tmux zsh -- ctr+t alt+c -- kill"
 package_install "fzf"
+# suchst du in unsortierten ordnern
 
 
 print_info "Install ranger - cli explorer"
 package_install "ranger atool ffmpegthumbnailer highlight lynx mediainfo odt2txt transmission-cli w3m "
+# bester datei explorer
 
+#print_info "Install mosh -- better ssh"
+#package_install "mosh"
+# ssh mal anders
 
-print_info "Install mosh -- better ssh"
-package_install "mosh"
-
-print_info "Install colordiff - buntes diff"
-package_install "colordiff"
 
 print_info "Install progress -- fortshritt"
 package_install "progress"
+# vergessen ps zu verwenden ?
 
 
 print_info "Install ncdu -- dateigroesse"
 package_install "ncdu"
+# zum analysieren wo der ganze dateispiecher hingeht
+
 
 print_info "Install git-lfs -- push große dateien auf github"
 package_install "git-lfs"
-
+# erweiterung für git ... um dateien aufzusplitten
 
 print_info "Install moreutils -- nice tools like ts"
 package_install "moreutils"
+# viele nützliche tools ... ts hängt den zeitstempel an den anfang jeder zeile
 
-print_info "Install Bluetooth"
-package_install "bluez bluez-utils pulseaudio-bluetooth "
-
-system_ctl enable bluetooth
-add_user_to_group $username lp
 
 print_info "Install paccache --- clean pacman cache"
 package_install "pacman-contrib"
 system_ctl enable paccache.timer
-
+# löscht den pacman cache regelmäßig
 
 
 

@@ -34,7 +34,8 @@ if [ $isServer == "n" ]; then
     
     
     #pdf viewer
-    package_install "okular evince"
+    package_install "zathura zathura-pdf-mupdf evince"
+    # zathura - schneller pdf viewer
     # evince - noch ein pdf viewer ... manchmal ist der besser als okular
     
     # PDF Editor
