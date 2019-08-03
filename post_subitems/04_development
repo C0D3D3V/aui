@@ -38,8 +38,8 @@ if [ $isServer == "n" ]; then
 
 
     # Android Studio
-    aur_package_install "android-studio"
-    package_install "android-tools android-udev "
+    aur_package_install "android-studio android-apktool"
+    package_install "android-tools android-udev"
     add_user_to_group $username plugdev
 
 

@@ -13,4 +13,6 @@ if [ $isServer == "n" ]; then
     print_info "Install mpv" 
     package_install "mpv"
 
+    print_info "Install CLI Control" 
+    package_install "playerctl"
 fi

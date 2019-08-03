@@ -121,13 +121,18 @@ print_line
 
 print_info "Install ZSH - https://wiki.archlinux.org/index.php/Zsh" 
 package_install "zsh wget curl git zsh-completions"
-aur_package_install "zsh-autosuggestions"
+aur_package_install "zsh-autosuggestions antigen-git"
 
 # zsh - eine der besten Shells
 # wget - HTTP Dateien downloaden https://wiki.archlinux.org/index.php/Wget
 # curl selbe
 # zsh-completions - mehr autocompletion
 # zsh-autosuggestion - noch mehr autocompletion (wie fish)
+# antigen-git - plugin manager for zsh
+
+package_install "thefuck zsh-theme-powerlevel9k"
+# thefuck - korrigiert eingabefehler in der shell
+# zsh-theme-powerlevel9k - schönes theme für zsh
 
 #set zsh as default shell
 chsh -s /bin/zsh

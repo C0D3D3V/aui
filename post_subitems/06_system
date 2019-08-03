@@ -83,10 +83,11 @@ if [ $isServer == "n" ]; then
 
     
     print_info "Install Bluetooth"
-    package_install "bluez bluez-utils pulseaudio-bluetooth "
+    package_install "bluez bluez-utils pulseaudio-bluetooth blueberry"
     system_ctl enable bluetooth
     add_user_to_group $username lp
     # Bluetooth ist toll
+    # blueberry - simples user control für bluetooth
 
 fi
 

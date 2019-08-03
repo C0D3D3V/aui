@@ -26,7 +26,12 @@ if [ $isServer == "n" ]; then
     cecho "Install Audio firmeware"
     package_install "alsa-firmware pulseaudio-equalizer pulseaudio-jack pulseaudio-lirc pulseaudio-zeroconf"
 
+    
+    cecho "Install CLI Control"
+    package_install "pamixer"
 
+    cecho "Install GUI Control"
+    package_install "pavucontrol"
 
 
 fi

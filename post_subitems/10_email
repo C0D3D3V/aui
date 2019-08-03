@@ -4,9 +4,13 @@
 print_title "Install email tools"
 
 if [ $isServer == "n" ]; then
-    # thunderbird is a overloaded email client
-    print_info "Install thunderbird" 
-    package_install "thunderbird"
-    package_install "thunderbird-i18n-de"
+    # evolution is a simple email client
+    print_info "Install evolution" 
+    package_install "evolution"
+
+    # msmtp ist ein kleiner smtp cleint ... zum versenden von mails
+    print_info "Install msmtp" 
+    package_install "msmtp"
+
 
 fi

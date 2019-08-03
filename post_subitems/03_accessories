@@ -33,6 +33,17 @@ if [ $isServer == "n" ]; then
     package_install "grsync"
 
 
+    # borg - einfache backups mit fuse
+    print_info "Install borg - simple backups next level"
+    package_install "borg"
     
+    
+    # seahorse - Passwort manager für gnome-keyring
+    print_info "Install seahorse - gnome-keyring verwaltung"
+    package_install "seahorse"
+
+    # redshift - Night mode --- dunklerer display
+    print_info "Install redshift - night-mode"
+    package_install "redshift"
 fi
 

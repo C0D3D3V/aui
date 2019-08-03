@@ -165,7 +165,7 @@ if [ $isServer == "n" ]; then
 
 
     print_info "Install Fonts - https://wiki.archlinux.org/index.php/fonts" 
-    package_install "noto-fonts-emoji ttf-dejavu ttf-liberation ttf-bitstream-vera ttf-hack wqy-microhei noto-fonts-cjk ttf-symbola nerd-fonts-complete"
+    package_install "noto-fonts-emoji ttf-dejavu ttf-liberation ttf-bitstream-vera ttf-hack wqy-microhei noto-fonts-cjk ttf-symbola nerd-fonts-complete awesome-terminal-fonts powerline-fonts"
     #aur_package_install "ttf-fira-code " #ttf-google-fonts-git  
 
     # Noch mehr Fonts
@@ -178,6 +178,8 @@ if [ $isServer == "n" ]; then
     # noto-fonts-cjk - Large collection of fonts for asia languages
     # ttf-symbola - provides many Unicode symbols
     # nerd-fonts-complete - 40+ patched fonts... common hack fonts
+    # awesome-terminal-fonts - fonts für powerline
+    # powerline-fonts - patched fonts für powerline
     
 
 
@@ -185,58 +187,80 @@ if [ $isServer == "n" ]; then
 
     print_line
     print_info "Install I3 - https://wiki.archlinux.org/index.php/I3" 
+    package_install "i3-gaps rofi dunst i3status-rust-git compton python-i3-py"
+    # i3-gaps, hat default lücken am rand
+    # rofi - luncher für anwendungen (oder auch suche)
+    # dunst - banchrichtigungs system
+    # i3status-rust-git - Taskbar ... ganz ok
+    # compton - composer für i3
+    # python-i3-py - scripts für i3 schreiben
+    
+    aur_package_install "plymouth plymouth-theme-arch-beat wpgtk-git xsettingsd-git"
+    # plymouth - boot logo
+    # wpgtk-git - custom themes anpassen an Desktop-hintergrundbild
+    # xsettingsd-git - live reload gtk apps
+    
+    aur_package_install "rofi-surfraw-git rofimoji-git"
+    # rofi erweiterungen - suchen und emojis
 
-    package_install "lightdm"
+   
+    
+    package_install "lightdm light-locker"
     # lightdm Diplay manager - Login Maske
-
-    #framework
-    package_install "kf5"
-
- 
+    # light-locker - lock session 
+    
+    package_install "lxappearance arandr autorandr qt5-styleplugins"
+    # lxappearance - GTK Theme anpassen
+    # arandr - anpassen der bildschirmauflösung und position
+    # autorandr - automatisches anpassen der Bildschirme ... und laden von bildschirm-einstellungen
+    # qt5-styleplugins - qt anwendungen wie gtk darstellen
+    
     # drop down trerminal
     package_install "guake"
-
-    # legendäre tmux ... Mehrere Terminals in einem ... nice
+    aur_package_install "gnome-terminal-transparency"
+    package_install "rxvt-unicode"
+    # gnome terminal ist zwar langsam aber einfach
+    # rxvt-unicode schnelles terminal ... muss aber angepasst werden
+    
+    # legendäre tmux ... Mehrere Terminals in einem ... nice - vorausgesetzt man kanns bedienen xD
     print_info "Install tmux - Terminal multiplexer"   
     package_install "tmux"
 
 
 
-    #dark design
-    package_install "arc-kde arc-gtk-theme"
+    # dark/light icon design
     aur_package_install "papirus-icon-theme"
 
     
-    #config sddm
-    system_ctl enable sddm
-    sddm --example-config > /etc/sddm.conf
-    sed -i 's/Current=/Current=breeze/' /etc/sddm.conf
-    sed -i 's/CursorTheme=/CursorTheme=breeze_cursors/' /etc/sddm.conf
-    sed -i 's/Numlock=none/Numlock=on/' /etc/sddm.conf
-
+    #config lightdm
+    system_ctl enable lightdm-plymouth
+    sed -i 's/#greeter-session=example-gtk-gnome/greeter-session=lightdm-webkit2-greeter/' /etc/lightdm/lightdm.conf
  
 
+    # Desktop-Hintergrund - Erde - Sateliten Bilder 
+    aur_package_install "himawaripy-git goes16-background-git"
+    
 
+    # lunch program as root
+    package_install "lxsession"
 
     print_line
 
 
 
 
-
-
-
-
-
-
     print_info "Install Networkmanager - https://wiki.archlinux.org/index.php/Networkmanager"  
-    package_install "networkmanager dnsmasq plasma-nm networkmanager-qt"
-    #is dependency of gnome but not of kde maybe
+    package_install "networkmanager network-manager-applet"
+    # networkmanager - manage your networks ez
+    # network-manager-applet - manage network with gui
 
     # vpn support
     package_install "networkmanager-openconnect networkmanager-openvpn networkmanager-pptp networkmanager-vpnc" # pulse-secure webkitgtk
-    #my university use openconnect
+    # my university use openconnect
 
+    aur_package_install "networkmanager-dmenu-git"
+    # networkmanager-dmenu-git - networkmanager mit rofi
+    
     # auto update datetime from network
     if is_package_installed "ntp"; then
 	package_install "networkmanager-dispatcher-ntpd"
