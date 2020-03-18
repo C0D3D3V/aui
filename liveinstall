@@ -16,12 +16,27 @@ check_boot_system
 
 
 print_line
+ynAnswer="n"
+yn_question "Do you want to change the keyboard layout to german (de-latin1)?"
+if [ $ynAnswer == "y" ]; then
+  print_info "Load German Keymap [https://wiki.archlinux.org/index.php/Keyboard_configuration_in_console]"
+  #cecho "Be sure to load Keymap with loadkeys de-latin1"
+  ncecho "loadkeys de-latin1 "
+  loadkeys de-latin1 >>"$LOG" 2>&1 & 
+  pid=$!;progress $pid
+fi
 
-print_info "Load German Keymap [https://wiki.archlinux.org/index.php/Keyboard_configuration_in_console]"
-#cecho "Be sure to load Keymap with loadkeys de-latin1"
-ncecho "loadkeys de-latin1 "
-loadkeys de-latin1 >>"$LOG" 2>&1 & 
-pid=$!;progress $pid
+print_line
+ynAnswer="n"
+yn_question "Do you want to change the font to a big font (sun12x22)?"
+if [ $ynAnswer == "y" ]; then
+  print_info "Set Font to sun12x22"
+  ncecho "setfont sun12x22 "
+  setfont sun12x22 >>"$LOG" 2>&1 & 
+  pid=$!;progress $pid
+fi
+
+
 
 check_connection
 
@@ -38,48 +53,48 @@ pacman -Sy  pacman-contrib
 
 print_line 
 
-#Mirrorlist
-print_title "Backup pacman mirrorlist and filter for German Servers [https://wiki.archlinux.org/index.php/mirrors]"
-ncecho "First Dowload full Mirrorlist "
+ynAnswer="n"
+yn_question "Do you want to create a new mirrorlist for pacman with ranked german servers?"
+if [ $ynAnswer == "y" ]; then
 
-ls /etc/pacman.d/ -la
+  #Mirrorlist
+  print_title "Backup pacman mirrorlist and filter for German Servers [https://wiki.archlinux.org/index.php/mirrors]"
+  ncecho "First Dowload full Mirrorlist "
 
-url="https://www.archlinux.org/mirrorlist/?country=DE&use_mirror_status=on"
+  ls /etc/pacman.d/ -la
 
-tmpfile=$(mktemp --suffix=-mirrorlist)
-# Get latest mirror list and save to tmpfile
-curl -so ${tmpfile} ${url} >>"$LOG" 2>&1 & 
-pid=$!;progress $pid
+  url="https://www.archlinux.org/mirrorlist/?country=DE&use_mirror_status=on"
 
-sed -i 's/^#Server/Server/g' ${tmpfile}
+  tmpfile=$(mktemp --suffix=-mirrorlist)
+  # Get latest mirror list and save to tmpfile
+  curl -so ${tmpfile} ${url} >>"$LOG" 2>&1 & 
+  pid=$!;progress $pid
 
-if [[ -s ${tmpfile} ]]; then
-    { cecho " Backing up the original mirrorlist..."
-      mv -i /etc/pacman.d/mirrorlist /etc/pacman.d/mirrorlist.orig; } &&
-	{ cecho " Rotating the new list into place..."
-	  mv -i ${tmpfile} /etc/pacman.d/mirrorlist; }
-else
-    print_warning " Unable to update, could not download list."
+  sed -i 's/^#Server/Server/g' ${tmpfile}
+
+  if [[ -s ${tmpfile} ]]; then
+      { cecho " Backing up the original mirrorlist..."
+        mv -i /etc/pacman.d/mirrorlist /etc/pacman.d/mirrorlist.orig; } &&
+    { cecho " Rotating the new list into place..."
+      mv -i ${tmpfile} /etc/pacman.d/mirrorlist; }
+  else
+      print_warning " Unable to update, could not download list."
+  fi
+    
+  cp /etc/pacman.d/mirrorlist /etc/pacman.d/mirrorlist.tmp
+
+  ncecho "Rank Mirrorlist "
+  rankmirrors -n 5 /etc/pacman.d/mirrorlist.tmp > /etc/pacman.d/mirrorlist & 
+  pid=$!;progress $pid
+
+  rm /etc/pacman.d/mirrorlist.tmp
+  chmod 644 /etc/pacman.d/mirrorlist
+
 fi
 
-chmod 644 /etc/pacman.d/mirrorlist
-
-  
-#cp /etc/pacman.d/mirrorlist /etc/pacman.d/mirrorlist.bak
-#grep -E -A 1 ".*Germany.*$" /etc/pacman.d/mirrorlist.bak | sed '/--/d' > /etc/pacman.d/mirrorlist.backup
-
-#rankmirrors -n 6 /etc/pacman.d/mirrorlist.backup > /etc/pacman.d/mirrorlist &
-cp /etc/pacman.d/mirrorlist /etc/pacman.d/mirrorlist.tmp
-
-ncecho "Rank Mirrorlist "
-rankmirrors /etc/pacman.d/mirrorlist.tmp > /etc/pacman.d/mirrorlist & 
-pid=$!;progress $pid
-
-rm /etc/pacman.d/mirrorlist.tmp
-chmod 644 /etc/pacman.d/mirrorlist
-
-head -10 /etc/pacman.d/mirrorlist 
+cat /etc/pacman.d/mirrorlist | grep "^[^#]" | head -10 
 ls /etc/pacman.d/ -la
+
 
 
 read -p "Press enter to continue [be sure mirrorlist is not empty]"
@@ -143,16 +158,26 @@ print_warning "Confirm with upercase YES"
 ynAnswer="n"
 while [ $ynAnswer == "n" ];
 do
-    cryptsetup -c aes-xts-plain64 -y -s 512 luksFormat $LUKS_DISK
+    cryptsetup -c aes-xts-plain64 -y -s 512  --use-random luksFormat $LUKS_DISK
     yn_question "Have you realy confirmed with upercase YES and did you enter two times your passphrase?"
 done
 
 cecho "Open Luks Partition"
 
+
+
+cecho "Don't use one of the following names:"
+ls -la /dev/mapper/
+
+pls_enter "How should the opend lvm device be named? [recomended: lvm; but dont use any name listed above]" 
+lvmName=$sthInsertion
+
+
+
 ynAnswer="n"
 while [ $ynAnswer == "n" ];
 do
-    cryptsetup luksOpen $LUKS_DISK lvm
+    cryptsetup open --type luks $LUKS_DISK $lvmName
     yn_question "Did you open the encrypted partion?"
 done
 	
@@ -160,26 +185,37 @@ print_line
 
 print_title "Create LVM [https://wiki.archlinux.org/index.php/LVM]"
 
-ncecho "pvcreate /dev/mapper/lvm "
-pvcreate /dev/mapper/lvm >>"$LOG" 2>&1 & 
+ncecho "pvcreate /dev/mapper/${lvmName} "
+pvcreate /dev/mapper/${lvmName} >>"$LOG" 2>&1 & 
 pid=$!;progress $pid
 
+print_warning "If something fails in the following commands use these commands to remove the partitions."
+cecho "pvremove /dev/mapper/${lvmName}"
 
-pls_enter "How should the volume group be named?" 
+cecho "Don't use one of the following names:"
+ls -la /dev/mapper/
+
+pls_enter "How should the volume group be named? [It will be the prefix of every mapped partition]" 
 volumeGroup=$sthInsertion
 
 
-ncecho "vgcreate ${volumeGroup} /dev/mapper/lvm "
-vgcreate ${volumeGroup} /dev/mapper/lvm >>"$LOG" 2>&1 & 
+ncecho "vgcreate ${volumeGroup} /dev/mapper/${lvmName} "
+vgcreate ${volumeGroup} /dev/mapper/${lvmName} >>"$LOG" 2>&1 & 
 pid=$!;progress $pid
 
-#lvcreate -L 200GB -n ${rootName} ${volumeGroup}
+print_warning "If something fails in the following commands use these commands to remove the partitions."
+cecho "vgreduce ${volumeGroup} /dev/mapper/${lvmName}"
 
-pls_enter "How should the swap partition be named?" 
+
+pls_enter "How should the swap partition be named? [recomended: swap]" 
 swapName=$sthInsertion
 
-ncecho "lvcreate -L 8GB -n swap ${volumeGroup} "
-lvcreate -L 8GB -n ${swapName} ${volumeGroup} >>"$LOG" 2>&1 & 
+
+pls_enter "How big should the swap partition be (use upper letters for unit)? [recomended: 20GB]" 
+swapSize=$sthInsertion
+
+ncecho "lvcreate -L ${swapSize} -n swap ${volumeGroup} "
+lvcreate -L ${swapSize} -n ${swapName} ${volumeGroup} >>"$LOG" 2>&1 & 
 pid=$!;progress $pid
 
 
@@ -191,8 +227,8 @@ lvcreate -l 100%FREE -n ${rootName} ${volumeGroup} >>"$LOG" 2>&1 &   #home
 pid=$!;progress $pid 
 
 print_warning "If something faild use following commands to remove the partitions."
-cecho "vgreduce ${volumeGroup} /dev/mapper/lvm"
-cecho "pvremove /dev/mapper/lvm"
+cecho "vgreduce ${volumeGroup} /dev/mapper/${lvmName}"
+cecho "pvremove /dev/mapper/${lvmName}"
 
 read -p "Press enter to continue [be sure partitions are created]"
 
@@ -230,8 +266,7 @@ ncecho "mount /dev/mapper/${volumeGroup}-${rootName} /mnt "
 mount /dev/mapper/${volumeGroup}-${rootName}  /mnt  >>"$LOG" 2>&1 & 
 pid=$!;progress $pid
 
-#mkdir /mnt/home
-#mount /dev/mapper/${volumeGroup}-home /mnt/home
+
 mkdir /mnt/boot
 
 ncecho "mount $BOOT_DISK /mnt/boot "
@@ -252,11 +287,11 @@ print_title "Install System [https://wiki.archlinux.org/index.php/Install_from_e
 
 yn_question "Do you want to add wifi support?"
 if [ $ynAnswer == "y" ]; then
-    ncecho "pacstrap /mnt base base-devel intel-ucode parted btrfs-progs f2fs-tools ntp net-tools iw wireless_tools wpa_actiond wpa_supplicant dialog "
-    pacstrap /mnt base base-devel intel-ucode parted btrfs-progs f2fs-tools ntp net-tools iw wireless_tools wpa_actiond wpa_supplicant dialog  >>"$LOG" 2>&1 & 
+    ncecho "pacstrap /mnt base base-devel linux linux-firmware nano intel-ucode parted btrfs-progs f2fs-tools ntp net-tools iw wireless_tools wpa_supplicant dialog lvm2 vim zsh efibootmgr"
+    pacstrap /mnt base base-devel linux linux-firmware intel-ucode  net-tools iw wireless_tools wpa_supplicant dialog lvm2 vim zsh efibootmgr  >>"$LOG" 2>&1 & 
 else
-    ncecho "pacstrap /mnt base base-devel intel-ucode parted btrfs-progs f2fs-tools ntp net-tools iw"
-    pacstrap /mnt base base-devel intel-ucode parted btrfs-progs f2fs-tools ntp net-tools iw  >>"$LOG" 2>&1 & 
+    ncecho "pacstrap /mnt base base-devel linux linux-firmware intel-ucode lvm2 vim zsh efibootmgr"
+    pacstrap /mnt base base-devel linux linux-firmware intel-ucode lvm2 vim zsh efibootmgr >>"$LOG" 2>&1 & 
 fi
 pid=$!;progress $pid
 
@@ -268,13 +303,13 @@ print_info "Generate Fstab [https://wiki.archlinux.org/index.php/fstab]"
 
 
 ncecho "genfstab -U /mnt >> /mnt/etc/fstab "
-genfstab -U /mnt >> /mnt/etc/fstab & 
+genfstab -pU /mnt >> /mnt/etc/fstab & 
 pid=$!;progress $pid
 
 #fix small /tmp 	
-yn_question "Do you want to increase the tmpfs to max. 8GB?"
+yn_question "Do you want to create a ramdisk for /tmp?"
 if [ $ynAnswer == "y" ]; then
-    add_line "tmpfs   /tmp         tmpfs   rw,nodev,nosuid,size=8G          0  0" "/mnt/etc/fstab"
+    add_line "none /tmp tmpfs defaults,noatime,mode=1777 0 0" "/mnt/etc/fstab"
 fi
 
 print_info "Edit makepkg conf [https://wiki.archlinux.org/index.php/makepkg#tmpfs]"
@@ -326,9 +361,9 @@ print_info "Generate Timezone [https://wiki.archlinux.org/index.php/Time#Time_zo
 
 arch_chroot "ln -sf /usr/share/zoneinfo/Europe/Berlin /etc/localtime"
 
-print_info "Setup Hardware Clock [https://wiki.archlinux.org/index.php/Time]"
+print_info "Setup Hardware Clock - Hardware is set to utc [https://wiki.archlinux.org/index.php/Time]"
 
-arch_chroot "hwclock --systohc --localtime"
+arch_chroot "hwclock --systohc --utc"
 
 
 
@@ -341,10 +376,10 @@ print_line
 print_info "Setup Locals [https://wiki.archlinux.org/index.php/Locale]"
 
 sed -i "s/#de_DE.UTF-8 UTF-8/de_DE.UTF-8 UTF-8/" /mnt/etc/locale.gen
-sed -i "s/#de_DE ISO-8859-1/de_DE ISO-8859-1/" /mnt/etc/locale.gen
-sed -i "s/#de_DE@euro ISO-8859-15/de_DE@euro ISO-8859-15/" /mnt/etc/locale.gen
-sed -i "s/#en_US.UTF-8 UTF-8/en_US.UTF-8 UTF-8/" /mnt/etc/locale.gen
-sed -i "s/#en_US ISO-8859-1/en_US ISO-8859-1/" /mnt/etc/locale.gen
+#sed -i "s/#de_DE ISO-8859-1/de_DE ISO-8859-1/" /mnt/etc/locale.gen
+#sed -i "s/#de_DE@euro ISO-8859-15/de_DE@euro ISO-8859-15/" /mnt/etc/locale.gen
+#sed -i "s/#en_US.UTF-8 UTF-8/en_US.UTF-8 UTF-8/" /mnt/etc/locale.gen
+#sed -i "s/#en_US ISO-8859-1/en_US ISO-8859-1/" /mnt/etc/locale.gen
 
 arch_chroot "locale-gen"
 
@@ -388,12 +423,12 @@ print_info "Change Linux Kernel Modules  [https://wiki.archlinux.org/index.php/m
 #MODULES="ext4"
 #HOOKS="base udev keyboard keymap autodetect modconf block encrypt lvm2 filesystems fsck shutdown"
 sed -i '/^HOOK/s/keyboard//' /mnt/etc/mkinitcpio.conf
-sed -i '/^HOOK/s/block/block encrypt lvm2/' /mnt/etc/mkinitcpio.conf
-sed -i '/^HOOK/s/fsck/fsck shutdown/' /mnt/etc/mkinitcpio.conf
-sed -i '/^HOOK/s/autodetect/keyboard keymap autodetect/' /mnt/etc/mkinitcpio.conf
+sed -i '/^HOOK/s/block/block encrypt lvm2 resume/' /mnt/etc/mkinitcpio.conf
+sed -i '/^HOOK/s/fsck/fsck shutdown suspend/' /mnt/etc/mkinitcpio.conf
+sed -i '/^HOOK/s/modconf/keyboard keymap consolefont modconf/' /mnt/etc/mkinitcpio.conf
 sed -i 's/MODULES=()/MODULES=(ext4)/' /mnt/etc/mkinitcpio.conf
 
-arch_chroot "mkinitcpio -p linux"
+arch_chroot "mkinitcpio -P"
 
 
 print_line
@@ -409,13 +444,22 @@ done
 
 print_line
 
-print_info "Install Grub  [https://wiki.archlinux.org/index.php/GRUB]"
-
-ncecho "Installing Grub "
 if [ $UEFI == 1 ]; then
-    pacstrap /mnt grub os-prober efibootmgr  >>"$LOG" 2>&1 &
+  
+  print_info "Install EFI Boot-Manager  [https://wiki.archlinux.org/index.php/Systemd-boot#Installing_the_EFI_boot_manager]"
+
+  ncecho "Installing EFI Boot-Manager "
+
+  arch_chroot "bootctl --path=/boot install"
+
 else
-    pacstrap /mnt grub os-prober  >>"$LOG" 2>&1 &
+
+
+  print_info "Install Grub  [https://wiki.archlinux.org/index.php/GRUB]"
+
+  ncecho "Installing Grub "
+
+  pacstrap /mnt grub os-prober  >>"$LOG" 2>&1 &
 fi
 
 pid=$!;progress $pid
@@ -425,19 +469,30 @@ pid=$!;progress $pid
 luksUUDI=$(blkid -s UUID -o value ${LUKS_DISK})
 
 
-sed -i -e "s|GRUB_CMDLINE_LINUX=\"\(.\+\)\"|GRUB_CMDLINE_LINUX=\"cryptdevice=UUID=${luksUUDI}:cryptlvm root=/dev/mapper/${volumeGroup}-${rootName}\"|g" -e "s|GRUB_CMDLINE_LINUX=\"\"|GRUB_CMDLINE_LINUX=\"cryptdevice=UUID=${luksUUDI}:cryptlvm root=/dev/mapper/${volumeGroup}-${rootName}\"|g" /mnt/etc/default/grub
+if [ $UEFI == 1 ]; then
+  echo default arch > /mnt/boot/loader/loader.conf
 
-sed -i 's/#GRUB_ENABLE_CRYPTODISK=y/GRUB_ENABLE_CRYPTODISK=y/' /mnt/etc/default/grub
+else
+  sed -i -e "s|GRUB_CMDLINE_LINUX=\"\(.\+\)\"|GRUB_CMDLINE_LINUX=\"cryptdevice=UUID=${luksUUDI}:${lvmName} root=/dev/mapper/${volumeGroup}-${rootName}\"|g" -e "s|GRUB_CMDLINE_LINUX=\"\"|GRUB_CMDLINE_LINUX=\"cryptdevice=UUID=${luksUUDI}:cryptlvm root=/dev/mapper/${volumeGroup}-${rootName}\"|g" /mnt/etc/default/grub
 
-arch_chroot "grub-mkconfig -o /boot/grub/grub.cfg" 
+  sed -i 's/#GRUB_ENABLE_CRYPTODISK=y/GRUB_ENABLE_CRYPTODISK=y/' /mnt/etc/default/grub
 
+fi
 
 
 if [ $UEFI == 1 ]; then
-    arch_chroot "grub-install --target=x86_64-efi --efi-directory=/boot --bootloader-id=arch_grub" 
+    echo "title Arch Linux" > /mnt/boot/loader/entries/arch.conf
+    echo "linux /vmlinuz-linux" > /mnt/boot/loader/entries/arch.conf
+    echo "initrd /intel-ucode.img" > /mnt/boot/loader/entries/arch.conf
+    echo "initrd /initramfs-linux.img" > /mnt/boot/loader/entries/arch.conf
+    echo "options cryptdevice=UUID=${luksUUDI}:${lvmName} root=/dev/mapper/${volumeGroup}-${rootName} resume=/dev/mapper/${volumeGroup}-${swapName} quiet rw" > /mnt/boot/loader/entries/arch.conf
+
 else
     arch_chroot "grub-install $BOOT_MOUNTPOINT" 
+
+    arch_chroot "grub-mkconfig -o /boot/grub/grub.cfg" 
 fi
+
 
 print_line
 
@@ -448,8 +503,7 @@ cecho "\n\n"
 cecho "Installation finished" 
 cecho "Please execute following comands:" 
 #cecho "umount /mnt/home"
-cecho "umount /mnt/boot"
-
-cecho "umount /mnt"
+cecho "umount -R /mnt"
+cecho "swapoff -a"
 cecho "\n\n" 
 cecho "reboot"
