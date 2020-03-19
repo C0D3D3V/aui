@@ -61,7 +61,7 @@ if [ $ynAnswer == "y" ]; then
   #Mirrorlist
   print_title "Backup pacman mirrorlist and filter for German Servers [https://wiki.archlinux.org/index.php/mirrors]"
   mv -i /etc/pacman.d/mirrorlist /etc/pacman.d/mirrorlist.orig
-  ncecho "reflector --country France --country Germany --age 12 --protocol https --sort rate --verbose --save /etc/pacman.d/mirrorlist"
+  ncecho "reflector --country France --country Germany --age 25 --protocol https --sort rate --verbose --save /etc/pacman.d/mirrorlist"
   reflector --country France --country Germany --age 12 --protocol https --sort rate --verbose --save /etc/pacman.d/mirrorlist  >>"$LOG" 2>&1 & 
   pid=$!;progress $pid
 
@@ -208,11 +208,11 @@ print_title "Install System [https://wiki.archlinux.org/index.php/Install_from_e
 
 yn_question "Do you want to add wifi support?"
 if [ $ynAnswer == "y" ]; then
-    ncecho "pacstrap /mnt base base-devel linux linux-firmware nano intel-ucode parted btrfs-progs f2fs-tools ntp net-tools iw wireless_tools wpa_supplicant dialog lvm2 vim zsh efibootmgr"
-    pacstrap /mnt base base-devel linux linux-firmware intel-ucode net-tools iw wireless_tools wpa_supplicant dialog vim zsh efibootmgr systemd-swap >>"$LOG" 2>&1 & 
+    ncecho "pacstrap /mnt base base-devel linux linux-firmware nano intel-ucode parted btrfs-progs f2fs-tools ntp net-tools iw wireless_tools wpa_supplicant dialog lvm2 vim zsh efibootmgr systemd-swap zstd"
+    pacstrap /mnt base base-devel linux linux-firmware intel-ucode net-tools iw wireless_tools wpa_supplicant dialog vim zsh efibootmgr systemd-swap zstd >>"$LOG" 2>&1 & 
 else
-    ncecho "pacstrap /mnt base base-devel linux-firmware linux vim zsh efibootmgr intel-ucode systemd-swap"
-    pacstrap /mnt base base-devel linux-firmware linux vim zsh efibootmgr intel-ucode systemd-swap  >>"$LOG" 2>&1 & 
+    ncecho "pacstrap /mnt base base-devel linux-firmware linux vim zsh efibootmgr intel-ucode systemd-swap zstd"
+    pacstrap /mnt base base-devel linux-firmware linux vim zsh efibootmgr intel-ucode systemd-swap zstd  >>"$LOG" 2>&1 & 
 fi
 pid=$!;progress $pid
 
@@ -257,8 +257,11 @@ fi
 print_info "Edit makepkg conf [https://wiki.archlinux.org/index.php/makepkg#tmpfs]"
 
 sed -i "s|#BUILDDIR=/tmp/makepkg|BUILDDIR=/tmp/makepkg|" /mnt/etc/makepkg.conf
-sed -i "s|PKGEXT='.pkg.tar.xz'|PKGEXT='.pkg.tar'|" /mnt/etc/makepkg.conf
+sed -i "s|PKGEXT='.pkg.tar.xz'|PKGEXT='.pkg.tar.zst'|" /mnt/etc/makepkg.conf
+sed -i "s|COMPRESSZST=(zstd -c -z -q -)|COMPRESSZST=(zstd -c -q -T0 -18 -)|" /mnt/etc/makepkg.conf
 
+
+echo "MAKEFLAGS='-j$(nproc)'" >> /mnt/etc/makepkg.conf
 
 
 print_info "Generate vconsole [https://wiki.archlinux.org/index.php/Keyboard_configuration_in_console]"
@@ -291,10 +294,7 @@ print_info "Generate Journalctrl config [https://wiki.archlinux.org/index.php/Sy
 
 
 sed -i "s/#Storage=auto/Storage=persistent/" /mnt/etc/systemd/journald.conf
-sed -i "s/#SystemMaxUse=/SystemMaxUse=400M/" /mnt/etc/systemd/journald.conf
-sed -i "s/#SystemMaxFileSize=/SystemMaxFileSize=30M/" /mnt/etc/systemd/journald.conf
-sed -i "s/#RuntimeMaxUse=/RuntimeMaxUse=250M/" /mnt/etc/systemd/journald.conf
-sed -i "s/#RuntimeMaxFileSize=/RuntimeMaxFileSize=30M/" /mnt/etc/systemd/journald.conf
+sed -i "s/#SystemMaxUse=/SystemMaxUse=1G/" /mnt/etc/systemd/journald.conf
 
 
 
