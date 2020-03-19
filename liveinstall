@@ -166,6 +166,7 @@ rootName=$sthInsertion
 
 
 
+
 print_line
 
 print_title "Create Filesystem [https://wiki.archlinux.org/index.php/file_systems]"
@@ -217,18 +218,20 @@ pid=$!;progress $pid
 
 
 
-print_info "Activate Swap [https://wiki.archlinux.org/index.php/Swap#systemd-swap]"
+print_info "Activate Swap [https://wiki.archlinux.org/index.php/Swap]"
 
 
-sed -i "s|swapfc_enabled=0|swapfc_enabled=1|" /mnt/etc/systemd/swap.conf
+pls_enter "How big should the swap partition be (use upper letters for unit)? [recomended: 20GiB]" 
+swapSize=$sthInsertion
+
+fallocate -l ${swapSize} /mnt/swapfile
+chmod 600 /mnt/swapfile
+mkswap /mnt/swapfile
+swapon /mnt/swapfile
+
 
 echo vm.swappiness=5 | tee -a /mnt/etc/sysctl.d/99-sysctl.conf
 echo vm.vfs_cache_pressure=50 | tee -a /mnt/etc/sysctl.d/99-sysctl.conf
-
-arch_chroot "sysctl -p /mnt/etc/sysctl.d/99-sysctl.conf"
-
-arch_chroot "systemctl enable systemd-swap"
-
 
 
 
@@ -385,12 +388,14 @@ pid=$!;progress $pid
 #get uuid of luks_disk
 luksUUDI=$(blkid -s UUID -o value ${LUKS_DISK})
 
+swap_file_offset=$(filefrag -v /mnt/swapfile | awk '{ if($1=="0:"){print $4} }')
+
 
 if [ $UEFI == 1 ]; then
   echo default arch > /mnt/boot/loader/loader.conf
 
 else
-  sed -i -e "s|GRUB_CMDLINE_LINUX=\"\(.\+\)\"|GRUB_CMDLINE_LINUX=\"cryptdevice=UUID=${luksUUDI}:${lvmName} root=/dev/mapper/${lvmName} resume=/dev/mapper/${lvmName}\"|g" -e "s|GRUB_CMDLINE_LINUX=\"\"|GRUB_CMDLINE_LINUX=\"cryptdevice=UUID=${luksUUDI}:${lvmName} root=/dev/mapper/${lvmName} resume=/dev/mapper/${lvmName}\"|g" /mnt/etc/default/grub
+  sed -i -e "s|GRUB_CMDLINE_LINUX=\"\(.\+\)\"|GRUB_CMDLINE_LINUX=\"cryptdevice=UUID=${luksUUDI}:${lvmName} root=/dev/mapper/${lvmName} resume=/dev/mapper/${lvmName} resume_offset=${swap_file_offset}\"|g" -e "s|GRUB_CMDLINE_LINUX=\"\"|GRUB_CMDLINE_LINUX=\"cryptdevice=UUID=${luksUUDI}:${lvmName} root=/dev/mapper/${lvmName} resume=/dev/mapper/${lvmName} resume_offset=${swap_file_offset}\"|g" /mnt/etc/default/grub
 
   sed -i 's/#GRUB_ENABLE_CRYPTODISK=y/GRUB_ENABLE_CRYPTODISK=y/' /mnt/etc/default/grub
 
@@ -402,7 +407,7 @@ if [ $UEFI == 1 ]; then
     echo "linux /vmlinuz-linux" > /mnt/boot/loader/entries/arch.conf
     echo "initrd /intel-ucode.img" > /mnt/boot/loader/entries/arch.conf
     echo "initrd /initramfs-linux.img" > /mnt/boot/loader/entries/arch.conf
-    echo "options cryptdevice=UUID=${luksUUDI}:${lvmName} root=/dev/mapper/${lvmName} resume=/dev/mapper/${lvmName} quiet rw" > /mnt/boot/loader/entries/arch.conf
+    echo "options cryptdevice=UUID=${luksUUDI}:${lvmName} root=/dev/mapper/${lvmName} resume=/dev/mapper/${lvmName} resume_offset=${swap_file_offset} quiet rw" > /mnt/boot/loader/entries/arch.conf
 
 else
     arch_chroot "grub-install $BOOT_MOUNTPOINT" 
