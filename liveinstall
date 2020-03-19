@@ -93,7 +93,7 @@ do
 	print_warning "type 'EF00'"
 	
 	cecho "Second partition:  Partition number '2'; First sector '[enter]'; Last sector '[enter]';"
-	print_warning "type '8E00'"
+	print_warning "type '8300'"
     else
 	cecho "First partition: Partition number '1'; First sector '[enter]'; Last sector '+3M';"
 	print_warning "type 'EF02'"
@@ -102,7 +102,7 @@ do
 	print_warning "type '8300'"
 	
 	cecho "Third partition:  Partition number '3'; First sector '[enter]'; Last sector '[enter]';"
-	print_warning "type '8E00'"
+	print_warning "type '8300'"
     fi
 
     cecho "At the end, wirte the partitions: w"
@@ -144,7 +144,7 @@ cecho "Open Luks Partition"
 cecho "Don't use one of the following names:"
 ls -la /dev/mapper/
 
-pls_enter "How should the opend lvm device be named? [recomended: lvm; but dont use any name listed above]" 
+pls_enter "How should the opend lvm device be named? [recomended: cryptroot; but dont use any name listed above]" 
 lvmName=$sthInsertion
 
 
@@ -158,74 +158,28 @@ done
 	
 print_line
 
-print_title "Create LVM [https://wiki.archlinux.org/index.php/LVM]"
-
-ncecho "pvcreate /dev/mapper/${lvmName} "
-pvcreate /dev/mapper/${lvmName} >>"$LOG" 2>&1 & 
-pid=$!;progress $pid
-
-print_warning "If something fails in the following commands use these commands to remove the partitions."
-cecho "pvremove /dev/mapper/${lvmName}"
-
-cecho "Don't use one of the following names:"
-ls -la /dev/mapper/
-
-pls_enter "How should the volume group be named? [It will be the prefix of every mapped partition]" 
-volumeGroup=$sthInsertion
 
 
-ncecho "vgcreate ${volumeGroup} /dev/mapper/${lvmName} "
-vgcreate ${volumeGroup} /dev/mapper/${lvmName} >>"$LOG" 2>&1 & 
-pid=$!;progress $pid
-
-print_warning "If something fails in the following commands use these commands to remove the partitions."
-cecho "vgreduce ${volumeGroup} /dev/mapper/${lvmName}"
-
-
-pls_enter "How should the swap partition be named? [recomended: swap]" 
-swapName=$sthInsertion
-
-
-pls_enter "How big should the swap partition be (use upper letters for unit)? [recomended: 20GB]" 
-swapSize=$sthInsertion
-
-ncecho "lvcreate -L ${swapSize} -n swap ${volumeGroup} "
-lvcreate -L ${swapSize} -n ${swapName} ${volumeGroup} >>"$LOG" 2>&1 & 
-pid=$!;progress $pid
-
-
-pls_enter "How should the root partition be named?" 
+pls_enter "How should the root partition be named? [recomended: root]" 
 rootName=$sthInsertion
 
-ncecho "lvcreate -l 100%FREE -n root ${volumeGroup} "
-lvcreate -l 100%FREE -n ${rootName} ${volumeGroup} >>"$LOG" 2>&1 &   #home
-pid=$!;progress $pid 
 
-print_warning "If something faild use following commands to remove the partitions."
-cecho "vgreduce ${volumeGroup} /dev/mapper/${lvmName}"
-cecho "pvremove /dev/mapper/${lvmName}"
-
-read -p "Press enter to continue [be sure partitions are created]"
 
 
 print_line
 
 print_title "Create Filesystem [https://wiki.archlinux.org/index.php/file_systems]"
 
-ncecho "mkfs.ext4 -L ${rootName} /dev/mapper/${volumeGroup}-${rootName}"  			#-O \^64bit
-mkfs.ext4 -L ${rootName} /dev/mapper/${volumeGroup}-${rootName}  >>"$LOG" 2>&1 & 	#-O \^64bit
+ncecho "mkfs.ext4 -L ${rootName} /dev/mapper/${lvmName}"
+mkfs.ext4 -L ${rootName} /dev/mapper/${lvmName}  >>"$LOG" 2>&1 &
 pid=$!;progress $pid
 
 
-pls_enter "How should the boot partition be named?" 
+pls_enter "How should the boot partition be named? [recomended: boot]" 
 bootName=$sthInsertion
 
 ncecho "mkfs.fat -F32 -n ${bootName} $BOOT_DISK "
 mkfs.fat -F32 -n ${bootName} $BOOT_DISK  >>"$LOG" 2>&1 & 
-pid=$!;progress $pid
-
-ncecho "mkswap -L ${swapName} /dev/mapper/${volumeGroup}-swap "
-mkswap -L ${swapName} /dev/mapper/${volumeGroup}-${swapName}  >>"$LOG" 2>&1 & 
 pid=$!;progress $pid
 
 
@@ -233,8 +187,8 @@ print_line
 
 print_info "Mount Filesystem [https://wiki.archlinux.de/title/Mounten]"
 
-ncecho "mount /dev/mapper/${volumeGroup}-${rootName} /mnt "
-mount /dev/mapper/${volumeGroup}-${rootName}  /mnt  >>"$LOG" 2>&1 & 
+ncecho "mount /dev/mapper/${lvmName} /mnt "
+mount /dev/mapper/${lvmName}  /mnt  >>"$LOG" 2>&1 & 
 pid=$!;progress $pid
 
 
@@ -243,11 +197,6 @@ mkdir /mnt/boot
 ncecho "mount $BOOT_DISK /mnt/boot "
 mount $BOOT_DISK /mnt/boot  >>"$LOG" 2>&1 & 
 pid=$!;progress $pid
-
-
-print_info "Activate Swap [https://wiki.archlinux.org/index.php/swap]"
-
-swapon -L ${swapName}
 
 
 print_line
@@ -259,12 +208,29 @@ print_title "Install System [https://wiki.archlinux.org/index.php/Install_from_e
 yn_question "Do you want to add wifi support?"
 if [ $ynAnswer == "y" ]; then
     ncecho "pacstrap /mnt base base-devel linux linux-firmware nano intel-ucode parted btrfs-progs f2fs-tools ntp net-tools iw wireless_tools wpa_supplicant dialog lvm2 vim zsh efibootmgr"
-    pacstrap /mnt base base-devel linux linux-firmware intel-ucode  net-tools iw wireless_tools wpa_supplicant dialog lvm2 vim zsh efibootmgr  >>"$LOG" 2>&1 & 
+    pacstrap /mnt base base-devel linux linux-firmware intel-ucode net-tools iw wireless_tools wpa_supplicant dialog vim zsh efibootmgr systemd-swap >>"$LOG" 2>&1 & 
 else
-    ncecho "pacstrap /mnt base base-devel linux linux-firmware intel-ucode lvm2 vim zsh efibootmgr"
-    pacstrap /mnt base base-devel linux linux-firmware intel-ucode lvm2 vim zsh efibootmgr >>"$LOG" 2>&1 & 
+    ncecho "pacstrap /mnt base base-devel linux-firmware linux vim zsh efibootmgr intel-ucode systemd-swap"
+    pacstrap /mnt base base-devel linux-firmware linux vim zsh efibootmgr intel-ucode systemd-swap  >>"$LOG" 2>&1 & 
 fi
 pid=$!;progress $pid
+
+
+
+print_info "Activate Swap [https://wiki.archlinux.org/index.php/Swap#systemd-swap]"
+
+
+sed -i "s|swapfc_enabled=0|swapfc_enabled=1|" /mnt/etc/systemd/swap.conf
+
+echo vm.swappiness=5 | tee -a /mnt/etc/sysctl.d/99-sysctl.conf
+echo vm.vfs_cache_pressure=50 | tee -a /mnt/etc/sysctl.d/99-sysctl.conf
+
+arch_chroot "sysctl -p /mnt/etc/sysctl.d/99-sysctl.conf"
+
+arch_chroot "systemctl enable systemd-swap"
+
+
+
 
 
 
@@ -282,6 +248,8 @@ yn_question "Do you want to create a ramdisk for /tmp?"
 if [ $ynAnswer == "y" ]; then
     add_line "none /tmp tmpfs defaults,noatime,mode=1777 0 0" "/mnt/etc/fstab"
 fi
+
+
 
 print_info "Edit makepkg conf [https://wiki.archlinux.org/index.php/makepkg#tmpfs]"
 
@@ -422,7 +390,7 @@ if [ $UEFI == 1 ]; then
   echo default arch > /mnt/boot/loader/loader.conf
 
 else
-  sed -i -e "s|GRUB_CMDLINE_LINUX=\"\(.\+\)\"|GRUB_CMDLINE_LINUX=\"cryptdevice=UUID=${luksUUDI}:${lvmName} root=/dev/mapper/${volumeGroup}-${rootName}\"|g" -e "s|GRUB_CMDLINE_LINUX=\"\"|GRUB_CMDLINE_LINUX=\"cryptdevice=UUID=${luksUUDI}:cryptlvm root=/dev/mapper/${volumeGroup}-${rootName}\"|g" /mnt/etc/default/grub
+  sed -i -e "s|GRUB_CMDLINE_LINUX=\"\(.\+\)\"|GRUB_CMDLINE_LINUX=\"cryptdevice=UUID=${luksUUDI}:${lvmName} root=/dev/mapper/${lvmName} resume=/dev/mapper/${lvmName}\"|g" -e "s|GRUB_CMDLINE_LINUX=\"\"|GRUB_CMDLINE_LINUX=\"cryptdevice=UUID=${luksUUDI}:${lvmName} root=/dev/mapper/${lvmName} resume=/dev/mapper/${lvmName}\"|g" /mnt/etc/default/grub
 
   sed -i 's/#GRUB_ENABLE_CRYPTODISK=y/GRUB_ENABLE_CRYPTODISK=y/' /mnt/etc/default/grub
 
@@ -434,7 +402,7 @@ if [ $UEFI == 1 ]; then
     echo "linux /vmlinuz-linux" > /mnt/boot/loader/entries/arch.conf
     echo "initrd /intel-ucode.img" > /mnt/boot/loader/entries/arch.conf
     echo "initrd /initramfs-linux.img" > /mnt/boot/loader/entries/arch.conf
-    echo "options cryptdevice=UUID=${luksUUDI}:${lvmName} root=/dev/mapper/${volumeGroup}-${rootName} resume=/dev/mapper/${volumeGroup}-${swapName} quiet rw" > /mnt/boot/loader/entries/arch.conf
+    echo "options cryptdevice=UUID=${luksUUDI}:${lvmName} root=/dev/mapper/${lvmName} resume=/dev/mapper/${lvmName} quiet rw" > /mnt/boot/loader/entries/arch.conf
 
 else
     arch_chroot "grub-install $BOOT_MOUNTPOINT" 
