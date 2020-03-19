@@ -48,7 +48,9 @@ pause_function
 
 print_line
 
-pacman -Sy  pacman-contrib
+ncecho "pacman -Sy  pacman-contrib reflector"
+pacman -Sy  pacman-contrib reflector  >>"$LOG" 2>&1 & 
+pid=$!;progress $pid
 
 print_line 
 
@@ -58,36 +60,10 @@ if [ $ynAnswer == "y" ]; then
 
   #Mirrorlist
   print_title "Backup pacman mirrorlist and filter for German Servers [https://wiki.archlinux.org/index.php/mirrors]"
-  ncecho "First Dowload full Mirrorlist "
-
-  ls /etc/pacman.d/ -la
-
-  url="https://www.archlinux.org/mirrorlist/?country=DE&use_mirror_status=on"
-
-  tmpfile=$(mktemp --suffix=-mirrorlist)
-  # Get latest mirror list and save to tmpfile
-  curl -so ${tmpfile} ${url} >>"$LOG" 2>&1 & 
+  mv -i /etc/pacman.d/mirrorlist /etc/pacman.d/mirrorlist.orig
+  ncecho "reflector --country France --country Germany --age 12 --protocol https --sort rate --verbose --save /etc/pacman.d/mirrorlist"
+  reflector --country France --country Germany --age 12 --protocol https --sort rate --verbose --save /etc/pacman.d/mirrorlist  >>"$LOG" 2>&1 & 
   pid=$!;progress $pid
-
-  sed -i 's/^#Server/Server/g' ${tmpfile}
-
-  if [[ -s ${tmpfile} ]]; then
-      { cecho " Backing up the original mirrorlist..."
-        mv -i /etc/pacman.d/mirrorlist /etc/pacman.d/mirrorlist.orig; } &&
-    { cecho " Rotating the new list into place..."
-      mv -i ${tmpfile} /etc/pacman.d/mirrorlist; }
-  else
-      print_warning " Unable to update, could not download list."
-  fi
-    
-  cp /etc/pacman.d/mirrorlist /etc/pacman.d/mirrorlist.tmp
-
-  ncecho "Rank Mirrorlist "
-  rankmirrors -n 5 /etc/pacman.d/mirrorlist.tmp > /etc/pacman.d/mirrorlist & 
-  pid=$!;progress $pid
-
-  rm /etc/pacman.d/mirrorlist.tmp
-  chmod 644 /etc/pacman.d/mirrorlist
 
 fi
 
