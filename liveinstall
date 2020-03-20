@@ -48,9 +48,8 @@ pause_function
 
 print_line
 
-ncecho "pacman -Sy  pacman-contrib reflector"
-pacman -Sy  pacman-contrib reflector  >>"$LOG" 2>&1 & 
-pid=$!;progress $pid
+ncecho "package_install  pacman-contrib reflector"
+package_install  pacman-contrib reflector
 
 print_line 
 
