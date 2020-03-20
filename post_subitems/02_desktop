@@ -154,7 +154,7 @@ if [ $isServer == "n" ]; then
 
 
     print_info "Install synaptics - https://wiki.archlinux.de/title/Synaptics_Touchpad_Treiber" 
-    package_install "xf86-input-synaptics"
+    package_install "xf86-input-libinput"
 
     # Touchpad support
 
