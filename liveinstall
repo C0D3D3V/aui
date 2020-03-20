@@ -424,7 +424,7 @@ cecho "\n\n"
 
 cecho "Installation finished" 
 cecho "Please execute following comands:"
-cecho "umount -R /mnt"
 cecho "swapoff -a"
+cecho "umount -R /mnt"
 cecho "\n\n" 
 cecho "reboot"
