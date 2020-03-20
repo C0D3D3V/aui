@@ -386,7 +386,7 @@ pid=$!;progress $pid
 
 
 #get uuid of luks_disk
-luksUUDI=$(blkid -s UUID -o value ${LUKS_DISK})
+luksUUDI=$(blkid -s UUID  -o value ${LUKS_DISK})
 
 swap_file_offset=$(filefrag -v /mnt/swapfile | awk '{ if($1=="0:"){print $4} }')
 
