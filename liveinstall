@@ -208,11 +208,11 @@ print_title "Install System [https://wiki.archlinux.org/index.php/Install_from_e
 
 yn_question "Do you want to add wifi support?"
 if [ $ynAnswer == "y" ]; then
-    ncecho "pacstrap /mnt base base-devel linux linux-firmware nano intel-ucode parted btrfs-progs f2fs-tools ntp net-tools iw wireless_tools wpa_supplicant dialog lvm2 vim zsh efibootmgr systemd-swap zstd"
-    pacstrap /mnt base base-devel linux linux-firmware intel-ucode net-tools iw wireless_tools wpa_supplicant dialog vim zsh efibootmgr systemd-swap zstd >>"$LOG" 2>&1 & 
+    ncecho "pacstrap /mnt base base-devel linux-firmware linux vim zsh efibootmgr intel-ucode zstd netctl dialog wpa_supplicant"
+    pacstrap /mnt base base-devel linux-firmware linux vim zsh efibootmgr intel-ucode zstd netctl dialog wpa_supplicant >>"$LOG" 2>&1 & 
 else
-    ncecho "pacstrap /mnt base base-devel linux-firmware linux vim zsh efibootmgr intel-ucode systemd-swap zstd"
-    pacstrap /mnt base base-devel linux-firmware linux vim zsh efibootmgr intel-ucode systemd-swap zstd  >>"$LOG" 2>&1 & 
+    ncecho "pacstrap /mnt base base-devel linux-firmware linux vim zsh efibootmgr intel-ucode zstd"
+    pacstrap /mnt base base-devel linux-firmware linux vim zsh efibootmgr intel-ucode zstd  >>"$LOG" 2>&1 & 
 fi
 pid=$!;progress $pid
 
@@ -220,8 +220,9 @@ pid=$!;progress $pid
 
 print_info "Activate Swap [https://wiki.archlinux.org/index.php/Swap]"
 
+free --giga
 
-pls_enter "How big should the swap partition be (use upper letters for unit)? [recomended: 20GiB]" 
+pls_enter "How big should the swap partition be? [recomended: 20GiB; it should be bigger than RAM]" 
 swapSize=$sthInsertion
 
 fallocate -l ${swapSize} /mnt/swapfile
