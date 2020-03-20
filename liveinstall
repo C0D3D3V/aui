@@ -143,7 +143,7 @@ cecho "Open Luks Partition"
 cecho "Don't use one of the following names:"
 ls -la /dev/mapper/
 
-pls_enter "How should the opend lvm device be named? [recomended: cryptroot; but dont use any name listed above]" 
+pls_enter "How should the opend encrypted partition be named? [recomended: cryptroot; but dont use any name listed above]" 
 lvmName=$sthInsertion
 
 
@@ -345,7 +345,7 @@ print_line
 print_info "Change Linux Kernel Modules  [https://wiki.archlinux.org/index.php/mkinitcpio]"
 
 
-sed -i 's/^HOOKS=(.*)/HOOKS=(base udev keyboard keymap autodetect consolefont modconf block encrypt lvm2 filesystems resume fsck)/' /mnt/etc/mkinitcpio.conf
+sed -i 's/^HOOKS=(.*)/HOOKS=(base udev keyboard keymap autodetect consolefont modconf block encrypt filesystems resume fsck)/' /mnt/etc/mkinitcpio.conf
 sed -i 's/MODULES=()/MODULES=(ext4)/' /mnt/etc/mkinitcpio.conf
 
 arch_chroot "mkinitcpio -P"
