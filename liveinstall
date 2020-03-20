@@ -49,7 +49,7 @@ pause_function
 print_line
 
 ncecho "package_install  pacman-contrib reflector"
-package_install  pacman-contrib reflector
+package_install  "pacman-contrib reflector"
 
 print_line 
 
