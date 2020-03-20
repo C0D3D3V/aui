@@ -404,10 +404,10 @@ fi
 
 if [ $UEFI == 1 ]; then
     echo "title Arch Linux" > /mnt/boot/loader/entries/arch.conf
-    echo "linux /vmlinuz-linux" > /mnt/boot/loader/entries/arch.conf
-    echo "initrd /intel-ucode.img" > /mnt/boot/loader/entries/arch.conf
-    echo "initrd /initramfs-linux.img" > /mnt/boot/loader/entries/arch.conf
-    echo "options cryptdevice=UUID=${luksUUDI}:${lvmName} root=/dev/mapper/${lvmName} resume=/dev/mapper/${lvmName} resume_offset=${swap_file_offset} quiet rw" > /mnt/boot/loader/entries/arch.conf
+    echo "linux /vmlinuz-linux" >> /mnt/boot/loader/entries/arch.conf
+    echo "initrd /intel-ucode.img" >> /mnt/boot/loader/entries/arch.conf
+    echo "initrd /initramfs-linux.img" >> /mnt/boot/loader/entries/arch.conf
+    echo "options cryptdevice=UUID=${luksUUDI}:${lvmName} root=/dev/mapper/${lvmName} resume=/dev/mapper/${lvmName} resume_offset=${swap_file_offset} quiet rw" >> /mnt/boot/loader/entries/arch.conf
 
 else
     arch_chroot "grub-install $BOOT_MOUNTPOINT" 
