@@ -42,7 +42,6 @@ check_connection
 pause_function
 
 print_title "This Skript will install Arch Linux"
-#lsblk
 
 pause_function
 
@@ -207,10 +206,10 @@ print_title "Install System [https://wiki.archlinux.org/index.php/Install_from_e
 
 yn_question "Do you want to add wifi support?"
 if [ $ynAnswer == "y" ]; then
-    ncecho "pacstrap /mnt base base-devel linux-firmware linux vim zsh efibootmgr intel-ucode zstd netctl dialog wpa_supplicant"
+    ncecho "pacstrap /mnt base base-devel linux-firmware linux vim zsh efibootmgr intel-ucode zstd dhcpcd netctl dialog wpa_supplicant"
     pacstrap /mnt base base-devel linux-firmware linux vim zsh efibootmgr intel-ucode zstd netctl dialog wpa_supplicant >>"$LOG" 2>&1 & 
 else
-    ncecho "pacstrap /mnt base base-devel linux-firmware linux vim zsh efibootmgr intel-ucode zstd"
+    ncecho "pacstrap /mnt base base-devel linux-firmware linux vim zsh efibootmgr intel-ucode zstd dhcpcd"
     pacstrap /mnt base base-devel linux-firmware linux vim zsh efibootmgr intel-ucode zstd  >>"$LOG" 2>&1 & 
 fi
 pid=$!;progress $pid
@@ -328,6 +327,7 @@ print_info "Activate Multilib  [https://wiki.archlinux.org/index.php/multilib]"
 
 
 sed -i "/\[multilib\]/,/Include/"'s/^#//' /mnt/etc/pacman.conf
+sed -i 's/#Color/Color/' /mnt/etc/pacman.conf
 
 
 print_info "Copy Mirrorlist"
