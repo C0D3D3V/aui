@@ -361,6 +361,23 @@ do
     yn_question "Did you set the password correct?"
 done
 
+print_info "Create Admin User [https://wiki.archlinux.de/title/Sudo#sudo_f.C3.BCr_Benutzer_einrichten]"
+
+pls_enter "How should the administrator be named? [recomended: yourName]" 
+adminName=$sthInsertion
+
+arch_chroot "useradd -m -g users -G wheel,storage,power,network,uucp -s /bin/zsh ${adminName}"
+
+ynAnswer="n"
+while [ $ynAnswer == "n" ];
+do
+    arch_chroot "passwd ${adminName}"
+    yn_question "Did you set the password correct?"
+done
+
+sed -i 's/# %wheel   ALL=(ALL) ALL/%wheel   ALL=(ALL) ALL/' /mnt/etc/sudoers
+
+
 
 print_line
 
