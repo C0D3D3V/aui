@@ -180,7 +180,7 @@ aur_package_install() {
     for PKG in $1; do
 	if ! is_package_installed "${PKG}" ; then
 	    ncecho " ${BBlue}[${Reset}${Bold}X${BBlue}]${Reset} Installing ${AUR} ${Bold}${PKG}${Reset} "
-            su - $username -c "yaourt --noconfirm -Sy ${PKG}" >>"$LOG" 2>&1 &
+            su - $username -c "yay --noconfirm -Sy ${PKG}" >>"$LOG" 2>&1 &
 	    pid=$!;progress $pid
 	else 
             print_info "${PKG} is up to date --skipping" 
