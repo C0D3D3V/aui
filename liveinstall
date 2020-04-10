@@ -206,11 +206,11 @@ print_title "Install System [https://wiki.archlinux.org/index.php/Install_from_e
 
 yn_question "Do you want to add wifi support?"
 if [ $ynAnswer == "y" ]; then
-    ncecho "pacstrap /mnt base base-devel linux-firmware linux vim zsh efibootmgr intel-ucode zstd dhcpcd netctl dialog wpa_supplicant"
-    pacstrap /mnt base base-devel linux-firmware linux vim zsh efibootmgr intel-ucode zstd dhcpcd netctl dialog wpa_supplicant >>"$LOG" 2>&1 & 
+    ncecho "pacstrap /mnt base base-devel linux-firmware linux vim zsh efibootmgr intel-ucode zstd dhcpcd git netctl dialog wpa_supplicant"
+    pacstrap /mnt base base-devel linux-firmware linux vim zsh efibootmgr intel-ucode zstd dhcpcd git netctl dialog wpa_supplicant >>"$LOG" 2>&1 & 
 else
-    ncecho "pacstrap /mnt base base-devel linux-firmware linux vim zsh efibootmgr intel-ucode zstd dhcpcd"
-    pacstrap /mnt base base-devel linux-firmware linux vim zsh efibootmgr intel-ucode zstd dhcpcd >>"$LOG" 2>&1 & 
+    ncecho "pacstrap /mnt base base-devel linux-firmware linux vim zsh efibootmgr intel-ucode zstd dhcpcd git"
+    pacstrap /mnt base base-devel linux-firmware linux vim zsh efibootmgr intel-ucode zstd dhcpcd git >>"$LOG" 2>&1 & 
 fi
 pid=$!;progress $pid
 
