@@ -2,7 +2,7 @@
 
 ## Warnung! Aktuell ist nur das `liveinstall`-Skript aktuell. Die Post-Installation werde ich demnächst wieder aktualisieren.
 
-Dieses Skript automatisiert weitestgehend die Installation von Arch-Linux, welche in [meinem anderen Repo](https://github.com/C0D3D3V/arch) beschrieben wird. Es ist eine stark abgeänderte Version von [helmuthdu's Archlinux ulitimativem Installations-Skript](https://github.com/helmuthdu/aui).
+Dieses Skript automatisiert weitestgehend die Installation von Arch-Linux, welche in [meinem anderen Repository](https://github.com/C0D3D3V/arch) beschrieben wird. Es ist eine stark abgeänderte Version von [helmuthdu's Archlinux ulitimativem Installations-Skript](https://github.com/helmuthdu/aui).
 
 
 
@@ -11,13 +11,14 @@ Dieses Skript automatisiert weitestgehend die Installation von Arch-Linux, welch
 An diesem Projekt wird noch aktiv gearbeitet und es werden PRs akzeptiert.
 
 
-# Motto
+## Motto
 
 Die Installation und Konfiguration von Arch-Linux war nie einfacher! :D 
 Natürlich gibt es noch unzählige andere Varianten Arch-Linux zu installieren, beispielsweise in dem man strickt dem [Installation guide](https://wiki.archlinux.org/index.php/installation_guide) folgt. Aber wer das öfter als ein mal gemacht hat, weiß dass dies öde wird.
 
 Ich empfehle diese Skripte erst in Virtualbox zu testen, um sich damit vertraut zu machen.
 
+# Einsetzung 
 
 ## Erste-Schritte (Vorraussetzung)
 
