@@ -366,7 +366,7 @@ print_info "Create Admin User [https://wiki.archlinux.de/title/Sudo#sudo_f.C3.BC
 pls_enter "How should the administrator be named? [recomended: yourName]" 
 adminName=$sthInsertion
 
-arch_chroot "useradd -m -g users -G wheel,storage,power,network,uucp -s /bin/zsh ${adminName}"
+arch_chroot "useradd -m -g users -G wheel,storage,power,network,uucp,vboxusers -s /bin/zsh ${adminName}"
 
 ynAnswer="n"
 while [ $ynAnswer == "n" ];
