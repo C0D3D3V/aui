@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-pacman -Sy git --needed
+pacman -Sy git --needed --noconfirm
 git clone https://github.com/c0d3d3v/aui
 cd aui || exit
 ./liveinstall
