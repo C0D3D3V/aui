@@ -48,7 +48,7 @@ werden. Das Skript frägt bei kritischen Schritten ob diese erfolgreich waren.
 ./liveinstall
 ```
 
-Um die Installation abzuschließen mit [meiner Liste an empfohlenen Programmen](https://github.com/C0D3D3V/arch/packages) muss nach dem Ausführen des `liveinstall`-Skript auch das `postinstall`-Skript ausgeführt werden. Dieses wird als Administrator (nicht als root) im neu installierten Betriebsystem ausgeführt.
+Um die Installation abzuschließen mit [meiner Liste an empfohlenen Programmen](https://github.com/C0D3D3V/arch/packages) muss nach dem Ausführen des `liveinstall`-Skript auch das `postinstall`-Skript ausgeführt werden. Dieses wird als Nutzer mit sudo im neu installierten Betriebsystem ausgeführt.
 
 ```
 ./postinstall
