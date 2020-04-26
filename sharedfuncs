@@ -1,15 +1,12 @@
 #!/bin/bash
 
 
-
 AUI_DIR=`pwd` #CURRENT DIRECTORY 
 LOG="${AUI_DIR}/`basename ${0}`.log" # LOG FILE
 PKG_FAIL="${AUI_DIR}/`basename ${0}`_fail_install.log"
 
 
 username=""
-
-#[[ -f $LOG ]] && rm -f "$LOG"
 
 
 # COLORS {{{
@@ -57,7 +54,7 @@ error_msg() {
 
 check_root() {
     if [[ "$(id -u)" != "0" ]]; then
-	error_msg "ERROR! You must execute the script as the root user."
+	    error_msg "ERROR! You must execute the script as the root user."
     fi
 } 
 
@@ -192,7 +189,7 @@ package_install() {
     #install packages using pacman
     for PKG in $1; do
 	if ! is_package_installed "${PKG}" ; then
-	    local _pkg_repo=`pacman -Sp --print-format %r ${PKG} | uniq | sed '1!d'`
+	    local _pkg_repo=`pacman -Sp --print-format %r ${PKG}  2>/dev/null | uniq | sed '1!d'`
             case $_pkg_repo in
 		"core")
 		    _pkg_repo="${BRed}${_pkg_repo}${Reset}"

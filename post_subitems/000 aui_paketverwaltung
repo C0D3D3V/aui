@@ -3,7 +3,6 @@
 
 if ! is_package_installed "yay" ; then
 
-
   print_info "Install yay - https://github.com/Jguer/yay"
 
   aui_download_packages "yay"
