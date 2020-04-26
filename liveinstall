@@ -177,7 +177,7 @@ genfstab -pU /mnt >> /mnt/etc/fstab
 	
 add_line "none /tmp tmpfs defaults,noatime,mode=1777 0 0" "/mnt/etc/fstab"
 
-
+swapoff -a
 
 
 print_info "Edit makepkg conf [https://wiki.archlinux.org/index.php/makepkg#tmpfs]"
@@ -363,7 +363,6 @@ print_line
 cecho "\n\n"
 
 cecho "Installation finished" 
-swapoff -a
 umount -R /mnt
 
 
