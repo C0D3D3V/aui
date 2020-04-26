@@ -1,5 +1,4 @@
 #!/bin/bash
-set -x #echo on
 
 if [[ -f `pwd`/sharedfuncs ]]; then
   source sharedfuncs
@@ -9,7 +8,7 @@ else
 fi
 
 if [[ "$(id -u)" == "0" ]]; then
-	    error_msg "ERROR! You shuld not execute the script as the root user."
+  error_msg "ERROR! You shuld not execute the script as the root user."
 fi
 prompt=$(sudo -nv 2>&1)
 if [ $? -eq 0 ]; then
