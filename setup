@@ -3,4 +3,7 @@
 pacman -Sy git --needed --noconfirm
 git clone https://github.com/c0d3d3v/aui
 cd aui || exit
-./liveinstall
+
+git checkout automation
+echo "Starting liveinstall. Logging to $PWD/aui.log"
+./liveinstall | tee -a aui.log
