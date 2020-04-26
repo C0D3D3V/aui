@@ -61,5 +61,4 @@ Die Schritte des Skriptes sind unter [https://github.com/C0D3D3V/arch/blob/maste
 
 ## Was macht das `postinstall` Skript?
 
-
-
+Das Skript führt die *post-Installations*-Schritte aus die in der [Dokumentation](https://github.com/C0D3D3V/arch/tree/master/post_install) beschrieben sind. Des weiteren werden alle [normalen](https://github.com/C0D3D3V/arch/tree/master/packages) und [extra Pakete](https://github.com/C0D3D3V/arch/tree/master/extra_packages) installiert.
