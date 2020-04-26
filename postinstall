@@ -38,6 +38,8 @@ comm -13 <(pacman -Qq | sort) <(awk 1 ${arch_dir}/**/* | sed -n -e "s/^[ \t]*+[ 
 sudo systemctl daemon-reload
 
 
+# Hier die ganzen Konfigurationsschritte
+include_file "post_subitems/050_Schriftarten" 
 
 
 
