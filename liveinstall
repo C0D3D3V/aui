@@ -9,13 +9,15 @@ else
 fi
 
 lvmName="cryptroot"
+KEYMAP="de-latin1"
+
 
 check_root
 check_boot_system
 
 
 print_info "Load German Keymap [https://wiki.archlinux.org/index.php/Keyboard_configuration_in_console]"
-loadkeys de-latin1
+loadkeys "$KEYMAP"
 
 print_info "Set Font to sun12x22"
 setfont sun12x22
@@ -26,7 +28,6 @@ check_connection
 
 print_title "This Skript will install Arch Linux"
 
-pause_function
 
 print_line
 
@@ -99,15 +100,13 @@ fi
 print_title "Setup Luks [https://wiki.archlinux.org/index.php/Dm-crypt]"
 modprobe dm-crypt
 
-print_warning "Confirm with upercase YES"
-
 
 
 ynAnswer="n"
 while [ $ynAnswer == "n" ];
 do
-    cryptsetup -c aes-xts-plain64 -y -s 512  --use-random luksFormat $LUKS_DISK
-    yn_question "Have you realy confirmed with upercase YES and did you enter two times your passphrase?"
+    cryptsetup -c aes-xts-plain64 -y -s 512 --use-random --batch-mode luksFormat $LUKS_DISK
+    yn_question "Did you enter two times your passphrase?"
 done
 
 
@@ -323,7 +322,7 @@ else
 
   ncecho "Installing Grub "
 
-  pacstrap /mnt grub os-prober  >>"$LOG" 2>&1 &
+  pacstrap /mnt grub os-prober
 fi
 
 pid=$!;progress $pid
