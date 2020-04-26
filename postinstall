@@ -32,10 +32,14 @@ echo "Cloning https://github.com/C0D3D3V/arch to ${arch_dir}"
 git clone https://github.com/C0D3D3V/arch $arch_dir
 
 
+include_file "post_subitems/000_aui_paketverwaltung" 
 
 # Install all packages
 comm -13 <(pacman -Qq | sort) <(awk 1 ${arch_dir}/**/* | sed -n -e "s/^[ \t]*+[ \t]*\([^ \t]*\)[ \t]*$/\1/gp" | sort) | yay -Sy --needed --noconfirm -
 sudo systemctl daemon-reload
+
+
+
 
 
 # Activate all services listet in the documentation
