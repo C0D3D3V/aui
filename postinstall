@@ -34,7 +34,22 @@ git clone https://github.com/C0D3D3V/arch $arch_dir
 include_file "post_subitems/000_aui_paketverwaltung" 
 
 # Install all packages
-comm -13 <(pacman -Qq | sort) <(awk 1 ${arch_dir}/**/* | sed -n -e "s/^[ \t]*+[ \t]*\([^ \t]*\)[ \t]*$/\1/gp" | sort) | yay -Sy --needed --noconfirm -
+
+install_packages() {
+    comm -13 <(pacman -Qq | sort) <(awk 1 $1 | sed -n -e "s/^[ \t]*+[ \t]*\([^ \t]*\)[ \t]*$/\1/gp" | sort) | yay -Sy --needed --noconfirm -
+}
+
+activate_services() {
+  awk 1 $1 | sed -n -e "s/^[ \t]*systemctl enable --now[ \t]*\([^ \t]*\)[ \t]*$/\1/gp" | xargs sudo systemctl enable
+}
+
+install_packages "${arch_dir}/packages/*"
+install_packages "${arch_dir}/extra_packages/*"
+install_packages "${arch_dir}/post_install/020*"
+install_packages "${arch_dir}/post_install/050*"
+
+
+
 sudo systemctl daemon-reload
 
 
@@ -44,8 +59,13 @@ include_file "post_subitems/050_Schriftarten"
 
 
 # Activate all services listet in the documentation
+activate_services "${arch_dir}/packages/*"
+activate_services "${arch_dir}/extra_packages/*"
+activate_services "${arch_dir}/post_install/020*"
+activate_services "${arch_dir}/post_install/050*"
 
-awk 1 ${arch_dir}/**/* | sed -n -e "s/^[ \t]*systemctl enable --now[ \t]*\([^ \t]*\)[ \t]*$/\1/gp" | xargs sudo systemctl enable
+
+
 
 
 
