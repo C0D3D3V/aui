@@ -483,55 +483,6 @@ select_device(){
 }
 
 
-select_luks(){
-    
-    #print_danger "\tDo not use this for boot partitions"
-    block_list=(`lsblk | grep 'part' | awk '{print "/dev/" substr($1,3)}'`)
-    PS3="$prompt1"
-	
-	if [ $UEFI == 1 ]; then
-		echo -e "Please select the root Partition (the second partition that you created, normaly /dev/sda2): "
-	else
-		echo -e "Please select the root Partition (the third partition that you created, normaly /dev/sda3): "
-	fi
-    select OPT in "${block_list[@]}"; do
-	if contains_element "$OPT" "${block_list[@]}"; then
-	    
-	    LUKS_DISK=${OPT}
-	    #`echo ${OPT} | sed 's/\/dev\///'`
-	    break
-	else
-	    invalid_option
-	fi
-    done
-    cecho "You selected $LUKS_DISK"
-}
-
-
-select_boot(){
-    block_list=(`lsblk | grep 'part' | awk '{print "/dev/" substr($1,3)}'`)
-    PS3="$prompt1"
-	
-	if [ $UEFI == 1 ]; then
-		echo -e "Please select the boot Partition (the first partition that you created, normaly /dev/sda1): "
-	else
-		echo -e "Please select the boot Partition (the second partition that you created, normaly /dev/sda2): "
-	fi
-	
-	
-    select OPT in "${block_list[@]}"; do
-	if contains_element "$OPT" "${block_list[@]}"; then
-	    
-	    BOOT_DISK=${OPT}
-	    #`echo ${OPT} | sed 's/\/dev\///'`
-	    break
-	else
-	    invalid_option
-	fi
-    done
-    cecho "You selected $BOOT_DISK"
-}
-
 
 
 check_boot_system() {
