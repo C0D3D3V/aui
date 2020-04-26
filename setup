@@ -6,4 +6,4 @@ cd aui || exit
 
 git checkout automation
 echo "Starting liveinstall. Logging to $PWD/aui.log"
-./liveinstall | tee -a aui.log
+bash -c "./liveinstall | tee -a aui.log"
