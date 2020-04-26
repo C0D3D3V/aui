@@ -1,5 +1,5 @@
 #!/bin/bash
-
+set -x #echo on
 
 if [[ -f `pwd`/sharedfuncs ]]; then
   source sharedfuncs
@@ -15,14 +15,10 @@ check_boot_system
 
 
 print_info "Load German Keymap [https://wiki.archlinux.org/index.php/Keyboard_configuration_in_console]"
-ncecho "loadkeys de-latin1 "
-loadkeys de-latin1 >>"$LOG" 2>&1 & 
-pid=$!;progress $pid
+loadkeys de-latin1
 
 print_info "Set Font to sun12x22"
-ncecho "setfont sun12x22 "
-setfont sun12x22 >>"$LOG" 2>&1 & 
-pid=$!;progress $pid
+setfont sun12x22
 
 
 
@@ -39,9 +35,7 @@ package_install  "pacman-contrib reflector"
 #Mirrorlist
 print_title "Backup pacman mirrorlist and filter for German Servers [https://wiki.archlinux.org/index.php/mirrors]"
 mv -i /etc/pacman.d/mirrorlist /etc/pacman.d/mirrorlist.orig
-ncecho "reflector --country France --country Germany --age 25 --protocol https --sort rate --verbose --save /etc/pacman.d/mirrorlist"
-reflector --country France --country Germany --age 12 --protocol https --sort rate --verbose --save /etc/pacman.d/mirrorlist  >>"$LOG" 2>&1 & 
-pid=$!;progress $pid
+reflector --country France --country Germany --age 12 --completion-percent 70 --protocol https --sort rate --verbose --save /etc/pacman.d/mirrorlist
 
 
 cat /etc/pacman.d/mirrorlist | grep "^[^#]" | head -10 
@@ -134,37 +128,27 @@ print_line
 
 print_title "Create Filesystem [https://wiki.archlinux.org/index.php/file_systems]"
 
-ncecho "mkfs.ext4 -L root /dev/mapper/${lvmName}"
-mkfs.ext4 -L root /dev/mapper/${lvmName}  >>"$LOG" 2>&1 &
-pid=$!;progress $pid
+mkfs.ext4 -L root /dev/mapper/${lvmName}
 
 
-ncecho "mkfs.fat -F32 -n boot $BOOT_DISK "
-mkfs.fat -F32 -n boot $BOOT_DISK  >>"$LOG" 2>&1 & 
-pid=$!;progress $pid
+mkfs.fat -F32 -n boot $BOOT_DISK
 
 
 print_line
 
 print_info "Mount Filesystem [https://wiki.archlinux.de/title/Mounten]"
 
-ncecho "mount /dev/mapper/${lvmName} /mnt "
-mount /dev/mapper/${lvmName}  /mnt  >>"$LOG" 2>&1 & 
-pid=$!;progress $pid
+mount /dev/mapper/${lvmName}  /mnt
 
 
 mkdir /mnt/boot
 
-ncecho "mount $BOOT_DISK /mnt/boot "
-mount $BOOT_DISK /mnt/boot  >>"$LOG" 2>&1 & 
-pid=$!;progress $pid
+mount $BOOT_DISK /mnt/boot
 
 
 print_title "Install System [https://wiki.archlinux.org/index.php/Install_from_existing_Linux]"
 
-ncecho "pacstrap /mnt base"
-pacstrap /mnt base base-devel linux-firmware linux gvim zsh efibootmgr intel-ucode zstd dhcpcd git netctl dialog wpa_supplicant >>"$LOG" 2>&1 & 
-
+pacstrap /mnt base base-devel linux-firmware linux gvim zsh efibootmgr intel-ucode zstd dhcpcd git netctl dialog wpa_supplicant
 
 
 
@@ -191,9 +175,7 @@ print_line
 print_info "Generate Fstab [https://wiki.archlinux.org/index.php/fstab]"
 
 
-ncecho "genfstab -U /mnt >> /mnt/etc/fstab "
-genfstab -pU /mnt >> /mnt/etc/fstab & 
-pid=$!;progress $pid
+genfstab -pU /mnt >> /mnt/etc/fstab
 	
 add_line "none /tmp tmpfs defaults,noatime,mode=1777 0 0" "/mnt/etc/fstab"
 
@@ -227,11 +209,10 @@ print_info "Generate Hostname [https://wiki.archlinux.org/index.php/Network_conf
 DEVICENAMEENTERED=0
 while [ $DEVICENAMEENTERED -eq 0 ];
 do
-    
     read -p "Please enter a hostname for the system: " devicename
     yn_question "Do you realy want to use ${devicename}?"
     if [ $ynAnswer == "y" ]; then
-	DEVICENAMEENTERED=1
+	    DEVICENAMEENTERED=1
     fi
 done
 echo $devicename > /mnt/etc/hostname
@@ -270,7 +251,6 @@ arch_chroot "locale-gen"
 print_line
 
 print_info "Activate Multilib  [https://wiki.archlinux.org/index.php/multilib]"
-#SigLevel = PackageRequired TrustedOnly
 
 
 sed -i "/\[multilib\]/,/Include/"'s/^#//' /mnt/etc/pacman.conf

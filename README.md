@@ -45,7 +45,7 @@ Um die absolute **Basis** des Arch-Linux Betriebsystems zu installieren reicht d
 
     ./liveinstall
 
-Um die Installation abzuschließen mit [meiner Liste an empfohlenen Programmen](https://github.com/C0D3D3V/arch/packages) muss nach dem Ausführen des `liveinstall`-Skript auch das `postinstall`-Skript ausgeführt werden. Dieses wird als Admin entweder in der [arch-chroot](https://wiki.archlinux.org/index.php/Chroot) Umgebung ausgeführt (Das Dateisystem ist nach dem `liveinstall`-Skript noch unter `/mnt/` eingebunden) oder im neu installierten Betriebsystem (dazu die ersten Schritte wiederholen).
+Um die Installation abzuschließen mit [meiner Liste an empfohlenen Programmen](https://github.com/C0D3D3V/arch/packages) muss nach dem Ausführen des `liveinstall`-Skript auch das `postinstall`-Skript ausgeführt werden. Dieses wird als Admin im neu installierten Betriebsystem ausgeführt.
 
     ./postinstall
 
@@ -56,35 +56,5 @@ Die Schritte des Skriptes sind unter [https://github.com/C0D3D3V/arch/blob/maste
 
 ## Was macht das `postinstall` Skript?
 
-Weil das Skript noch nicht abgeändert wurde lass ich noch den alten Text dazu hier:
 
-You can run postinstall at anytime again. It will install missing programs and ignore alrady installed programms
-
-It is possible to use this skript on a Server! If you run this skript on a server, the skript will not install any tool with a GUI and only install necessery server tools!
-This script will only ask you a few questions at the beginning, after that it runs till it ends!
-
-- Backup all modified files
-- Install additional repositories (AUR)
-- Create and configure new user
-- Install and configure sudo
-- Automatic enable services in systemd
-- Install an AUR Helper [yay]
-- Install base system
-- Install systemd
-- Install Preload
-- Install Xorg
-- Install GPU Drivers
-- Install CUPS
-- Install Additional wireless/bluetooth firmwares
-- Ensuring access to GIT through a firewall
-- Install KDE [Gnome is in progress]
-- Install Developement tools [Vim, Emacs, Intellij...]
-- Install Office apps [LibreOffice, Latex...]
-- Install System tools [Virtualbox, Htop...]
-- Install Graphics apps [Inkscape, Gimp...]
-- Install Internet apps [Firefox, Jdownloader...]
-- Install Multimedia apps [VLC, Codecs...]
-- Install Games [Teeworlds...]
-- Install Fonts [Liberation, MS-Fonts, Google-webfonts...]
-- Many More...
 
