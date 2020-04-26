@@ -1,4 +1,4 @@
-# Simple AUI
+# AUI
 
 ## Warnung! Aktuell ist nur das `liveinstall`-Skript aktuell. Die Post-Installation werde ich demnächst wieder aktualisieren.
 
@@ -22,32 +22,37 @@ Ich empfehle diese Skripte erst in Virtualbox zu testen, um sich damit vertraut 
 
 ## Erste-Schritte (Vorraussetzung)
 
-Die Skripte müssen auf das [Live-System](https://www.archlinux.de/download) gebracht werden. Entweder über ein extra USB-Stick oder durch das Herunterladen des Repositories.
+Die Skripte müssen auf das [Live-System](https://www.archlinux.de/download) gebracht werden. Entweder durch das Herunterladen des Repositories oder über ein extra USB-Stick.
+
+* Zum Herunterladen muss zunächst eine Internetverbindung hergestellt werden. Wenn nur [LAN](https://de.wikipedia.org/wiki/Local_Area_Network) verfügbar ist dann reicht das ausführen von `dhcpcd`, wenn jedoch eine Verbindung mit einem [WLAN](https://de.wikipedia.org/wiki/Wireless_Local_Area_Network) hergestellt werden muss, dann muss `wifi-menu` gestartet werden.
+```
+dhcpcd
+curl -L https://git.io/Aui | bash
+```
 
 * Um ein [USB-Stick einzubinden](https://wiki.archlinux.org/index.php/USB_storage_devices) muss mit `lsblk` der Pfad des USB-Sticks ermittelt werden. Anschließend kann dieser in ein erstellten Ordner eingebunden werden.
 
-    lsblk
-    mkdir usb
-    mount /dev/sdb1 usb
-    cd usb/simpleAui
-
-* Alternativ kann das Skript mit `git` heruntergeladen werden. Dazu muss zunächst eine Internetverbindung hergestellt werden. Wenn nur [LAN](https://de.wikipedia.org/wiki/Local_Area_Network) verfügbar ist dann reicht das ausführen von `dhcpcd`, wenn jedoch eine Verbindung mit einem [WLAN](https://de.wikipedia.org/wiki/Wireless_Local_Area_Network) hergestellt werden muss, dann muss `wifi-menu` gestartet werden.
-
-    dhcpcd
-    pacman -Sy git
-    git clone https://github.com/c0d3d3v/simpleAui
-    cd simpleAui
-
+```
+lsblk
+mkdir usb
+mount /dev/sdb1 usb
+cd usb/aui
+```
 
 ## Wie diese Skripte verwendet werden 
 
-Um die absolute **Basis** des Arch-Linux Betriebsystems zu installieren reicht das Ausführen des `liveinstall`-Skripts im Live-System. Das Skript führt dich durch eine Auswahl von Optionen, bleib wachsam während des gesamten Prozesses. Fehler sind hier kritisch aber können gegebenfalls behoben werden. Das Skript frägt bei kritischen Schritten ob diese erfolgreich waren.
+Um die absolute **Basis** des Arch-Linux Betriebsystems zu installieren reicht das Ausführen des `liveinstall`-Skripts im Live-System. Das Skript führt dich durch eine Auswahl von Optionen, bleib wachsam während des gesamten Prozesses. Fehler sind hier kritisch aber können gegebenfalls behoben 
+werden. Das Skript frägt bei kritischen Schritten ob diese erfolgreich waren.
 
-    ./liveinstall
+```
+./liveinstall
+```
 
 Um die Installation abzuschließen mit [meiner Liste an empfohlenen Programmen](https://github.com/C0D3D3V/arch/packages) muss nach dem Ausführen des `liveinstall`-Skript auch das `postinstall`-Skript ausgeführt werden. Dieses wird als Admin im neu installierten Betriebsystem ausgeführt.
 
-    ./postinstall
+```
+./postinstall
+```
 
 ## Was macht das `liveinstall` Skript?
 
