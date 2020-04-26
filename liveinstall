@@ -8,38 +8,25 @@ else
   exit 1
 fi
 
-pls_enter "What do you want to add to the begin of the new log?" 
-cecho "$sthInsertion"
+lvmName="cryptroot"
 
 check_root
 check_boot_system
 
 
-print_line
-ynAnswer="n"
-yn_question "Do you want to change the keyboard layout to german (de-latin1)?"
-if [ $ynAnswer == "y" ]; then
-  print_info "Load German Keymap [https://wiki.archlinux.org/index.php/Keyboard_configuration_in_console]"
-  ncecho "loadkeys de-latin1 "
-  loadkeys de-latin1 >>"$LOG" 2>&1 & 
-  pid=$!;progress $pid
-fi
+print_info "Load German Keymap [https://wiki.archlinux.org/index.php/Keyboard_configuration_in_console]"
+ncecho "loadkeys de-latin1 "
+loadkeys de-latin1 >>"$LOG" 2>&1 & 
+pid=$!;progress $pid
 
-print_line
-ynAnswer="n"
-yn_question "Do you want to change the font to a big font (sun12x22)?"
-if [ $ynAnswer == "y" ]; then
-  print_info "Set Font to sun12x22"
-  ncecho "setfont sun12x22 "
-  setfont sun12x22 >>"$LOG" 2>&1 & 
-  pid=$!;progress $pid
-fi
+print_info "Set Font to sun12x22"
+ncecho "setfont sun12x22 "
+setfont sun12x22 >>"$LOG" 2>&1 & 
+pid=$!;progress $pid
 
 
 
 check_connection
-
-pause_function
 
 print_title "This Skript will install Arch Linux"
 
@@ -47,31 +34,18 @@ pause_function
 
 print_line
 
-ncecho "package_install  pacman-contrib reflector"
 package_install  "pacman-contrib reflector"
 
-print_line 
+#Mirrorlist
+print_title "Backup pacman mirrorlist and filter for German Servers [https://wiki.archlinux.org/index.php/mirrors]"
+mv -i /etc/pacman.d/mirrorlist /etc/pacman.d/mirrorlist.orig
+ncecho "reflector --country France --country Germany --age 25 --protocol https --sort rate --verbose --save /etc/pacman.d/mirrorlist"
+reflector --country France --country Germany --age 12 --protocol https --sort rate --verbose --save /etc/pacman.d/mirrorlist  >>"$LOG" 2>&1 & 
+pid=$!;progress $pid
 
-ynAnswer="n"
-yn_question "Do you want to create a new mirrorlist for pacman with ranked german servers?"
-if [ $ynAnswer == "y" ]; then
-
-  #Mirrorlist
-  print_title "Backup pacman mirrorlist and filter for German Servers [https://wiki.archlinux.org/index.php/mirrors]"
-  mv -i /etc/pacman.d/mirrorlist /etc/pacman.d/mirrorlist.orig
-  ncecho "reflector --country France --country Germany --age 25 --protocol https --sort rate --verbose --save /etc/pacman.d/mirrorlist"
-  reflector --country France --country Germany --age 12 --protocol https --sort rate --verbose --save /etc/pacman.d/mirrorlist  >>"$LOG" 2>&1 & 
-  pid=$!;progress $pid
-
-fi
 
 cat /etc/pacman.d/mirrorlist | grep "^[^#]" | head -10 
 ls /etc/pacman.d/ -la
-
-
-
-read -p "Press enter to continue [be sure mirrorlist is not empty]"
-
 
 
 print_line
@@ -80,45 +54,52 @@ print_title "Create Boot Device"
 select_device
 
 
-ynAnswer="n"
-while [ $ynAnswer == "n" ];
-do
-    print_info "Please create two partitions. [https://wiki.archlinux.de/title/GPT]"
-    cecho "First delete all partitions with: d"
-    cecho "Create new partitions with: n"
-    if [ $UEFI == 1 ]; then
-	cecho "First partition: Partition number '1'; First sector '[enter]'; Last sector '+500M';"
-	print_warning "type 'EF00'"
-	
-	cecho "Second partition:  Partition number '2'; First sector '[enter]'; Last sector '[enter]';"
-	print_warning "type '8300'"
-    else
-	cecho "First partition: Partition number '1'; First sector '[enter]'; Last sector '+3M';"
-	print_warning "type 'EF02'"
-	
-	cecho "Second partition:  Partition number '2'; First sector '[enter]'; Last sector '+500M';"
-	print_warning "type '8300'"
-	
-	cecho "Third partition:  Partition number '3'; First sector '[enter]'; Last sector '[enter]';"
-	print_warning "type '8300'"
-    fi
+print_info "Create partitions. [https://wiki.archlinux.de/title/GPT]"
+    
+cecho "EARSE DISK $BOOT_MOUNTPOINT"
 
-    cecho "At the end, wirte the partitions: w"
-    cecho "You can scroll up with 'Shift + PgUp' and scoll down with 'Shift + PgDown'"
+sgdisk -Z $BOOT_MOUNTPOINT
 
-    gdisk $BOOT_MOUNTPOINT
+if [ $UEFI == 1 ]; then
 
-    lsblk
-    yn_question "Have you realy created two partitions like in the given description?"
-	
-done
+  cecho "Create efi partition: type EF00, size 500M"
+  sgdisk -n 0:0:+500M -t 0:ef00 -c 0:"efi" $BOOT_MOUNTPOINT
+
+  cecho "Create root partition: type 8300"
+  sgdisk -n 0:0:0 -t 0:8300 -c 0:"main" $BOOT_MOUNTPOINT
+
+
+else
+
+  cecho "Create boot partition: type EF02, size 3M"
+  sgdisk -n 0:0:+3M -t 0:ef02 -c 0:"bios" $BOOT_MOUNTPOINT
+
+  cecho "Create boot partition: type 8300, size 500M"
+  sgdisk -n 0:0:+500M -t 0:8300 -c 0:"boot" $BOOT_MOUNTPOINT
+
+  cecho "Create root partition: type 8300"
+  sgdisk -n 0:0:0 -t 0:8300 -c 0:"main" $BOOT_MOUNTPOINT
+
+fi
+
+sgdisk -p $BOOT_MOUNTPOINT
 
 
 print_line
 
-select_boot
-select_luks
+#select_boot
+if [ $UEFI == 1 ]; then
+  BOOT_DISK=${BOOT_MOUNTPOINT}1
+else
+  BOOT_DISK=${BOOT_MOUNTPOINT}2
+fi
 
+#select_luks
+if [ $UEFI == 1 ]; then
+  LUKS_DISK=${BOOT_MOUNTPOINT}2
+else
+  LUKS_DISK=${BOOT_MOUNTPOINT}3
+fi
 
 
 print_title "Setup Luks [https://wiki.archlinux.org/index.php/Dm-crypt]"
@@ -135,16 +116,6 @@ do
     yn_question "Have you realy confirmed with upercase YES and did you enter two times your passphrase?"
 done
 
-cecho "Open Luks Partition"
-
-
-
-cecho "Don't use one of the following names:"
-ls -la /dev/mapper/
-
-pls_enter "How should the opend encrypted partition be named? [recomended: cryptroot; but dont use any name listed above]" 
-lvmName=$sthInsertion
-
 
 
 ynAnswer="n"
@@ -158,27 +129,18 @@ print_line
 
 
 
-pls_enter "How should the root partition be named? [recomended: root]" 
-rootName=$sthInsertion
-
-
-
-
 
 print_line
 
 print_title "Create Filesystem [https://wiki.archlinux.org/index.php/file_systems]"
 
-ncecho "mkfs.ext4 -L ${rootName} /dev/mapper/${lvmName}"
-mkfs.ext4 -L ${rootName} /dev/mapper/${lvmName}  >>"$LOG" 2>&1 &
+ncecho "mkfs.ext4 -L root /dev/mapper/${lvmName}"
+mkfs.ext4 -L root /dev/mapper/${lvmName}  >>"$LOG" 2>&1 &
 pid=$!;progress $pid
 
 
-pls_enter "How should the boot partition be named? [recomended: boot]" 
-bootName=$sthInsertion
-
-ncecho "mkfs.fat -F32 -n ${bootName} $BOOT_DISK "
-mkfs.fat -F32 -n ${bootName} $BOOT_DISK  >>"$LOG" 2>&1 & 
+ncecho "mkfs.fat -F32 -n boot $BOOT_DISK "
+mkfs.fat -F32 -n boot $BOOT_DISK  >>"$LOG" 2>&1 & 
 pid=$!;progress $pid
 
 
@@ -198,30 +160,18 @@ mount $BOOT_DISK /mnt/boot  >>"$LOG" 2>&1 &
 pid=$!;progress $pid
 
 
-print_line
-
-read -p "Press enter to continue"
-
 print_title "Install System [https://wiki.archlinux.org/index.php/Install_from_existing_Linux]"
 
-yn_question "Do you want to add wifi support?"
-if [ $ynAnswer == "y" ]; then
-    ncecho "pacstrap /mnt base base-devel linux-firmware linux gvim zsh efibootmgr intel-ucode zstd dhcpcd git netctl dialog wpa_supplicant"
-    pacstrap /mnt base base-devel linux-firmware linux gvim zsh efibootmgr intel-ucode zstd dhcpcd git netctl dialog wpa_supplicant >>"$LOG" 2>&1 & 
-else
-    ncecho "pacstrap /mnt base base-devel linux-firmware linux gvim zsh efibootmgr intel-ucode zstd dhcpcd git"
-    pacstrap /mnt base base-devel linux-firmware linux gvim zsh efibootmgr intel-ucode zstd dhcpcd git >>"$LOG" 2>&1 & 
-fi
-pid=$!;progress $pid
+ncecho "pacstrap /mnt base"
+pacstrap /mnt base base-devel linux-firmware linux gvim zsh efibootmgr intel-ucode zstd dhcpcd git netctl dialog wpa_supplicant >>"$LOG" 2>&1 & 
+
 
 
 
 print_info "Activate Swap [https://wiki.archlinux.org/index.php/Swap]"
 
-free --giga
 
-pls_enter "How big should the swap partition be? [recomended: 20GiB; it should be bigger than RAM]" 
-swapSize=$sthInsertion
+swapSize=$((`free --byte | awk 'FNR==2{print $2}'` / 2))
 
 fallocate -l ${swapSize} /mnt/swapfile
 chmod 600 /mnt/swapfile
@@ -244,12 +194,9 @@ print_info "Generate Fstab [https://wiki.archlinux.org/index.php/fstab]"
 ncecho "genfstab -U /mnt >> /mnt/etc/fstab "
 genfstab -pU /mnt >> /mnt/etc/fstab & 
 pid=$!;progress $pid
+	
+add_line "none /tmp tmpfs defaults,noatime,mode=1777 0 0" "/mnt/etc/fstab"
 
-#fix small /tmp 	
-yn_question "Do you want to create a ramdisk for /tmp?"
-if [ $ynAnswer == "y" ]; then
-    add_line "none /tmp tmpfs defaults,noatime,mode=1777 0 0" "/mnt/etc/fstab"
-fi
 
 
 
@@ -435,13 +382,15 @@ fi
 
 print_line
 
-print_line
-
 cecho "\n\n"
 
 cecho "Installation finished" 
-cecho "Please execute following comands:"
-cecho "swapoff -a"
-cecho "umount -R /mnt"
-cecho "\n\n" 
-cecho "reboot"
+swapoff -a
+umount -R /mnt
+
+
+cecho "Please run the post installation skript after reboot!"
+
+cecho "It is located under ~/simpleAui/postinstall.sh"
+
+

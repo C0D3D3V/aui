@@ -7,9 +7,6 @@ else
   exit 1
 fi
 
-pls_enter "What do you want to add to the begin of the new log?" 
-cecho "$sthInsertion"
-
 check_root
 
 print_line
@@ -19,193 +16,54 @@ check_connection
 
 print_line
 
-cecho "This Skript will install my lovely system"
-cecho "Be sure that you want to install all the software"
-
-print_line
-
-cecho "A clean Arch installation is requested" 
-
-pause_function
-
-print_line
 
 
 
-#Options
-yn_question "Is this a server installation? Then no gui/desktop application will be installed!"
-isServer=$ynAnswer
-
-
-
-if [ $isServer == "n" ]; then
-
-    yn_question "Do you want to install WiFi penetration testing tools?"
-    wifiPenTools=$ynAnswer
-
-
-    yn_question "Do you want to install Wacom suport"
-    wacomSupport=$ynAnswer
-
-    yn_question "Do you want to install Tablet suport"
-    tebletSupport=$ynAnswer
-
-    yn_question "Do you want to install TLP?"
-    tplManager=$ynAnswer
-
-    if [[ $tplManager == y ]]; then
-	yn_question "Install Lenovo TLP tools"
-	lenovoTplManager=$ynAnswer
-    fi
-
-
-    
-fi
 
 
 print_info "Set sudo username"
 USERentered=0
-user_exists=0
-skip_user_config=0
+user_exists=1
 
-while [ $user_exists -eq 0 ];
+while [ $user_exists -eq 1 ];
 do
     
     while [ $USERentered -eq 0 ];
     do
-
-	read -p "Please enter a username for the system: " username
-	print_info "This user will be a sudo user!"
-	yn_question "Do you realy want to use ${username}?"
-	if [ $ynAnswer == "y" ]; then
-	    USERentered=1
-	fi
+		read -p "Please enter a username for the system: " username
+		print_info "This user needs to be a sudo user!"
+		yn_question "Do you realy want to use ${username}?"
+		if [ $ynAnswer == "y" ]; then
+			USERentered=1
+		fi
     done
 
 
     user_exists=$(id -u "$username" > /dev/null 2>&1; echo $?)
 
-    if [ $user_exists -eq 0 ]; then
-	yn_question "This user already exists, do you realy want to use ${username}?"
-	if [ $ynAnswer == "y" ]; then
-	    user_exists=1
-	    skip_user_config=1
-	fi
-	if [ $ynAnswer == "n" ]; then
-	    USERentered=0
-	fi
+    if [ $user_exists -eq 1 ]; then
+		yn_question "This user does not exists, please try again!"
     fi
 
 done
-print_info "Your username is now $username"
+print_info "The username is now $username"
 
 
 
 
 
 
-#create user
-include_file "post_subitems/00_userinstall"
-
-#install zsh and few basic components
-include_file "post_subitems/01_basecomponents"
-
-#install KDE Desktop
-include_file "post_subitems/02_desktop"
-
-#install accessories APPS (thinks that does not match the other categories :D ??)
-include_file "post_subitems/03_accessories"
-
-#install development APPS 
-include_file "post_subitems/04_development"
-
-#install office APPS 
-include_file "post_subitems/05_office"
-
-#install system APPS 
-include_file "post_subitems/06_system"
-
-#install graphics APPS 
-include_file "post_subitems/07_graphics"
-
-#install browser APPS 
-include_file "post_subitems/08_browser"
-
-#install DOWNLOAD tools 
-include_file "post_subitems/09_download"
-
-#install email tools 
-include_file "post_subitems/10_email"
-
-#install Instant Messanger 
-include_file "post_subitems/11_im"
-
-#install Mapping Tools 
-include_file "post_subitems/12_mapping"
-
-#install Audio Tools 
-include_file "post_subitems/13_audio"
-
-#install VIDEO APPS 
-include_file "post_subitems/14_video"
-
-#install Games 
-include_file "post_subitems/15_games"
-
-#install trololol 
-include_file "post_subitems/16_trololol"
-
-
-
-
-
-print_line
-
-
-
-
-#TOMUCH
-#cecho "Fix Firewall shit"
-
-##To the end
-##fix KDE Connect
-#firewall-cmd --zone=public --permanent --add-port=1714-1764/tcp
-#firewall-cmd --zone=public --permanent --add-port=1714-1764/udp
-#system_ctl restart firewalld.service
-
-
-
-
-
-
-
-
-#read -p "Finish up - Press enter to continue"
-
-print_line
-cecho "Set System Time"
-timedatectl set-local-rtc true
-
-system_ctl enable systemd-timesyncd.service
-system_ctl start systemd-timesyncd.service
-
-
-
-#setup global menu maybe 
-#aur_package_install "gtk2-appmenu gtk3-appmenu" 
-#aur_package_install "appmenu-qt appmenu-gtk"
-#aur_package_install "kdeplasma-applets-menubar" 
 
 
 
 
 cecho "CLEAN ORPHAN PACKAGES - https://wiki.archlinux.org/index.php/Pacman/Tips_and_tricks#Removing_unused_packages_.28orphans.29" 
 
-pacman -Rns --noconfirm $(pacman -Qtdq)
-pacman-optimize
-
-
-#load config from git
+# cleanup
+pacman -Rcns --noconfirm $(pacman -Qtdq)
+# this will delete the complete package cache and is not recommended to do usually
+paccache -r -k 0
+pacman -Scc --noconfirm
 
 
 
