@@ -2,7 +2,6 @@
 
 
 AUI_DIR=`pwd` #CURRENT DIRECTORY 
-LOG="${AUI_DIR}/`basename ${0}`.log" # LOG FILE
 PKG_FAIL="${AUI_DIR}/`basename ${0}`_fail_install.log"
 
 
@@ -37,17 +36,13 @@ AUR=`echo -e "(${BPurple}aur${Reset})"`
 
 cecho() { 
     echo -e "$1"
-    echo -e "$(date): $1" >>"$LOG"
     tput sgr0;  #reset color
 }
 
-cecho "Logfile created at: $LOG"
-echo -e "\n\n\n\n\n\n\n\nNew Logfile\n\n" >>"$LOG"
 
 error_msg() {
     local _msg="${1}"
     echo -e "${_msg}"
-    echo -e "$(date): ${_msg}" >>"$LOG"
     exit 1
 } 
 
@@ -67,7 +62,6 @@ print_title() {
     clear
     print_line
     echo -e "# ${Bold}$1${Reset}"
-    echo -e "$(date): $1" >>"$LOG"
     print_line
     echo ""
 }
@@ -75,19 +69,16 @@ print_info() {
     #Console width number
     T_COLS=`tput cols`
     echo -e "${Bold}$1${Reset}\n" | fold -sw $(( $T_COLS - 18 )) | sed 's/^/\t/'
-    echo -e "$(date): $1" >>"$LOG"
 }
 
 print_warning() { 
     T_COLS=`tput cols`
     echo -e "${BYellow}$1${Reset}\n" | fold -sw $(( $T_COLS - 1 ))
-    echo -e "$(date): $1" >>"$LOG"
 }
 
 print_danger() { 
     T_COLS=`tput cols`
     echo -e "${BRed}$1${Reset}\n" | fold -sw $(( $T_COLS - 1 ))
-    echo -e "$(date): $1" >>"$LOG"
 } 
 
   
@@ -160,7 +151,7 @@ replace_line(){
     local _filepath=${3}
     local _filebase=`basename ${3}`
 
-    sed -e "s/${_search}/${_replace}/" ${_filepath} > /tmp/${_filebase} 2>"$LOG"
+    sed -e "s/${_search}/${_replace}/" ${_filepath} > /tmp/${_filebase}
     if [[ ${?} -eq 0 ]]; then
 	mv /tmp/${_filebase} ${_filepath}
     else
@@ -177,8 +168,7 @@ aur_package_install() {
     for PKG in $1; do
 	if ! is_package_installed "${PKG}" ; then
 	    ncecho " ${BBlue}[${Reset}${Bold}X${BBlue}]${Reset} Installing ${AUR} ${Bold}${PKG}${Reset} "
-            su - $username -c "yay --noconfirm -Sy ${PKG}" >>"$LOG" 2>&1 &
-	    pid=$!;progress $pid
+        su - $username -c "yay --noconfirm -Sy ${PKG}"
 	else 
             print_info "${PKG} is up to date --skipping" 
 	fi
@@ -205,8 +195,7 @@ package_install() {
 		    ;;
 	    esac
 	    ncecho " ${BBlue}[${Reset}${Bold}X${BBlue}]${Reset} Installing (${_pkg_repo}) ${Bold}${PKG}${Reset} "
-	    pacman -Sy --noconfirm --needed ${PKG} >>"$LOG" 2>&1 &
-	    pid=$!;progress $pid
+	    pacman -Sy --noconfirm --needed ${PKG}
 	else 
 	    print_info "${PKG} is up to date --skipping" 
 	fi
@@ -222,8 +211,7 @@ system_ctl() {
     local _action=${1}
     local _object=${2}
     ncecho " ${BBlue}[${Reset}${Bold}X${BBlue}]${Reset} systemctl ${_action} ${_object} "
-    systemctl ${_action} ${_object} >> "$LOG" 2>&1
-    pid=$!;progress $pid
+    systemctl ${_action} ${_object}
 }
 
 package_remove() { 
@@ -231,8 +219,7 @@ package_remove() {
     for PKG in ${1}; do
 	if is_package_installed "${PKG}" ; then
             ncecho " ${BBlue}[${Reset}${Bold}X${BBlue}]${Reset} Removing ${Bold}${PKG}${Reset} "
-            pacman -Rcsn --noconfirm ${PKG} >>"$LOG" 2>&1 &
-            pid=$!;progress $pid
+            pacman -Rcsn --noconfirm ${PKG}
 	fi
     done
 }
@@ -258,20 +245,17 @@ add_user_to_group() {
     if [ ! $(getent group ${_group}) ]; then
 	
 	ncecho " ${BBlue}[${Reset}${Bold}X${BBlue}]${Reset} Creating group: ${Bold}${_group}${Reset} "
-	groupadd ${_group} >>"$LOG" 2>&1 &
-	pid=$!;progress $pid
+	groupadd ${_group}
     fi
     
     ncecho " ${BBlue}[${Reset}${Bold}X${BBlue}]${Reset} Adding ${Bold}${_user}${Reset} to ${Bold}${_group}${Reset} "
-    gpasswd -a ${_user} ${_group} >>"$LOG" 2>&1 & 
-    pid=$!;progress $pid
+    gpasswd -a ${_user} ${_group}
 } 
 
 
 #no new line
 ncecho() {
     echo -ne "$1"
-    echo -ne "$1" >>"$LOG"
     tput sgr0  #reset color
 }
 
@@ -302,9 +286,6 @@ progress() {
         else
           ncecho "${BRed}failed${Reset}\n"
           echo -e "$PKG" >> $PKG_FAIL
-	  echo -e "\n\nLast 15 log lines:"
-          tail -n 15 $LOG
-	  echo -e "\n"
         fi
         break
       fi
