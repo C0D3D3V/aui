@@ -56,7 +56,7 @@ sudo systemctl daemon-reload
 # Hier die ganzen Konfigurationsschritte
 include_file "post_subitems/050_Schriftarten" 
 
-
+# need to add user to group vboxusers
 
 # Activate all services listet in the documentation
 activate_services "${arch_dir}/packages/*"
