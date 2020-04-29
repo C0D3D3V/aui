@@ -30,29 +30,29 @@ DM_NAME="cryptroot"
 if [[ -f $(pwd)/sharedfuncs ]]; then
   source sharedfuncs
 else
-  echo "missing file: sharedfuncs"
+  echo "Missing file: sharedfuncs"
   exit 1
 fi
 
 check_root
 check_boot_system
 
-print_info "Load German Keymap [https://wiki.archlinux.org/index.php/Keyboard_configuration_in_console]"
+print_info "Load german keymap [https://wiki.archlinux.org/index.php/Keyboard_configuration_in_console]"
 loadkeys "$KEYMAP"
 
-print_info "Set Font to sun12x22"
+print_info "Set font to sun12x22"
 setfont sun12x22
 
 check_connection
 
-print_title "This Skript will install Arch Linux"
+print_title "This script will install Arch Linux"
 
 
 print_line
 package_install  "pacman-contrib reflector"
 
-#Mirrorlist
-print_title "Backup pacman mirrorlist and filter for German Servers [https://wiki.archlinux.org/index.php/mirrors]"
+# Mirrorlist
+print_title "Backup pacman mirrorlist and filter for $COUNTRY servers [https://wiki.archlinux.org/index.php/mirrors]"
 mv -i /etc/pacman.d/mirrorlist /etc/pacman.d/mirrorlist.orig
 reflector --country "$COUNTRY" --age 12 --completion-percent 70 --protocol https --sort rate --verbose --save /etc/pacman.d/mirrorlist
 
@@ -63,13 +63,13 @@ ls /etc/pacman.d/ -la
 
 print_line
 
-print_title "Create Boot Device"
+print_title "Create boot device"
 select_device
 
 
-print_info "Create partitions. [https://wiki.archlinux.de/title/GPT]"
+print_info "Create partitions [https://wiki.archlinux.de/title/GPT]"
 
-  warn_erasing
+warn_erasing
 sgdisk -Z "$BOOT_MOUNTPOINT"
 
 if [ "$UEFI" == 1 ]; then
@@ -109,7 +109,7 @@ else
 fi
 
 
-print_title "Setup Luks [https://wiki.archlinux.org/index.php/Dm-crypt]"
+print_title "Setup LUKS [https://wiki.archlinux.org/index.php/Dm-crypt]"
 print_title "Using a keyfile in initramfs [https://wiki.archlinux.org/index.php/Dm-crypt/Device_encryption#With_a_keyfile_embedded_in_the_initramfs]"
 
 modprobe dm-crypt
@@ -122,7 +122,7 @@ cryptsetup open --type luks "$LUKS_DISK" "$DM_NAME" --key-file crypto_keyfile.bi
 
 
 print_line
-print_title "Create Filesystem [https://wiki.archlinux.org/index.php/file_systems]"
+print_title "Create file system [https://wiki.archlinux.org/index.php/file_systems]"
 
 mkfs.ext4 -L root /dev/mapper/${DM_NAME}
 
@@ -130,7 +130,7 @@ mkfs.fat -F32 -n boot "$BOOT_DISK"
 
 
 print_line
-print_info "Mount Filesystem [https://wiki.archlinux.de/title/Mounten]"
+print_info "Mount file system [https://wiki.archlinux.de/title/Mounten]"
 
 mount /dev/mapper/${DM_NAME}  /mnt
 
@@ -140,11 +140,11 @@ mkdir /mnt/boot
 mount "$BOOT_DISK" /mnt/boot
 
 
-print_title "Install System [https://wiki.archlinux.org/index.php/Install_from_existing_Linux]"
+print_title "Install system [https://wiki.archlinux.org/index.php/Install_from_existing_Linux]"
 pacstrap /mnt base base-devel linux-firmware linux gvim zsh efibootmgr intel-ucode git dhcpcd netctl dialog wpa_supplicant
 
 
-print_info "Activate Swap [https://wiki.archlinux.org/index.php/Swap]"
+print_info "Activate swap [https://wiki.archlinux.org/index.php/Swap]"
 
 swapSize=$(($(free --byte | awk 'FNR==2{print $2}') / 2))
 
@@ -159,7 +159,7 @@ echo vm.vfs_cache_pressure=50 | tee -a /mnt/etc/sysctl.d/99-sysctl.conf
 
 
 print_line
-print_info "Generate Fstab [https://wiki.archlinux.org/index.php/fstab]"
+print_info "Generate fstab [https://wiki.archlinux.org/index.php/fstab]"
 
 genfstab -pU /mnt >> /mnt/etc/fstab
 	
@@ -168,7 +168,7 @@ add_line "none /tmp tmpfs defaults,noatime,mode=1777 0 0" "/mnt/etc/fstab"
 swapoff -a
 
 
-print_info "Edit makepkg conf [https://wiki.archlinux.org/index.php/makepkg#tmpfs]"
+print_info "Edit makepkg.conf [https://wiki.archlinux.org/index.php/makepkg#tmpfs]"
 
 sed -i "s|#BUILDDIR=/tmp/makepkg|BUILDDIR=/tmp/makepkg|" /mnt/etc/makepkg.conf
 sed -i "s|PKGEXT='.pkg.tar.xz'|PKGEXT='.pkg.tar.zst'|" /mnt/etc/makepkg.conf
@@ -183,50 +183,47 @@ print_info "Generate vconsole [https://wiki.archlinux.org/index.php/Keyboard_con
 echo "KEYMAP=de-latin1" > /mnt/etc/vconsole.conf
 echo "FONT=sun12x22" >> /mnt/etc/vconsole.conf
 
-cecho "Generate loacls [https://wiki.archlinux.org/index.php/locale]"
 
-echo "LANG=de_DE.UTF-8" > /mnt/etc/locale.conf
-echo "LC_ALL=" >> /mnt/etc/locale.conf
+print_line
+print_info "Generate locales [https://wiki.archlinux.org/index.php/Locale]"
+
+sed -i "s/#de_DE.UTF-8 UTF-8/de_DE.UTF-8 UTF-8/" /mnt/etc/locale.gen
+sed -i "s/#en_US.UTF-8 UTF-8/en_US.UTF-8 UTF-8/" /mnt/etc/locale.gen
+arch_chroot "locale-gen"
+
+cecho "Set locale [https://wiki.archlinux.org/index.php/locale]"
+echo "LANG=de_DE.UTF-8" > /mnt/etc/locale.config
 
 
-print_info "Set Hostname [https://wiki.archlinux.org/index.php/Network_configuration#Set_the_hostname]"
+print_info "Set hostname [https://wiki.archlinux.org/index.php/Network_configuration#Set_the_hostname]"
 echo $HOSTNAME > /mnt/etc/hostname
 
 
-print_info "Generate Journalctrl config [https://wiki.archlinux.org/index.php/Systemd#Journal]"
+print_info "Generate journalctrl config [https://wiki.archlinux.org/index.php/Systemd#Journal]"
 
 sed -i "s/#Storage=auto/Storage=persistent/" /mnt/etc/systemd/journald.conf
 sed -i "s/#SystemMaxUse=/SystemMaxUse=1G/" /mnt/etc/systemd/journald.conf
 
 
 
-print_info "Generate Timezone [https://wiki.archlinux.org/index.php/Time#Time_zone]"
+print_info "Generate time zone [https://wiki.archlinux.org/index.php/Time#Time_zone]"
 arch_chroot "ln -sf /usr/share/zoneinfo/Europe/Berlin /etc/localtime"
 
-print_info "Setup Hardware Clock - Hardware is set to utc [https://wiki.archlinux.org/index.php/Time]"
+print_info "Setup hardware clock - hardware is set to UTC [https://wiki.archlinux.org/index.php/Time]"
 arch_chroot "hwclock --systohc --utc"
 
-
-
-print_info "Deaktivate Beep"
+print_info "Deaktivate beep"
 echo "blacklist pcspkr" > /mnt/etc/modprobe.d/nobeep.conf
 
 
 print_line
-print_info "Setup Locals [https://wiki.archlinux.org/index.php/Locale]"
-
-sed -i "s/#de_DE.UTF-8 UTF-8/de_DE.UTF-8 UTF-8/" /mnt/etc/locale.gen
-arch_chroot "locale-gen"
-
-
-print_line
-print_info "Activate Multilib  [https://wiki.archlinux.org/index.php/multilib]"
+print_info "Activate multilib  [https://wiki.archlinux.org/index.php/multilib]"
 
 sed -i "/\[multilib\]/,/Include/"'s/^#//' /mnt/etc/pacman.conf
 sed -i 's/#Color/Color/' /mnt/etc/pacman.conf
 
 
-print_info "Copy Mirrorlist"
+print_info "Copy mirrorlist"
 
 cp /etc/pacman.d/mirrorlist /mnt/etc/pacman.d/mirrorlist
 cp /etc/pacman.d/mirrorlist.orig /mnt/etc/pacman.d/mirrorlist.orig
@@ -234,7 +231,7 @@ arch_chroot "pacman -Sy"
 
 
 print_line
-print_info "Change Linux Kernel Modules  [https://wiki.archlinux.org/index.php/mkinitcpio]"
+print_info "Change kernel modules  [https://wiki.archlinux.org/index.php/mkinitcpio]"
 
 sed -i 's/^HOOKS=(.*)/HOOKS=(base udev keyboard keymap autodetect consolefont modconf block encrypt filesystems resume fsck)/' /mnt/etc/mkinitcpio.conf
 sed -i 's/MODULES=()/MODULES=(ext4)/' /mnt/etc/mkinitcpio.conf
@@ -245,7 +242,7 @@ arch_chroot "chmod 600 /boot/initramfs-linux*"
 
 
 print_line
-print_info "Set Root Password  [https://wiki.archlinux.org/index.php/users_and_groups]"
+print_info "Set root password  [https://wiki.archlinux.org/index.php/users_and_groups]"
 arch_chroot "echo -e \"${ROOT_PW}\n${ROOT_PW}\" | passwd"
 
 
@@ -279,15 +276,15 @@ options cryptdevice=UUID=${LuksUUID}:${DM_NAME} root=/dev/mapper/${DM_NAME} resu
 EOF
 
 else
-  print_info "Installing Grub  [https://wiki.archlinux.org/index.php/GRUB]"
+  print_info "Installing GRUB  [https://wiki.archlinux.org/index.php/GRUB]"
   pacstrap /mnt grub os-prober
 
   sed -i -e "s|GRUB_CMDLINE_LINUX=\"\(.\+\)\"|GRUB_CMDLINE_LINUX=\"cryptdevice=UUID=${LuksUUID}:${DM_NAME} root=/dev/mapper/${DM_NAME} resume=/dev/mapper/${DM_NAME} resume_offset=${swap_file_offset}\"|g" -e "s|GRUB_CMDLINE_LINUX=\"\"|GRUB_CMDLINE_LINUX=\"cryptdevice=UUID=${LuksUUID}:${DM_NAME} root=/dev/mapper/${DM_NAME} resume=/dev/mapper/${DM_NAME} resume_offset=${swap_file_offset}\"|g" /mnt/etc/default/grub
   sed -i 's/#GRUB_ENABLE_CRYPTODISK=y/GRUB_ENABLE_CRYPTODISK=y/' /mnt/etc/default/grub
 
-   arch_chroot "grub-install $BOOT_MOUNTPOINT"
-    arch_chroot "grub-mkconfig -o /boot/grub/grub.cfg"
-  fi
+  arch_chroot "grub-install $BOOT_MOUNTPOINT"
+  arch_chroot "grub-mkconfig -o /boot/grub/grub.cfg"
+fi
 
 
 print_line
