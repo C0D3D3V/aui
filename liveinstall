@@ -218,7 +218,7 @@ print_info "Change kernel modules  [https://wiki.archlinux.org/index.php/mkinitc
 
 sed -i 's/^HOOKS=(.*)/HOOKS=(base udev keyboard keymap autodetect consolefont modconf block encrypt filesystems resume fsck)/' /mnt/etc/mkinitcpio.conf
 sed -i 's/MODULES=()/MODULES=(ext4)/' /mnt/etc/mkinitcpio.conf
-sed -i 's/FILES=()/FILES=(/crypto_keyfile.bin)/' /mnt/etc/mkinitcpio.conf
+sed -i 's/FILES=()/FILES=(\/crypto_keyfile.bin)/' /mnt/etc/mkinitcpio.conf
 
 arch_chroot "mkinitcpio -P"
 arch_chroot "chmod 600 /boot/initramfs-linux*"
