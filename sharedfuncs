@@ -24,228 +24,216 @@ BCyan=${Bold}${Cyan}
 BWhite=${Bold}${White}
 
 cecho() {
-        echo -e "$1"
-    tput sgr0;  #reset color
+  echo -e "$1"
+  tput sgr0 #reset color
 }
-
 
 error_msg() {
-    local _msg="${1}"
-    echo -e "${_msg}"
-    exit 1
+  local _msg="${1}"
+  echo -e "${_msg}"
+  exit 1
 }
-
 
 check_root() {
-    if [[ "$(id -u)" != "0" ]]; then
-	    error_msg "ERROR! You must execute the script as the root user."
-    fi
+  if [[ "$(id -u)" != "0" ]]; then
+    error_msg "ERROR! You must execute the script as the root user."
+  fi
 }
 
-
 print_line() {
-    printf "\n%$(tput cols)s\n\n"|tr ' ' '-'
+  printf "\n%$(tput cols)s\n\n" | tr ' ' '-'
 }
 
 print_title() {
-        clear
-    print_line
-    echo -e "# ${Bold}$1${Reset}"
-    print_line
-    echo ""
+  clear
+  print_line
+  echo -e "# ${Bold}$1${Reset}"
+  print_line
+  echo ""
 }
 print_info() {
-        #Console width number
-    T_COLS=$(tput cols)
-    echo -e "${Bold}$1${Reset}\n" | fold -sw $(( T_COLS - 18 )) | sed 's/^/\t/'
+  #Console width number
+  T_COLS=$(tput cols)
+  echo -e "${Bold}$1${Reset}\n" | fold -sw $((T_COLS - 18)) | sed 's/^/\t/'
 }
 
 print_warning() {
-        T_COLS=$(tput cols)
-    echo -e "${BYellow}$1${Reset}\n" | fold -sw $(( T_COLS - 1 ))
+  T_COLS=$(tput cols)
+  echo -e "${BYellow}$1${Reset}\n" | fold -sw $((T_COLS - 1))
 }
 
 print_danger() {
-        T_COLS=$(tput cols)
-    echo -e "${BRed}$1${Reset}\n" | fold -sw $(( T_COLS - 1 ))
+  T_COLS=$(tput cols)
+  echo -e "${BRed}$1${Reset}\n" | fold -sw $((T_COLS - 1))
 }
 
-
- arch_chroot() {
-    arch-chroot /mnt /bin/bash -c "${1}"
+arch_chroot() {
+  arch-chroot /mnt /bin/bash -c "${1}"
 }
-
 
 add_line() {
-    local _add_line=${1}
-    local _filepath=${2}
-
-
-    local _has_line
-    _has_line=$(grep -ci "${_add_line}" "${_filepath}" 2>&1)
-    [[ $_has_line -eq 0 ]] && echo "${_add_line}" >> "${_filepath}"
+  local _add_line=${1}
+  local _filepath=${2}
+  
+  local _has_line
+  _has_line=$(grep -ci "${_add_line}" "${_filepath}" 2>&1)
+  [[ $_has_line -eq 0 ]] && echo "${_add_line}" >>"${_filepath}"
 }
 
 # check if a package is already installed
 is_package_installed() {
-    for PKG in $1; do
-	pacman -Q "$PKG" &> /dev/null && return 0;
-    done
-    return 1
+  for PKG in $1; do
+    pacman -Q "$PKG" &>/dev/null && return 0
+  done
+  return 1
 }
-
 
 # install packages using pacman
 package_install() {
-    for PKG in $1; do
-	if ! is_package_installed "${PKG}" ; then
-	    local _pkg_repo
-        _pkg_repo=$(pacman -Sp --print-format %r "${PKG}"  2>/dev/null | uniq | sed '1!d')
-            case $_pkg_repo in
-		"core")
-		    _pkg_repo="${BRed}${_pkg_repo}${Reset}"
-		    ;;
-		"extra")
-		    _pkg_repo="${BYellow}${_pkg_repo}${Reset}"
-		    ;;
-		"community")
-		    _pkg_repo="${BGreen}${_pkg_repo}${Reset}"
-		    ;;
-		"multilib")
-		    _pkg_repo="${BCyan}${_pkg_repo}${Reset}"
-		    ;;
-	    esac
-	    ncecho " ${BBlue}[${Reset}${Bold}X${BBlue}]${Reset} Installing \(${_pkg_repo}\) ${Bold}${PKG}${Reset} "
-	    pacman -Sy --noconfirm --needed "${PKG}"
-	else
-    	    print_info "${PKG} is up to date --skipping"
-        	fi
-    done
-        }
+  for PKG in $1; do
+    if ! is_package_installed "${PKG}"; then
+      local _pkg_repo
+      _pkg_repo=$(pacman -Sp --print-format %r "${PKG}" 2>/dev/null | uniq | sed '1!d')
+      case $_pkg_repo in
+        "core")
+          _pkg_repo="${BRed}${_pkg_repo}${Reset}"
+        ;;
+        "extra")
+          _pkg_repo="${BYellow}${_pkg_repo}${Reset}"
+        ;;
+        "community")
+          _pkg_repo="${BGreen}${_pkg_repo}${Reset}"
+        ;;
+        "multilib")
+          _pkg_repo="${BCyan}${_pkg_repo}${Reset}"
+        ;;
+      esac
+      ncecho " ${BBlue}[${Reset}${Bold}X${BBlue}]${Reset} Installing \(${_pkg_repo}\) ${Bold}${PKG}${Reset} "
+      pacman -Sy --noconfirm --needed "${PKG}"
+    else
+      print_info "${PKG} is up to date --skipping"
+    fi
+  done
+}
 
 #no new line
 ncecho() {
-    echo -ne "$1"
-    tput sgr0  #reset color
+  echo -ne "$1"
+  tput sgr0 #reset color
 }
 
 invalid_option() {
-        print_line
-    cecho "Invalid option. Try another one."
-    pause_function
+  print_line
+  cecho "Invalid option. Try another one."
+  pause_function
 }
 
 pause_function() {
-    print_line
-    #read -e -sn 1 -p "Press enter to continue..."
-    read -pr "Press enter to continue..."
+  print_line
+  #read -e -sn 1 -p "Press enter to continue..."
+  read -pr "Press enter to continue..."
 }
 
 # PROMPT
 prompt1='Enter your option: '
 
-
 XPINGS=0 # CONNECTION CHECK
 
-check_connection(){
-    XPINGS=$(( XPINGS + 1 ))
-    connection_test() {
-	  ping -q -w 1 -c 1 "$(ip r | grep default | awk 'NR==1 {print $3}')" &> /dev/null && return 1 || return 0
-    }
-    WIRED_DEV=$(ip link | grep "ens\|eno\|enp" | awk '{print $2}'| sed 's/://' | sed '1!d')
-    cecho "Detected wired device: $WIRED_DEV"
-    WIRELESS_DEV=$(ip link | grep wlp | awk '{print $2}'| sed 's/://' | sed '1!d')
-    cecho "Detected wireless device: $WIRELESS_DEV"
-
-    if connection_test; then
-	  print_warning "ERROR! Connection not Found."
-	  print_info "Network Setup"
-	  local _connection_opts=("Wired Automatic" "Wired Manual" "Wireless" "Configure Proxy" "Skip")
-	  PS3="$prompt1"  #message for select
-	
-	  select CONNECTION_TYPE in "${_connection_opts[@]}"; do
-        echo "$CONNECTION_TYPE"
-        case "$REPLY" in
-		1)
-		    systemctl start "dhcpcd@${WIRED_DEV}.service"
-		    break
-		    ;;
-		2)
-		    systemctl stop "dhcpcd@${WIRED_DEV}.service"
-		    read -pr "IP Address: " IP_ADDR
-		    read -pr "Submask: " SUBMASK
-		    read -pr "Gateway: " GATEWAY
-		    ip link set "${WIRED_DEV}" up
-		    ip addr add "${IP_ADDR}/${SUBMASK}" dev "${WIRED_DEV}"
-		    ip route add default via "${GATEWAY}"
-		    nano /etc/resolv.conf
-		    break
-		    ;;
-		3)
-		    wifi-menu "${WIRELESS_DEV}"
-		    break
-		    ;;
-		4)
-		    read -pr "Enter your proxy e.g. protocol://adress:port: " OPTION
-		    export http_proxy=$OPTION
-		    export https_proxy=$OPTION
-		    export ftp_proxy=$OPTION
-		    echo "proxy = $OPTION" > ~/.curlrc
-		    break
-		    ;;
-		5)
-		    break
-		    ;;
-		*)
-		    invalid_option
-		    ;;
-        esac
-	  done
-	  if [[ $XPINGS -gt 2 ]]; then
-        print_danger "Can't establish connection. exiting..."
-
-	    cecho "Connect to wifi [https://wiki.archlinux.org/index.php/netctl]"
-	    cecho "Be sure to connect to Wifi with: wifi-menu"
-
-	    cecho "Or Connect to ethernet [https://bbs.archlinux.org/viewtopic.php?id=210679]"
-	    cecho "Be sure to connect to Ethernet with: "
-	    cecho "ip link set enpxxxx up  "
-	    cecho "dhcpcd"
-        exit 1
-	  fi
-	  [[ $REPLY -ne 5 ]] && check_connection
-    else
-	  cecho "Connection found!"
+check_connection() {
+  XPINGS=$((XPINGS + 1))
+  connection_test() {
+    ping -q -w 1 -c 1 "$(ip r | grep default | awk 'NR==1 {print $3}')" &>/dev/null && return 1 || return 0
+  }
+  WIRED_DEV=$(ip link | grep "ens\|eno\|enp" | awk '{print $2}' | sed 's/://' | sed '1!d')
+  cecho "Detected wired device: $WIRED_DEV"
+  WIRELESS_DEV=$(ip link | grep wlp | awk '{print $2}' | sed 's/://' | sed '1!d')
+  cecho "Detected wireless device: $WIRELESS_DEV"
+  
+  if connection_test; then
+    print_warning "ERROR! Connection not Found."
+    print_info "Network Setup"
+    local _connection_opts=("Wired Automatic" "Wired Manual" "Wireless" "Configure Proxy" "Skip")
+    PS3="$prompt1" #message for select
+    
+    select CONNECTION_TYPE in "${_connection_opts[@]}"; do
+      echo "$CONNECTION_TYPE"
+      case "$REPLY" in
+        1)
+          systemctl start "dhcpcd@${WIRED_DEV}.service"
+          break
+        ;;
+        2)
+          systemctl stop "dhcpcd@${WIRED_DEV}.service"
+          read -pr "IP Address: " IP_ADDR
+          read -pr "Submask: " SUBMASK
+          read -pr "Gateway: " GATEWAY
+          ip link set "${WIRED_DEV}" up
+          ip addr add "${IP_ADDR}/${SUBMASK}" dev "${WIRED_DEV}"
+          ip route add default via "${GATEWAY}"
+          nano /etc/resolv.conf
+          break
+        ;;
+        3)
+          wifi-menu "${WIRELESS_DEV}"
+          break
+        ;;
+        4)
+          read -pr "Enter your proxy e.g. protocol://adress:port: " OPTION
+          export http_proxy=$OPTION
+          export https_proxy=$OPTION
+          export ftp_proxy=$OPTION
+          echo "proxy = $OPTION" >~/.curlrc
+          break
+        ;;
+        5)
+          break
+        ;;
+        *)
+          invalid_option
+        ;;
+      esac
+    done
+    if [[ $XPINGS -gt 2 ]]; then
+      print_danger "Can't establish connection. exiting..."
+      
+      cecho "Connect to wifi [https://wiki.archlinux.org/index.php/netctl]"
+      cecho "Be sure to connect to wifi with: wifi-menu"
+      
+      cecho "Or Connect to ethernet [https://bbs.archlinux.org/viewtopic.php?id=210679]"
+      cecho "Be sure to connect to ethernet with: "
+      cecho "ip link set enpxxxx up  "
+      cecho "dhcpcd"
+      exit 1
     fi
-    ping -c 2 google.com
+    [[ $REPLY -ne 5 ]] && check_connection
+  else
+    cecho "Connection found!"
+  fi
+  ping -c 2 google.com
 }
-
 
 include_file() {
-    if [[ -f $PWD/$1 ]]; then
-	source "$1"
-    else
-	echo "missing file: $1"
-	exit 1
-    fi
+  if [[ -f $PWD/$1 ]]; then
+    source "$1"
+  else
+    echo "missing file: $1"
+    exit 1
+  fi
 }
-
-
 
 contains_element() {
-    #check if an element exist in a string
-    for e in "${@:2}"; do [[ "$e" == "$1" ]] && break; done;
+  #check if an element exist in a string
+  for e in "${@:2}"; do [[ "$e" == "$1" ]] && break; done
 }
 
-select_device(){
+select_device() {
   mapfile -t devices_list < <(lsblk -d | awk '{print "/dev/" $1}' | grep 'sd\|hd\|vd\|nvme\|mmcblk')
-
+  
   PS3="$prompt1"
-  echo -e "Attached Devices:\n"
-  lsblk -lnp -I 2,3,8,9,22,34,56,57,58,65,66,67,68,69,70,71,72,91,128,129,130,131,132,133,134,135,259 | awk '{print $1,$4,$6,$7}'| column -t
+  echo -e "Attached devices:\n"
+  lsblk -lnp -I 2,3,8,9,22,34,56,57,58,65,66,67,68,69,70,71,72,91,128,129,130,131,132,133,134,135,259 | awk '{print $1,$4,$6,$7}' | column -t
   echo -e "\n"
-
-
+  
   if [[ ${#devices_list[@]} -eq 1 ]]; then
     BOOT_MOUNTPOINT="${devices_list[0]}"
     echo "There is just one device"
@@ -264,23 +252,23 @@ select_device(){
   fi
 }
 
-warn_erasing(){
+warn_erasing() {
   print_danger "The device $BOOT_MOUNTPOINT will get ERASED"
   print_warning "Press any key except ENTER to cancel"
   echo "Wait 10 seconds or speed up with ENTER to continue"
-
+  
   IFSbak="$IFS"
   IFS=
   total=10
   i=0
-  while [ ${i} -lt ${total} ] ; do
-    tlimit=$(( total - i ))
+  while [ ${i} -lt ${total} ]; do
+    tlimit=$((total - i))
     echo -e "\rYou have ${tlimit} seconds to cancel: \c"
     read -t 1 -n 1 -rs key
-    test ! -z "$key" && { break ; }
-    i=$((i+1))
+    test ! -z "$key" && { break; }
+    i=$((i + 1))
   done
-  if [ -n "$key" ] ; then
+  if [ -n "$key" ]; then
     error_msg "You cancelled"
   else
     echo -e "\nContinue..."
@@ -288,23 +276,21 @@ warn_erasing(){
   IFS="$IFSbak"
 }
 
-
-
 check_boot_system() {
-    if [[ "$(cat /sys/class/dmi/id/sys_vendor)" == "Apple Inc." ]] || [[ "$(cat /sys/class/dmi/id/sys_vendor)" == "Apple Computer, Inc." ]]; then
-      modprobe -r -q efivars || true  # if MAC
-    else
-      modprobe -q efivarfs            # all others
+  if [[ "$(cat /sys/class/dmi/id/sys_vendor)" == "Apple Inc." ]] || [[ "$(cat /sys/class/dmi/id/sys_vendor)" == "Apple Computer, Inc." ]]; then
+    modprobe -r -q efivars || true # if MAC
+  else
+    modprobe -q efivarfs # all others
+  fi
+  if [[ -d "/sys/firmware/efi/" ]]; then
+    ## Mount efivarfs if it is not already mounted
+    if mount | grep -q /sys/firmware/efi/efivars; then
+      mount -t efivarfs efivarfs /sys/firmware/efi/efivars
     fi
-    if [[ -d "/sys/firmware/efi/" ]]; then
-      ## Mount efivarfs if it is not already mounted
-      if mount | grep -q /sys/firmware/efi/efivars; then
-        mount -t efivarfs efivarfs /sys/firmware/efi/efivars
-      fi
-      export UEFI=1
-      cecho "UEFI Mode detected"
-    else
-      export UEFI=0
-      cecho "BIOS Mode detected"
-    fi
+    export UEFI=1
+    cecho "UEFI Mode detected"
+  else
+    export UEFI=0
+    cecho "BIOS Mode detected"
+  fi
 }

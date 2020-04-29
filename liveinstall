@@ -49,7 +49,7 @@ print_title "This script will install Arch Linux"
 
 
 print_line
-package_install  "pacman-contrib reflector"
+package_install "pacman-contrib reflector"
 
 # Mirrorlist
 print_title "Backup pacman mirrorlist and filter for $COUNTRY servers [https://wiki.archlinux.org/index.php/mirrors]"
@@ -80,7 +80,6 @@ if [ "$UEFI" == 1 ]; then
   cecho "Create root partition: type 8300"
   sgdisk -n 0:0:0 -t 0:8300 -c 0:"main" "$BOOT_MOUNTPOINT"
 
-
 else
 
   cecho "Create boot partition: type EF02, size 3M"
@@ -95,7 +94,6 @@ else
 fi
 
 sgdisk -p "$BOOT_MOUNTPOINT"
-
 
 print_line
 
@@ -132,7 +130,7 @@ mkfs.fat -F32 -n boot "$BOOT_DISK"
 print_line
 print_info "Mount file system [https://wiki.archlinux.de/title/Mounten]"
 
-mount /dev/mapper/${DM_NAME}  /mnt
+mount /dev/mapper/${DM_NAME} /mnt
 
 cp crypto_keyfile.bin /mnt/crypto_keyfile.bin
 mkdir /mnt/boot
@@ -161,12 +159,11 @@ echo vm.vfs_cache_pressure=50 | tee -a /mnt/etc/sysctl.d/99-sysctl.conf
 print_line
 print_info "Generate fstab [https://wiki.archlinux.org/index.php/fstab]"
 
-genfstab -pU /mnt >> /mnt/etc/fstab
-	
+genfstab -pU /mnt >>/mnt/etc/fstab
+
 add_line "none /tmp tmpfs defaults,noatime,mode=1777 0 0" "/mnt/etc/fstab"
 
 swapoff -a
-
 
 print_info "Edit makepkg.conf [https://wiki.archlinux.org/index.php/makepkg#tmpfs]"
 
@@ -174,14 +171,11 @@ sed -i "s|#BUILDDIR=/tmp/makepkg|BUILDDIR=/tmp/makepkg|" /mnt/etc/makepkg.conf
 sed -i "s|PKGEXT='.pkg.tar.xz'|PKGEXT='.pkg.tar.zst'|" /mnt/etc/makepkg.conf
 sed -i "s|COMPRESSZST=(zstd -c -z -q -)|COMPRESSZST=(zstd -c -q -T0 -18 -)|" /mnt/etc/makepkg.conf
 
-
-echo "MAKEFLAGS='-j$(nproc)'" >> /mnt/etc/makepkg.conf
-
-
+echo "MAKEFLAGS='-j$(nproc)'" >>/mnt/etc/makepkg.conf
 print_info "Generate vconsole [https://wiki.archlinux.org/index.php/Keyboard_configuration_in_console]"
 
-echo "KEYMAP=de-latin1" > /mnt/etc/vconsole.conf
-echo "FONT=sun12x22" >> /mnt/etc/vconsole.conf
+echo "KEYMAP=de-latin1" >/mnt/etc/vconsole.conf
+echo "FONT=sun12x22" >>/mnt/etc/vconsole.conf
 
 
 print_line
@@ -192,18 +186,16 @@ sed -i "s/#en_US.UTF-8 UTF-8/en_US.UTF-8 UTF-8/" /mnt/etc/locale.gen
 arch_chroot "locale-gen"
 
 cecho "Set locale [https://wiki.archlinux.org/index.php/locale]"
-echo "LANG=de_DE.UTF-8" > /mnt/etc/locale.config
+echo "LANG=de_DE.UTF-8" >/mnt/etc/locale.config
 
 
 print_info "Set hostname [https://wiki.archlinux.org/index.php/Network_configuration#Set_the_hostname]"
-echo $HOSTNAME > /mnt/etc/hostname
-
+echo $HOSTNAME >/mnt/etc/hostname
 
 print_info "Generate journalctrl config [https://wiki.archlinux.org/index.php/Systemd#Journal]"
 
 sed -i "s/#Storage=auto/Storage=persistent/" /mnt/etc/systemd/journald.conf
 sed -i "s/#SystemMaxUse=/SystemMaxUse=1G/" /mnt/etc/systemd/journald.conf
-
 
 
 print_info "Generate time zone [https://wiki.archlinux.org/index.php/Time#Time_zone]"
@@ -213,8 +205,7 @@ print_info "Setup hardware clock - hardware is set to UTC [https://wiki.archlinu
 arch_chroot "hwclock --systohc --utc"
 
 print_info "Deaktivate beep"
-echo "blacklist pcspkr" > /mnt/etc/modprobe.d/nobeep.conf
-
+echo "blacklist pcspkr" >/mnt/etc/modprobe.d/nobeep.conf
 
 print_line
 print_info "Activate multilib  [https://wiki.archlinux.org/index.php/multilib]"
@@ -256,7 +247,7 @@ sed -i 's/# %wheel   ALL=(ALL) ALL/%wheel   ALL=(ALL) ALL/' /mnt/etc/sudoers
 
 print_line
 
-LuksUUID=$(blkid -s UUID  -o value "${LUKS_DISK}")
+LuksUUID=$(blkid -s UUID -o value "${LUKS_DISK}")
 
 swap_file_offset=$(filefrag -v /mnt/swapfile | awk '{ if($1=="0:"){print $4} }')
 
@@ -265,7 +256,7 @@ if [[ "$UEFI" == 1 ]]; then
   print_info "Installing EFI Boot-Manager  [https://wiki.archlinux.org/index.php/Systemd-boot#Installing_the_EFI_boot_manager]"
   arch_chroot "bootctl --path=/boot install"
 
-  echo 'default arch' > /mnt/boot/loader/loader.conf
+  echo 'default arch' >/mnt/boot/loader/loader.conf
 
   cat <<EOF >/mnt/boot/loader/entries/arch.conf
 title Arch Linux
