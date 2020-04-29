@@ -1,6 +1,6 @@
 #!/bin/bash
 
-if [[ -f `pwd`/sharedfuncs ]]; then
+if [[ -f $PWD/sharedfuncs ]]; then
   source sharedfuncs
 else
   echo "missing file: sharedfuncs"
@@ -13,7 +13,7 @@ fi
 prompt=$(sudo -nv 2>&1)
 if [ $? -eq 0 ]; then
   print_info "Stay alert!"
-elif echo $prompt | grep -q '^sudo:'; then
+elif echo "$prompt" | grep -q '^sudo:'; then
   print_warning "Stay alert and enter your password if necessary."
 else
   error_msg "ERROR! You must execute the script as a sudo user."
@@ -28,7 +28,7 @@ sudo pacman -Sy git --needed
 arch_dir=$(mktemp -d -t arch-XXXXXXXXXX)
 echo "Cloning https://github.com/C0D3D3V/arch to ${arch_dir}"
 
-git clone https://github.com/C0D3D3V/arch $arch_dir
+git clone https://github.com/C0D3D3V/arch "$arch_dir"
 
 
 include_file "post_subitems/000_aui_paketverwaltung" 
@@ -36,11 +36,11 @@ include_file "post_subitems/000_aui_paketverwaltung"
 # Install all packages
 
 install_packages() {
-    comm -13 <(pacman -Qq | sort) <(awk 1 $1 | sed -n -e "s/^[ \t]*+[ \t]*\([^ \t]*\)[ \t]*$/\1/gp" | sort) | yay -Sy --needed --noconfirm -
+    comm -13 <(pacman -Qq | sort) <(awk 1 "$1" | sed -n -e "s/^[ \t]*+[ \t]*\([^ \t]*\)[ \t]*$/\1/gp" | sort) | yay -Sy --needed --noconfirm -
 }
 
 activate_services() {
-  awk 1 $1 | sed -n -e "s/^[ \t]*systemctl enable --now[ \t]*\([^ \t]*\)[ \t]*$/\1/gp" | xargs sudo systemctl enable
+  awk 1 "$1" | sed -n -e "s/^[ \t]*systemctl enable --now[ \t]*\([^ \t]*\)[ \t]*$/\1/gp" | xargs sudo systemctl enable
 }
 
 install_packages "${arch_dir}/packages/*"
@@ -77,7 +77,7 @@ pacman -Rcns --noconfirm $(pacman -Qtdq)
 paccache -r -k 0
 pacman -Scc --noconfirm
 
-rm -rf $arch_dir
+rm -rf "$arch_dir"
 
 print_line
 print_line

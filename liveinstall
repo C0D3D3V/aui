@@ -27,15 +27,15 @@ DM_NAME="cryptroot"
 
 #######################################
 
-check_root
-check_boot_system
-
-if [[ -f `pwd`/sharedfuncs ]]; then
+if [[ -f $(pwd)/sharedfuncs ]]; then
   source sharedfuncs
 else
   echo "missing file: sharedfuncs"
   exit 1
 fi
+
+check_root
+check_boot_system
 
 print_info "Load German Keymap [https://wiki.archlinux.org/index.php/Keyboard_configuration_in_console]"
 loadkeys "$KEYMAP"
@@ -57,7 +57,7 @@ mv -i /etc/pacman.d/mirrorlist /etc/pacman.d/mirrorlist.orig
 reflector --country "$COUNTRY" --age 12 --completion-percent 70 --protocol https --sort rate --verbose --save /etc/pacman.d/mirrorlist
 
 
-cat /etc/pacman.d/mirrorlist | grep "^[^#]" | head -10
+grep "^[^#]" /etc/pacman.d/mirrorlist | head -10
 ls /etc/pacman.d/ -la
 
 
@@ -70,37 +70,37 @@ select_device
 print_info "Create partitions. [https://wiki.archlinux.de/title/GPT]"
 
   warn_erasing
-sgdisk -Z $BOOT_MOUNTPOINT
+sgdisk -Z "$BOOT_MOUNTPOINT"
 
-if [ $UEFI == 1 ]; then
+if [ "$UEFI" == 1 ]; then
 
   cecho "Create efi partition: type EF00, size 500M"
-  sgdisk -n 0:0:+500M -t 0:ef00 -c 0:"efi" $BOOT_MOUNTPOINT
+  sgdisk -n 0:0:+500M -t 0:ef00 -c 0:"efi" "$BOOT_MOUNTPOINT"
 
   cecho "Create root partition: type 8300"
-  sgdisk -n 0:0:0 -t 0:8300 -c 0:"main" $BOOT_MOUNTPOINT
+  sgdisk -n 0:0:0 -t 0:8300 -c 0:"main" "$BOOT_MOUNTPOINT"
 
 
 else
 
   cecho "Create boot partition: type EF02, size 3M"
-  sgdisk -n 0:0:+3M -t 0:ef02 -c 0:"bios" $BOOT_MOUNTPOINT
+  sgdisk -n 0:0:+3M -t 0:ef02 -c 0:"bios" "$BOOT_MOUNTPOINT"
 
   cecho "Create boot partition: type 8300, size 500M"
-  sgdisk -n 0:0:+500M -t 0:8300 -c 0:"boot" $BOOT_MOUNTPOINT
+  sgdisk -n 0:0:+500M -t 0:8300 -c 0:"boot" "$BOOT_MOUNTPOINT"
 
   cecho "Create root partition: type 8300"
-  sgdisk -n 0:0:0 -t 0:8300 -c 0:"main" $BOOT_MOUNTPOINT
+  sgdisk -n 0:0:0 -t 0:8300 -c 0:"main" "$BOOT_MOUNTPOINT"
 
 fi
 
-sgdisk -p $BOOT_MOUNTPOINT
+sgdisk -p "$BOOT_MOUNTPOINT"
 
 
 print_line
 
 # select boot and luks partitions
-if [ $UEFI == 1 ]; then
+if [[ $UEFI == 1 ]]; then
   BOOT_DISK=${BOOT_MOUNTPOINT}1
   LUKS_DISK=${BOOT_MOUNTPOINT}2
 else
@@ -117,8 +117,8 @@ modprobe dm-crypt
 dd bs=512 count=4 if=/dev/random of=crypto_keyfile.bin iflag=fullblock
 chmod 600 crypto_keyfile.bin
 
-cryptsetup -c aes-xts-plain64 -y -s 512 --use-random --batch-mode luksFormat $LUKS_DISK crypto_keyfile.bin
-cryptsetup open --type luks $LUKS_DISK $DM_NAME --key-file crypto_keyfile.bin
+cryptsetup -c aes-xts-plain64 -y -s 512 --use-random --batch-mode luksFormat "$LUKS_DISK" crypto_keyfile.bin
+cryptsetup open --type luks "$LUKS_DISK" "$DM_NAME" --key-file crypto_keyfile.bin
 
 
 print_line
@@ -126,7 +126,7 @@ print_title "Create Filesystem [https://wiki.archlinux.org/index.php/file_system
 
 mkfs.ext4 -L root /dev/mapper/${DM_NAME}
 
-mkfs.fat -F32 -n boot $BOOT_DISK
+mkfs.fat -F32 -n boot "$BOOT_DISK"
 
 
 print_line
@@ -137,7 +137,7 @@ mount /dev/mapper/${DM_NAME}  /mnt
 cp crypto_keyfile.bin /mnt/crypto_keyfile.bin
 mkdir /mnt/boot
 
-mount $BOOT_DISK /mnt/boot
+mount "$BOOT_DISK" /mnt/boot
 
 
 print_title "Install System [https://wiki.archlinux.org/index.php/Install_from_existing_Linux]"
@@ -146,7 +146,7 @@ pacstrap /mnt base base-devel linux-firmware linux gvim zsh efibootmgr intel-uco
 
 print_info "Activate Swap [https://wiki.archlinux.org/index.php/Swap]"
 
-swapSize=$((`free --byte | awk 'FNR==2{print $2}'` / 2))
+swapSize=$(($(free --byte | awk 'FNR==2{print $2}') / 2))
 
 fallocate -l ${swapSize} /mnt/swapfile
 chmod 600 /mnt/swapfile
@@ -259,21 +259,24 @@ sed -i 's/# %wheel   ALL=(ALL) ALL/%wheel   ALL=(ALL) ALL/' /mnt/etc/sudoers
 
 print_line
 
-LuksUUID=$(blkid -s UUID  -o value ${LUKS_DISK})
+LuksUUID=$(blkid -s UUID  -o value "${LUKS_DISK}")
 
 swap_file_offset=$(filefrag -v /mnt/swapfile | awk '{ if($1=="0:"){print $4} }')
 
 
-if [ $UEFI == 1 ]; then
+if [[ "$UEFI" == 1 ]]; then
   print_info "Installing EFI Boot-Manager  [https://wiki.archlinux.org/index.php/Systemd-boot#Installing_the_EFI_boot_manager]"
   arch_chroot "bootctl --path=/boot install"
 
-  echo default arch > /mnt/boot/loader/loader.conf
-  echo "title Arch Linux" > /mnt/boot/loader/entries/arch.conf
-  echo "linux /vmlinuz-linux" >> /mnt/boot/loader/entries/arch.conf
-  echo "initrd /intel-ucode.img" >> /mnt/boot/loader/entries/arch.conf
-  echo "initrd /initramfs-linux.img" >> /mnt/boot/loader/entries/arch.conf
-  echo "options cryptdevice=UUID=${LuksUUID}:${DM_NAME} root=/dev/mapper/${DM_NAME} resume=/dev/mapper/${DM_NAME} resume_offset=${swap_file_offset} quiet rw" >> /mnt/boot/loader/entries/arch.conf
+  echo 'default arch' > /mnt/boot/loader/loader.conf
+
+  cat <<EOF >/mnt/boot/loader/entries/arch.conf
+title Arch Linux
+linux /vmlinuz-linux
+initrd /intel-ucode.img
+initrd /initramfs-linux.img
+options cryptdevice=UUID=${LuksUUID}:${DM_NAME} root=/dev/mapper/${DM_NAME} resume=/dev/mapper/${DM_NAME} resume_offset=${swap_file_offset} quiet rw
+EOF
 
 else
   print_info "Installing Grub  [https://wiki.archlinux.org/index.php/GRUB]"

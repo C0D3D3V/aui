@@ -1,13 +1,5 @@
 #!/bin/bash
 
-
-AUI_DIR=`pwd` #CURRENT DIRECTORY
-PKG_FAIL="${AUI_DIR}/`basename ${0}`_fail_install.log"
-
-
-username=""
-
-
 # COLORS {{{
 Bold=$(tput bold)
 Underline=$(tput sgr 0 1)
@@ -30,9 +22,6 @@ BBlue=${Bold}${Blue}
 BPurple=${Bold}${Purple}
 BCyan=${Bold}${Cyan}
 BWhite=${Bold}${White}
-
-SPIN="/-\|" #SPINNER POSITION
-AUR=`echo -e "(${BPurple}aur${Reset})"`
 
 cecho() {
         echo -e "$1"
@@ -67,18 +56,18 @@ print_title() {
 }
 print_info() {
         #Console width number
-    T_COLS=`tput cols`
-    echo -e "${Bold}$1${Reset}\n" | fold -sw $(( $T_COLS - 18 )) | sed 's/^/\t/'
+    T_COLS=$(tput cols)
+    echo -e "${Bold}$1${Reset}\n" | fold -sw $(( T_COLS - 18 )) | sed 's/^/\t/'
 }
 
 print_warning() {
-        T_COLS=`tput cols`
-    echo -e "${BYellow}$1${Reset}\n" | fold -sw $(( $T_COLS - 1 ))
+        T_COLS=$(tput cols)
+    echo -e "${BYellow}$1${Reset}\n" | fold -sw $(( T_COLS - 1 ))
 }
 
 print_danger() {
-        T_COLS=`tput cols`
-    echo -e "${BRed}$1${Reset}\n" | fold -sw $(( $T_COLS - 1 ))
+        T_COLS=$(tput cols)
+    echo -e "${BRed}$1${Reset}\n" | fold -sw $(( T_COLS - 1 ))
 }
 
 
@@ -92,94 +81,26 @@ add_line() {
     local _filepath=${2}
 
 
-    local _has_line=`grep -ci "${_add_line}" ${_filepath} 2>&1`
-    [[ $_has_line -eq 0 ]] && echo "${_add_line}" >> ${_filepath}
+    local _has_line
+    _has_line=$(grep -ci "${_add_line}" "${_filepath}" 2>&1)
+    [[ $_has_line -eq 0 ]] && echo "${_add_line}" >> "${_filepath}"
 }
 
-
-aui_download_packages() {
-    for PKG in $1; do
-	#exec command as user instead of root
-	su - $username -c "
-        [[ ! -d aui_packages ]] && mkdir aui_packages
-        cd aui_packages
-        curl -o ${PKG}.tar.gz https://aur.archlinux.org/cgit/aur.git/snapshot/${PKG}.tar.gz
-        tar zxvf ${PKG}.tar.gz
-        rm ${PKG}.tar.gz
-        cd ${PKG}
-        makepkg -csi --noconfirm
-      "
-    done
-}
-
+# check if a package is already installed
 is_package_installed() {
-        #check if a package is already installed
     for PKG in $1; do
-	pacman -Q $PKG &> /dev/null && return 0;
+	pacman -Q "$PKG" &> /dev/null && return 0;
     done
     return 1
 }
 
-checkbox() {
-    #display [X] or [ ]
-    [[ "$1" -eq 1 ]] && echo -e "${BBlue}[${Reset}${Bold}X${BBlue}]${Reset}" || echo -e "${BBlue}[ ${BBlue}]${Reset}";
-}
 
-checkbox_package() {
-    #check if [X] or [ ]
-    is_package_installed "$1" && checkbox 1 || checkbox 0
-}
-
-run_as_user() {
-    sudo -H -u $username ${1}
-
-}
-
-read_input_text() {
-    #    if [[ $AUTOMATIC_MODE -eq 1 ]]; then
-    #      OPTION=$2
-    #    else
-    read -p "$1 [y/N]: " OPTION
-    echo ""
-    #    fi
-    OPTION=`echo "$OPTION" | tr '[:upper:]' '[:lower:]'`
-}
-
-replace_line(){
-    local _search=${1}
-    local _replace=${2}
-    local _filepath=${3}
-    local _filebase=`basename ${3}`
-
-    sed -e "s/${_search}/${_replace}/" ${_filepath} > /tmp/${_filebase}
-    if [[ ${?} -eq 0 ]]; then
-	mv /tmp/${_filebase} ${_filepath}
-    else
-	cecho "failed: ${_search} - ${_filepath}"
-    fi
-}
-
-
-
-
-aur_package_install() {
-    su - $username -c "sudo -v"
-    #install package from aur
-    for PKG in $1; do
-	if ! is_package_installed "${PKG}" ; then
-	    ncecho " ${BBlue}[${Reset}${Bold}X${BBlue}]${Reset} Installing ${AUR} ${Bold}${PKG}${Reset} "
-        su - $username -c "yay --noconfirm -Sy ${PKG}"
-	else
-                print_info "${PKG} is up to date --skipping"
-            	fi
-    done
-}
-
+# install packages using pacman
 package_install() {
-        #install packages using pacman
     for PKG in $1; do
 	if ! is_package_installed "${PKG}" ; then
-	    local _pkg_repo=`pacman -Sp --print-format %r ${PKG}  2>/dev/null | uniq | sed '1!d'`
+	    local _pkg_repo
+        _pkg_repo=$(pacman -Sp --print-format %r "${PKG}"  2>/dev/null | uniq | sed '1!d')
             case $_pkg_repo in
 		"core")
 		    _pkg_repo="${BRed}${_pkg_repo}${Reset}"
@@ -194,102 +115,18 @@ package_install() {
 		    _pkg_repo="${BCyan}${_pkg_repo}${Reset}"
 		    ;;
 	    esac
-	    ncecho " ${BBlue}[${Reset}${Bold}X${BBlue}]${Reset} Installing (${_pkg_repo}) ${Bold}${PKG}${Reset} "
-	    pacman -Sy --noconfirm --needed ${PKG}
+	    ncecho " ${BBlue}[${Reset}${Bold}X${BBlue}]${Reset} Installing \(${_pkg_repo}\) ${Bold}${PKG}${Reset} "
+	    pacman -Sy --noconfirm --needed "${PKG}"
 	else
     	    print_info "${PKG} is up to date --skipping"
         	fi
     done
         }
 
-system_update() {
-    #should add backgroundjob
-    pacman -Sy
-}
-
-system_ctl() {
-    local _action=${1}
-    local _object=${2}
-    ncecho " ${BBlue}[${Reset}${Bold}X${BBlue}]${Reset} systemctl ${_action} ${_object} "
-    systemctl ${_action} ${_object}
-}
-
-package_remove() {
-        #remove package
-    for PKG in ${1}; do
-	if is_package_installed "${PKG}" ; then
-            ncecho " ${BBlue}[${Reset}${Bold}X${BBlue}]${Reset} Removing ${Bold}${PKG}${Reset} "
-            pacman -Rcsn --noconfirm ${PKG}
-	fi
-    done
-}
-
-
-config_xinitrc() {
-        #create a xinitrc file in home user directory
-    cp -fv /etc/X11/xinit/xinitrc /home/$username/.xinitrc
-    echo -e "exec $1" >> /home/$username/.xinitrc
-    chown -R $username:users /home/$username/.xinitrc
-}
-
-add_user_to_group() {
-        local _user=${1}
-    local _group=${2}
-
-    if [[ -z ${_group} ]]; then
-	#danger fill exit
-	error_msg "ERROR! 'add_user_to_group' was not given enough parameters."
-    fi
-
-
-    if [ ! $(getent group ${_group}) ]; then
-	
-	ncecho " ${BBlue}[${Reset}${Bold}X${BBlue}]${Reset} Creating group: ${Bold}${_group}${Reset} "
-	groupadd ${_group}
-    fi
-
-          ncecho " ${BBlue}[${Reset}${Bold}X${BBlue}]${Reset} Adding ${Bold}${_user}${Reset} to ${Bold}${_group}${Reset} "
-    gpasswd -a ${_user} ${_group}
-}
-
-
 #no new line
 ncecho() {
     echo -ne "$1"
     tput sgr0  #reset color
-}
-
-
-spinny() {
-    echo -ne "\b${SPIN:i++%${#SPIN}:1}"
-}
-
-
-progress() {
-    ncecho "  ";
-    start=$(date +%s.%N)
-    while true; do
-      kill -0 $pid &> /dev/null;
-                  if [[ $? == 0 ]]; then   #Prozess still running?
-        spinny
-        sleep 0.25
-      else
-	end=$(date +%s.%N)
-        runtime=$( echo "$end - $start" | bc -l )
-	
-        #ncecho "\b\b  \n";
-        wait $pid
-        retcode=$?
-        ncecho " $pid returend after ${runtime}s $retcode -> "
-        if [[ $retcode == 0 ]] || [[ $retcode == 255 ]]; then
-          ncecho "${BGreen}success${Reset}\n\n"
-        else
-          ncecho "${BRed}failed${Reset}\n"
-          echo -e "$PKG" >> $PKG_FAIL
-        fi
-        break
-      fi
-    done
 }
 
 invalid_option() {
@@ -301,56 +138,55 @@ invalid_option() {
 pause_function() {
     print_line
     #read -e -sn 1 -p "Press enter to continue..."
-    read -p "Press enter to continue..."
+    read -pr "Press enter to continue..."
 }
 
 # PROMPT
-prompt1="Enter your option: "
-prompt2="Enter n° of options (ex: 1 2 3 or 1-3): "
-prompt3="You have to manually enter the following commands, then press ${BYellow}ctrl+d${Reset} or type ${BYellow}exit${Reset}:"
+prompt1='Enter your option: '
 
 
 XPINGS=0 # CONNECTION CHECK
 
-      check_connection(){
-    XPINGS=$(( $XPINGS + 1 ))
+check_connection(){
+    XPINGS=$(( XPINGS + 1 ))
     connection_test() {
-	ping -q -w 1 -c 1 `ip r | grep default | awk 'NR==1 {print $3}'` &> /dev/null && return 1 || return 0
+	  ping -q -w 1 -c 1 "$(ip r | grep default | awk 'NR==1 {print $3}')" &> /dev/null && return 1 || return 0
     }
-    WIRED_DEV=`ip link | grep "ens\|eno\|enp" | awk '{print $2}'| sed 's/://' | sed '1!d'`
+    WIRED_DEV=$(ip link | grep "ens\|eno\|enp" | awk '{print $2}'| sed 's/://' | sed '1!d')
     cecho "Detected wired device: $WIRED_DEV"
-    WIRELESS_DEV=`ip link | grep wlp | awk '{print $2}'| sed 's/://' | sed '1!d'`
+    WIRELESS_DEV=$(ip link | grep wlp | awk '{print $2}'| sed 's/://' | sed '1!d')
     cecho "Detected wireless device: $WIRELESS_DEV"
 
-          if connection_test; then
-	print_warning "ERROR! Connection not Found."
-	print_info "Network Setup"
-	local _connection_opts=("Wired Automatic" "Wired Manual" "Wireless" "Configure Proxy" "Skip")
-	PS3="$prompt1"  #message for select
+    if connection_test; then
+	  print_warning "ERROR! Connection not Found."
+	  print_info "Network Setup"
+	  local _connection_opts=("Wired Automatic" "Wired Manual" "Wireless" "Configure Proxy" "Skip")
+	  PS3="$prompt1"  #message for select
 	
-	select CONNECTION_TYPE in "${_connection_opts[@]}"; do
-            case "$REPLY" in
+	  select CONNECTION_TYPE in "${_connection_opts[@]}"; do
+        echo "$CONNECTION_TYPE"
+        case "$REPLY" in
 		1)
-		    systemctl start dhcpcd@${WIRED_DEV}.service
+		    systemctl start "dhcpcd@${WIRED_DEV}.service"
 		    break
 		    ;;
 		2)
-		    systemctl stop dhcpcd@${WIRED_DEV}.service
-		    read -p "IP Address: " IP_ADDR
-		    read -p "Submask: " SUBMASK
-		    read -p "Gateway: " GATEWAY
-		    ip link set ${WIRED_DEV} up
-		    ip addr add ${IP_ADDR}/${SUBMASK} dev ${WIRED_DEV}
-		    ip route add default via ${GATEWAY}
+		    systemctl stop "dhcpcd@${WIRED_DEV}.service"
+		    read -pr "IP Address: " IP_ADDR
+		    read -pr "Submask: " SUBMASK
+		    read -pr "Gateway: " GATEWAY
+		    ip link set "${WIRED_DEV}" up
+		    ip addr add "${IP_ADDR}/${SUBMASK}" dev "${WIRED_DEV}"
+		    ip route add default via "${GATEWAY}"
 		    nano /etc/resolv.conf
 		    break
 		    ;;
 		3)
-		    wifi-menu ${WIRELESS_DEV}
+		    wifi-menu "${WIRELESS_DEV}"
 		    break
 		    ;;
 		4)
-		    read -p "Enter your proxy e.g. protocol://adress:port: " OPTION
+		    read -pr "Enter your proxy e.g. protocol://adress:port: " OPTION
 		    export http_proxy=$OPTION
 		    export https_proxy=$OPTION
 		    export ftp_proxy=$OPTION
@@ -363,12 +199,10 @@ XPINGS=0 # CONNECTION CHECK
 		*)
 		    invalid_option
 		    ;;
-            esac
-	done
-	if [[ $XPINGS -gt 2 ]]; then
-            print_danger "Can't establish connection. exiting..."
-	
-                      	    ping -c 2 google.com
+        esac
+	  done
+	  if [[ $XPINGS -gt 2 ]]; then
+        print_danger "Can't establish connection. exiting..."
 
 	    cecho "Connect to wifi [https://wiki.archlinux.org/index.php/netctl]"
 	    cecho "Be sure to connect to Wifi with: wifi-menu"
@@ -377,80 +211,19 @@ XPINGS=0 # CONNECTION CHECK
 	    cecho "Be sure to connect to Ethernet with: "
 	    cecho "ip link set enpxxxx up  "
 	    cecho "dhcpcd"
-                    exit 1
-	fi
-	[[ $REPLY -ne 5 ]] && check_connection
+        exit 1
+	  fi
+	  [[ $REPLY -ne 5 ]] && check_connection
     else
-	cecho "Connection found!"
-        ping -c 2 google.com
+	  cecho "Connection found!"
     fi
     ping -c 2 google.com
 }
 
 
-
-read_input_options() {
-    local line
-    local packages
-    #if [[ $AUTOMATIC_MODE -eq 1 ]]; then
-    #array=("$1")
-    #else
-    read -p "$prompt2" OPTION
-    array=("$OPTION")
-    #fi
-    for line in ${array[@]/,/ }; do
-	if [[ ${line/-/} != $line ]]; then
-            for ((i=${line%-*}; i<=${line#*-}; i++)); do
-		packages+=($i);
-            done
-	else
-            packages+=($line)
-	fi
-    done
-    OPTIONS=("${packages[@]}")
-}
-
-yn_question() {
-    while true
-    do
-	read -p "$1 [y/N]: " ynAnswer
-	#ynAnswer=`echo "$ynAnswer" | tr '[:upper:]' '[:lower:]'`
-
-	case $ynAnswer in
-	    [yY]* ) ynAnswer="y"
-		    break
-		    ;;
-
-	    [nN]* ) ynAnswer="n"
-		    break
-		    ;;
-
-	    * )     echo "Dude, just enter Y or N, please.";
-		    ;;
-	esac
-    done
-}
-
-
-pls_enter(){
-
-          sthEntered=0
-    while [ $sthEntered -eq 0 ];
-    do
-	read -p "$1 : " sthInsertion
-	yn_question "Is your insertion '${sthInsertion}' correct?"
-	if [ $ynAnswer == "y" ]; then
-	    sthEntered=1
-	fi
-    done
-
-}
-
-
-
 include_file() {
-    if [[ -f `pwd`/$1 ]]; then
-	source $1
+    if [[ -f $PWD/$1 ]]; then
+	source "$1"
     else
 	echo "missing file: $1"
 	exit 1
@@ -461,11 +234,12 @@ include_file() {
 
 contains_element() {
     #check if an element exist in a string
-    for e in "${@:2}"; do [[ $e == $1 ]] && break; done;
+    for e in "${@:2}"; do [[ "$e" == "$1" ]] && break; done;
 }
 
 select_device(){
-  devices_list=(`lsblk -d | awk '{print "/dev/" $1}' | grep 'sd\|hd\|vd\|nvme\|mmcblk'`);
+  mapfile -t devices_list < <(lsblk -d | awk '{print "/dev/" $1}' | grep 'sd\|hd\|vd\|nvme\|mmcblk')
+
   PS3="$prompt1"
   echo -e "Attached Devices:\n"
   lsblk -lnp -I 2,3,8,9,22,34,56,57,58,65,66,67,68,69,70,71,72,91,128,129,130,131,132,133,134,135,259 | awk '{print $1,$4,$6,$7}'| column -t
@@ -500,13 +274,13 @@ warn_erasing(){
   total=10
   i=0
   while [ ${i} -lt ${total} ] ; do
-    tlimit=$(( $total - $i ))
+    tlimit=$(( total - i ))
     echo -e "\rYou have ${tlimit} seconds to cancel: \c"
-    read -t 1 -n 1 -s key
+    read -t 1 -n 1 -rs key
     test ! -z "$key" && { break ; }
     i=$((i+1))
   done
-  if [ ! -z "$key" ] ; then
+  if [ -n "$key" ] ; then
     error_msg "You cancelled"
   else
     echo -e "\nContinue..."
@@ -517,22 +291,20 @@ warn_erasing(){
 
 
 check_boot_system() {
-    if [[ "$(cat /sys/class/dmi/id/sys_vendor)" == 'Apple Inc.' ]] || [[ "$(cat /sys/class/dmi/id/sys_vendor)" == 'Apple Computer, Inc.' ]]; then
+    if [[ "$(cat /sys/class/dmi/id/sys_vendor)" == "Apple Inc." ]] || [[ "$(cat /sys/class/dmi/id/sys_vendor)" == "Apple Computer, Inc." ]]; then
       modprobe -r -q efivars || true  # if MAC
     else
       modprobe -q efivarfs            # all others
     fi
     if [[ -d "/sys/firmware/efi/" ]]; then
       ## Mount efivarfs if it is not already mounted
-      if [[ -z $(mount | grep /sys/firmware/efi/efivars) ]]; then
+      if mount | grep -q /sys/firmware/efi/efivars; then
         mount -t efivarfs efivarfs /sys/firmware/efi/efivars
       fi
-      UEFI=1
+      export UEFI=1
       cecho "UEFI Mode detected"
     else
-      UEFI=0
+      export UEFI=0
       cecho "BIOS Mode detected"
     fi
 }
-
-
