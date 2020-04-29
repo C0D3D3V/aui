@@ -52,6 +52,7 @@ print_title() {
   echo ""
 }
 print_info() {
+  print_line
   #Console width number
   T_COLS=$(tput cols)
   echo -e "${Bold}$1${Reset}\n" | fold -sw $((T_COLS - 18)) | sed 's/^/\t/'

@@ -62,10 +62,8 @@ ls /etc/pacman.d/ -la
 
 
 print_line
-
 print_title "Create boot device"
 select_device
-
 
 print_info "Create partitions [https://wiki.archlinux.de/title/GPT]"
 
@@ -127,7 +125,6 @@ mkfs.ext4 -L root /dev/mapper/${DM_NAME}
 mkfs.fat -F32 -n boot "$BOOT_DISK"
 
 
-print_line
 print_info "Mount file system [https://wiki.archlinux.de/title/Mounten]"
 
 mount /dev/mapper/${DM_NAME} /mnt
@@ -140,7 +137,6 @@ mount "$BOOT_DISK" /mnt/boot
 
 print_title "Install system [https://wiki.archlinux.org/index.php/Install_from_existing_Linux]"
 pacstrap /mnt base base-devel linux-firmware linux gvim zsh efibootmgr intel-ucode git dhcpcd netctl dialog wpa_supplicant
-
 
 print_info "Activate swap [https://wiki.archlinux.org/index.php/Swap]"
 
@@ -156,7 +152,6 @@ echo vm.swappiness=5 | tee -a /mnt/etc/sysctl.d/99-sysctl.conf
 echo vm.vfs_cache_pressure=50 | tee -a /mnt/etc/sysctl.d/99-sysctl.conf
 
 
-print_line
 print_info "Generate fstab [https://wiki.archlinux.org/index.php/fstab]"
 
 genfstab -pU /mnt >>/mnt/etc/fstab
@@ -178,7 +173,6 @@ echo "KEYMAP=de-latin1" >/mnt/etc/vconsole.conf
 echo "FONT=sun12x22" >>/mnt/etc/vconsole.conf
 
 
-print_line
 print_info "Generate locales [https://wiki.archlinux.org/index.php/Locale]"
 
 sed -i "s/#de_DE.UTF-8 UTF-8/de_DE.UTF-8 UTF-8/" /mnt/etc/locale.gen
@@ -207,7 +201,6 @@ arch_chroot "hwclock --systohc --utc"
 print_info "Deaktivate beep"
 echo "blacklist pcspkr" >/mnt/etc/modprobe.d/nobeep.conf
 
-print_line
 print_info "Activate multilib  [https://wiki.archlinux.org/index.php/multilib]"
 
 sed -i "/\[multilib\]/,/Include/"'s/^#//' /mnt/etc/pacman.conf
@@ -221,7 +214,6 @@ cp /etc/pacman.d/mirrorlist.orig /mnt/etc/pacman.d/mirrorlist.orig
 arch_chroot "pacman -Sy"
 
 
-print_line
 print_info "Change kernel modules  [https://wiki.archlinux.org/index.php/mkinitcpio]"
 
 sed -i 's/^HOOKS=(.*)/HOOKS=(base udev keyboard keymap autodetect consolefont modconf block encrypt filesystems resume fsck)/' /mnt/etc/mkinitcpio.conf
@@ -232,7 +224,6 @@ arch_chroot "mkinitcpio -P"
 arch_chroot "chmod 600 /boot/initramfs-linux*"
 
 
-print_line
 print_info "Set root password  [https://wiki.archlinux.org/index.php/users_and_groups]"
 arch_chroot "echo -e \"${ROOT_PW}\n${ROOT_PW}\" | passwd"
 
