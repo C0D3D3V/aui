@@ -1,5 +1,35 @@
 #!/bin/bash
 
+#######################################
+# VARIABLES:
+# Change them to your wishes
+
+# Country (for mirror servers)
+COUNTRY="Germany"
+
+# /etc/hostname
+HOSTNAME="archlinux"
+
+# keyboard layout
+KEYMAP="de-latin1"
+
+# "How should the new user be named? [Recomended: yourName]"
+NEWUSER="arch"
+
+# Password for new user [Default: same as the name]
+NEWUSER_PW="${NEWUSER}"
+
+# root password [Default: same as new user]
+ROOT_PW="${NEWUSER}"
+
+# name of device mapper
+DM_NAME="cryptroot"
+
+#######################################
+
+check_root
+check_boot_system
+
 if [[ -f `pwd`/sharedfuncs ]]; then
   source sharedfuncs
 else
@@ -7,21 +37,11 @@ else
   exit 1
 fi
 
-lvmName="cryptroot"
-KEYMAP="de-latin1"
-
-
-check_root
-check_boot_system
-
-
 print_info "Load German Keymap [https://wiki.archlinux.org/index.php/Keyboard_configuration_in_console]"
 loadkeys "$KEYMAP"
 
 print_info "Set Font to sun12x22"
 setfont sun12x22
-
-
 
 check_connection
 
@@ -29,16 +49,15 @@ print_title "This Skript will install Arch Linux"
 
 
 print_line
-
 package_install  "pacman-contrib reflector"
 
 #Mirrorlist
 print_title "Backup pacman mirrorlist and filter for German Servers [https://wiki.archlinux.org/index.php/mirrors]"
 mv -i /etc/pacman.d/mirrorlist /etc/pacman.d/mirrorlist.orig
-reflector --country France --country Germany --age 12 --completion-percent 70 --protocol https --sort rate --verbose --save /etc/pacman.d/mirrorlist
+reflector --country "$COUNTRY" --age 12 --completion-percent 70 --protocol https --sort rate --verbose --save /etc/pacman.d/mirrorlist
 
 
-cat /etc/pacman.d/mirrorlist | grep "^[^#]" | head -10 
+cat /etc/pacman.d/mirrorlist | grep "^[^#]" | head -10
 ls /etc/pacman.d/ -la
 
 
@@ -49,9 +68,8 @@ select_device
 
 
 print_info "Create partitions. [https://wiki.archlinux.de/title/GPT]"
-    
-cecho "EARSE DISK $BOOT_MOUNTPOINT"
 
+  warn_erasing
 sgdisk -Z $BOOT_MOUNTPOINT
 
 if [ $UEFI == 1 ]; then
@@ -81,77 +99,52 @@ sgdisk -p $BOOT_MOUNTPOINT
 
 print_line
 
-#select_boot
+# select boot and luks partitions
 if [ $UEFI == 1 ]; then
   BOOT_DISK=${BOOT_MOUNTPOINT}1
-else
-  BOOT_DISK=${BOOT_MOUNTPOINT}2
-fi
-
-#select_luks
-if [ $UEFI == 1 ]; then
   LUKS_DISK=${BOOT_MOUNTPOINT}2
 else
+  BOOT_DISK=${BOOT_MOUNTPOINT}2
   LUKS_DISK=${BOOT_MOUNTPOINT}3
 fi
 
 
 print_title "Setup Luks [https://wiki.archlinux.org/index.php/Dm-crypt]"
+print_title "Using a keyfile in initramfs [https://wiki.archlinux.org/index.php/Dm-crypt/Device_encryption#With_a_keyfile_embedded_in_the_initramfs]"
+
 modprobe dm-crypt
 
+dd bs=512 count=4 if=/dev/random of=crypto_keyfile.bin iflag=fullblock
+chmod 600 crypto_keyfile.bin
 
-
-ynAnswer="n"
-while [ $ynAnswer == "n" ];
-do
-    cryptsetup -c aes-xts-plain64 -y -s 512 --use-random --batch-mode luksFormat $LUKS_DISK
-    yn_question "Did you enter two times your passphrase?"
-done
-
-
-
-ynAnswer="n"
-while [ $ynAnswer == "n" ];
-do
-    cryptsetup open --type luks $LUKS_DISK $lvmName
-    yn_question "Did you open the encrypted partion?"
-done
-	
-print_line
-
-
+cryptsetup -c aes-xts-plain64 -y -s 512 --use-random --batch-mode luksFormat $LUKS_DISK crypto_keyfile.bin
+cryptsetup open --type luks $LUKS_DISK $DM_NAME --key-file crypto_keyfile.bin
 
 
 print_line
-
 print_title "Create Filesystem [https://wiki.archlinux.org/index.php/file_systems]"
 
-mkfs.ext4 -L root /dev/mapper/${lvmName}
-
+mkfs.ext4 -L root /dev/mapper/${DM_NAME}
 
 mkfs.fat -F32 -n boot $BOOT_DISK
 
 
 print_line
-
 print_info "Mount Filesystem [https://wiki.archlinux.de/title/Mounten]"
 
-mount /dev/mapper/${lvmName}  /mnt
+mount /dev/mapper/${DM_NAME}  /mnt
 
-
+cp crypto_keyfile.bin /mnt/crypto_keyfile.bin
 mkdir /mnt/boot
 
 mount $BOOT_DISK /mnt/boot
 
 
 print_title "Install System [https://wiki.archlinux.org/index.php/Install_from_existing_Linux]"
-
-pacstrap /mnt base base-devel linux-firmware linux gvim zsh efibootmgr intel-ucode zstd dhcpcd git netctl dialog wpa_supplicant
-
+pacstrap /mnt base base-devel linux-firmware linux gvim zsh efibootmgr intel-ucode git dhcpcd netctl dialog wpa_supplicant
 
 
 print_info "Activate Swap [https://wiki.archlinux.org/index.php/Swap]"
-
 
 swapSize=$((`free --byte | awk 'FNR==2{print $2}'` / 2))
 
@@ -165,13 +158,8 @@ echo vm.swappiness=5 | tee -a /mnt/etc/sysctl.d/99-sysctl.conf
 echo vm.vfs_cache_pressure=50 | tee -a /mnt/etc/sysctl.d/99-sysctl.conf
 
 
-
-
-
 print_line
-
 print_info "Generate Fstab [https://wiki.archlinux.org/index.php/fstab]"
-
 
 genfstab -pU /mnt >> /mnt/etc/fstab
 	
@@ -201,22 +189,11 @@ echo "LANG=de_DE.UTF-8" > /mnt/etc/locale.conf
 echo "LC_ALL=" >> /mnt/etc/locale.conf
 
 
-print_info "Generate Hostname [https://wiki.archlinux.org/index.php/Network_configuration#Set_the_hostname]"
+print_info "Set Hostname [https://wiki.archlinux.org/index.php/Network_configuration#Set_the_hostname]"
+echo $HOSTNAME > /mnt/etc/hostname
 
-
-DEVICENAMEENTERED=0
-while [ $DEVICENAMEENTERED -eq 0 ];
-do
-    read -p "Please enter a hostname for the system: " devicename
-    yn_question "Do you realy want to use ${devicename}?"
-    if [ $ynAnswer == "y" ]; then
-	    DEVICENAMEENTERED=1
-    fi
-done
-echo $devicename > /mnt/etc/hostname
 
 print_info "Generate Journalctrl config [https://wiki.archlinux.org/index.php/Systemd#Journal]"
-
 
 sed -i "s/#Storage=auto/Storage=persistent/" /mnt/etc/systemd/journald.conf
 sed -i "s/#SystemMaxUse=/SystemMaxUse=1G/" /mnt/etc/systemd/journald.conf
@@ -224,11 +201,9 @@ sed -i "s/#SystemMaxUse=/SystemMaxUse=1G/" /mnt/etc/systemd/journald.conf
 
 
 print_info "Generate Timezone [https://wiki.archlinux.org/index.php/Time#Time_zone]"
-
 arch_chroot "ln -sf /usr/share/zoneinfo/Europe/Berlin /etc/localtime"
 
 print_info "Setup Hardware Clock - Hardware is set to utc [https://wiki.archlinux.org/index.php/Time]"
-
 arch_chroot "hwclock --systohc --utc"
 
 
@@ -238,18 +213,14 @@ echo "blacklist pcspkr" > /mnt/etc/modprobe.d/nobeep.conf
 
 
 print_line
-
 print_info "Setup Locals [https://wiki.archlinux.org/index.php/Locale]"
 
 sed -i "s/#de_DE.UTF-8 UTF-8/de_DE.UTF-8 UTF-8/" /mnt/etc/locale.gen
-
 arch_chroot "locale-gen"
 
 
 print_line
-
 print_info "Activate Multilib  [https://wiki.archlinux.org/index.php/multilib]"
-
 
 sed -i "/\[multilib\]/,/Include/"'s/^#//' /mnt/etc/pacman.conf
 sed -i 's/#Color/Color/' /mnt/etc/pacman.conf
@@ -257,117 +228,69 @@ sed -i 's/#Color/Color/' /mnt/etc/pacman.conf
 
 print_info "Copy Mirrorlist"
 
-#Mirrorlist
 cp /etc/pacman.d/mirrorlist /mnt/etc/pacman.d/mirrorlist
 cp /etc/pacman.d/mirrorlist.orig /mnt/etc/pacman.d/mirrorlist.orig
-
-
 arch_chroot "pacman -Sy"
 
 
 print_line
-
 print_info "Change Linux Kernel Modules  [https://wiki.archlinux.org/index.php/mkinitcpio]"
-
 
 sed -i 's/^HOOKS=(.*)/HOOKS=(base udev keyboard keymap autodetect consolefont modconf block encrypt filesystems resume fsck)/' /mnt/etc/mkinitcpio.conf
 sed -i 's/MODULES=()/MODULES=(ext4)/' /mnt/etc/mkinitcpio.conf
+sed -i 's/FILES=()/FILES=(/crypto_keyfile.bin)/' /mnt/etc/mkinitcpio.conf
 
 arch_chroot "mkinitcpio -P"
+arch_chroot "chmod 600 /boot/initramfs-linux*"
 
 
 print_line
-
 print_info "Set Root Password  [https://wiki.archlinux.org/index.php/users_and_groups]"
-ynAnswer="n"
-while [ $ynAnswer == "n" ];
-do
-    arch_chroot "passwd"
-    yn_question "Did you set the password correct?"
-done
+arch_chroot "echo -e \"${ROOT_PW}\n${ROOT_PW}\" | passwd"
 
-print_info "Create Admin User [https://wiki.archlinux.de/title/Sudo#sudo_f.C3.BCr_Benutzer_einrichten]"
 
-pls_enter "How should the administrator be named? [recomended: yourName]" 
-adminName=$sthInsertion
+print_info "Create new user [https://wiki.archlinux.de/title/Sudo#sudo_f.C3.BCr_Benutzer_einrichten]"
 
-arch_chroot "useradd -m -g users -G wheel,storage,power,network,uucp -s /bin/zsh ${adminName}"
-
-ynAnswer="n"
-while [ $ynAnswer == "n" ];
-do
-    arch_chroot "passwd ${adminName}"
-    yn_question "Did you set the password correct?"
-done
+arch_chroot "useradd -m -g users -G wheel,storage,power,network,uucp -s /bin/zsh ${NEWUSER}"
+arch_chroot "echo -e \"${NEWUSER_PW}\n${NEWUSER_PW}\" | passwd ${NEWUSER}"
 
 sed -i 's/# %wheel   ALL=(ALL) ALL/%wheel   ALL=(ALL) ALL/' /mnt/etc/sudoers
 
 
-
 print_line
 
-if [ $UEFI == 1 ]; then
-  
-  print_info "Install EFI Boot-Manager  [https://wiki.archlinux.org/index.php/Systemd-boot#Installing_the_EFI_boot_manager]"
-
-  ncecho "Installing EFI Boot-Manager "
-
-  arch_chroot "bootctl --path=/boot install"
-
-else
-
-
-  print_info "Install Grub  [https://wiki.archlinux.org/index.php/GRUB]"
-
-  ncecho "Installing Grub "
-
-  pacstrap /mnt grub os-prober
-fi
-
-pid=$!;progress $pid
-
-
-#get uuid of luks_disk
-luksUUDI=$(blkid -s UUID  -o value ${LUKS_DISK})
+LuksUUID=$(blkid -s UUID  -o value ${LUKS_DISK})
 
 swap_file_offset=$(filefrag -v /mnt/swapfile | awk '{ if($1=="0:"){print $4} }')
 
 
 if [ $UEFI == 1 ]; then
+  print_info "Installing EFI Boot-Manager  [https://wiki.archlinux.org/index.php/Systemd-boot#Installing_the_EFI_boot_manager]"
+  arch_chroot "bootctl --path=/boot install"
+
   echo default arch > /mnt/boot/loader/loader.conf
+  echo "title Arch Linux" > /mnt/boot/loader/entries/arch.conf
+  echo "linux /vmlinuz-linux" >> /mnt/boot/loader/entries/arch.conf
+  echo "initrd /intel-ucode.img" >> /mnt/boot/loader/entries/arch.conf
+  echo "initrd /initramfs-linux.img" >> /mnt/boot/loader/entries/arch.conf
+  echo "options cryptdevice=UUID=${LuksUUID}:${DM_NAME} root=/dev/mapper/${DM_NAME} resume=/dev/mapper/${DM_NAME} resume_offset=${swap_file_offset} quiet rw" >> /mnt/boot/loader/entries/arch.conf
 
 else
-  sed -i -e "s|GRUB_CMDLINE_LINUX=\"\(.\+\)\"|GRUB_CMDLINE_LINUX=\"cryptdevice=UUID=${luksUUDI}:${lvmName} root=/dev/mapper/${lvmName} resume=/dev/mapper/${lvmName} resume_offset=${swap_file_offset}\"|g" -e "s|GRUB_CMDLINE_LINUX=\"\"|GRUB_CMDLINE_LINUX=\"cryptdevice=UUID=${luksUUDI}:${lvmName} root=/dev/mapper/${lvmName} resume=/dev/mapper/${lvmName} resume_offset=${swap_file_offset}\"|g" /mnt/etc/default/grub
+  print_info "Installing Grub  [https://wiki.archlinux.org/index.php/GRUB]"
+  pacstrap /mnt grub os-prober
 
+  sed -i -e "s|GRUB_CMDLINE_LINUX=\"\(.\+\)\"|GRUB_CMDLINE_LINUX=\"cryptdevice=UUID=${LuksUUID}:${DM_NAME} root=/dev/mapper/${DM_NAME} resume=/dev/mapper/${DM_NAME} resume_offset=${swap_file_offset}\"|g" -e "s|GRUB_CMDLINE_LINUX=\"\"|GRUB_CMDLINE_LINUX=\"cryptdevice=UUID=${LuksUUID}:${DM_NAME} root=/dev/mapper/${DM_NAME} resume=/dev/mapper/${DM_NAME} resume_offset=${swap_file_offset}\"|g" /mnt/etc/default/grub
   sed -i 's/#GRUB_ENABLE_CRYPTODISK=y/GRUB_ENABLE_CRYPTODISK=y/' /mnt/etc/default/grub
 
-fi
-
-
-if [ $UEFI == 1 ]; then
-    echo "title Arch Linux" > /mnt/boot/loader/entries/arch.conf
-    echo "linux /vmlinuz-linux" >> /mnt/boot/loader/entries/arch.conf
-    echo "initrd /intel-ucode.img" >> /mnt/boot/loader/entries/arch.conf
-    echo "initrd /initramfs-linux.img" >> /mnt/boot/loader/entries/arch.conf
-    echo "options cryptdevice=UUID=${luksUUDI}:${lvmName} root=/dev/mapper/${lvmName} resume=/dev/mapper/${lvmName} resume_offset=${swap_file_offset} quiet rw" >> /mnt/boot/loader/entries/arch.conf
-
-else
-    arch_chroot "grub-install $BOOT_MOUNTPOINT" 
-
-    arch_chroot "grub-mkconfig -o /boot/grub/grub.cfg" 
-fi
+   arch_chroot "grub-install $BOOT_MOUNTPOINT"
+    arch_chroot "grub-mkconfig -o /boot/grub/grub.cfg"
+  fi
 
 
 print_line
 
-cecho "\n\n"
-
-cecho "Installation finished" 
+cecho "\n\nInstallation finished"
 umount -R /mnt
 
-
 cecho "Please run the post installation skript after reboot!"
-
-cecho "It is located under ~/simpleAui/postinstall.sh"
-
-
+cecho "It is located under ~/aui/postinstall.sh"

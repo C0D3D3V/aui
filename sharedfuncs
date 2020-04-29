@@ -1,7 +1,7 @@
 #!/bin/bash
 
 
-AUI_DIR=`pwd` #CURRENT DIRECTORY 
+AUI_DIR=`pwd` #CURRENT DIRECTORY
 PKG_FAIL="${AUI_DIR}/`basename ${0}`_fail_install.log"
 
 
@@ -34,8 +34,8 @@ BWhite=${Bold}${White}
 SPIN="/-\|" #SPINNER POSITION
 AUR=`echo -e "(${BPurple}aur${Reset})"`
 
-cecho() { 
-    echo -e "$1"
+cecho() {
+        echo -e "$1"
     tput sgr0;  #reset color
 }
 
@@ -44,45 +44,45 @@ error_msg() {
     local _msg="${1}"
     echo -e "${_msg}"
     exit 1
-} 
+}
 
 
 check_root() {
     if [[ "$(id -u)" != "0" ]]; then
 	    error_msg "ERROR! You must execute the script as the root user."
     fi
-} 
+}
 
 
 print_line() {
     printf "\n%$(tput cols)s\n\n"|tr ' ' '-'
 }
 
-print_title() { 
-    clear
+print_title() {
+        clear
     print_line
     echo -e "# ${Bold}$1${Reset}"
     print_line
     echo ""
 }
-print_info() { 
-    #Console width number
+print_info() {
+        #Console width number
     T_COLS=`tput cols`
     echo -e "${Bold}$1${Reset}\n" | fold -sw $(( $T_COLS - 18 )) | sed 's/^/\t/'
 }
 
-print_warning() { 
-    T_COLS=`tput cols`
+print_warning() {
+        T_COLS=`tput cols`
     echo -e "${BYellow}$1${Reset}\n" | fold -sw $(( $T_COLS - 1 ))
 }
 
-print_danger() { 
-    T_COLS=`tput cols`
+print_danger() {
+        T_COLS=`tput cols`
     echo -e "${BRed}$1${Reset}\n" | fold -sw $(( $T_COLS - 1 ))
-} 
+}
 
-  
-arch_chroot() {
+
+ arch_chroot() {
     arch-chroot /mnt /bin/bash -c "${1}"
 }
 
@@ -94,7 +94,7 @@ add_line() {
 
     local _has_line=`grep -ci "${_add_line}" ${_filepath} 2>&1`
     [[ $_has_line -eq 0 ]] && echo "${_add_line}" >> ${_filepath}
-} 
+}
 
 
 aui_download_packages() {
@@ -110,10 +110,10 @@ aui_download_packages() {
         makepkg -csi --noconfirm
       "
     done
-} 
+}
 
-is_package_installed() { 
-    #check if a package is already installed
+is_package_installed() {
+        #check if a package is already installed
     for PKG in $1; do
 	pacman -Q $PKG &> /dev/null && return 0;
     done
@@ -143,7 +143,7 @@ read_input_text() {
     echo ""
     #    fi
     OPTION=`echo "$OPTION" | tr '[:upper:]' '[:lower:]'`
-} 
+}
 
 replace_line(){
     local _search=${1}
@@ -169,14 +169,14 @@ aur_package_install() {
 	if ! is_package_installed "${PKG}" ; then
 	    ncecho " ${BBlue}[${Reset}${Bold}X${BBlue}]${Reset} Installing ${AUR} ${Bold}${PKG}${Reset} "
         su - $username -c "yay --noconfirm -Sy ${PKG}"
-	else 
-            print_info "${PKG} is up to date --skipping" 
-	fi
+	else
+                print_info "${PKG} is up to date --skipping"
+            	fi
     done
-}  
+}
 
-package_install() { 
-    #install packages using pacman
+package_install() {
+        #install packages using pacman
     for PKG in $1; do
 	if ! is_package_installed "${PKG}" ; then
 	    local _pkg_repo=`pacman -Sp --print-format %r ${PKG}  2>/dev/null | uniq | sed '1!d'`
@@ -196,11 +196,11 @@ package_install() {
 	    esac
 	    ncecho " ${BBlue}[${Reset}${Bold}X${BBlue}]${Reset} Installing (${_pkg_repo}) ${Bold}${PKG}${Reset} "
 	    pacman -Sy --noconfirm --needed ${PKG}
-	else 
-	    print_info "${PKG} is up to date --skipping" 
-	fi
-    done  
-}
+	else
+    	    print_info "${PKG} is up to date --skipping"
+        	fi
+    done
+        }
 
 system_update() {
     #should add backgroundjob
@@ -214,8 +214,8 @@ system_ctl() {
     systemctl ${_action} ${_object}
 }
 
-package_remove() { 
-    #remove package
+package_remove() {
+        #remove package
     for PKG in ${1}; do
 	if is_package_installed "${PKG}" ; then
             ncecho " ${BBlue}[${Reset}${Bold}X${BBlue}]${Reset} Removing ${Bold}${PKG}${Reset} "
@@ -225,15 +225,15 @@ package_remove() {
 }
 
 
-config_xinitrc() { 
-    #create a xinitrc file in home user directory
+config_xinitrc() {
+        #create a xinitrc file in home user directory
     cp -fv /etc/X11/xinit/xinitrc /home/$username/.xinitrc
     echo -e "exec $1" >> /home/$username/.xinitrc
     chown -R $username:users /home/$username/.xinitrc
-} 
+}
 
-add_user_to_group() { 
-    local _user=${1}
+add_user_to_group() {
+        local _user=${1}
     local _group=${2}
 
     if [[ -z ${_group} ]]; then
@@ -247,10 +247,10 @@ add_user_to_group() {
 	ncecho " ${BBlue}[${Reset}${Bold}X${BBlue}]${Reset} Creating group: ${Bold}${_group}${Reset} "
 	groupadd ${_group}
     fi
-    
-    ncecho " ${BBlue}[${Reset}${Bold}X${BBlue}]${Reset} Adding ${Bold}${_user}${Reset} to ${Bold}${_group}${Reset} "
+
+          ncecho " ${BBlue}[${Reset}${Bold}X${BBlue}]${Reset} Adding ${Bold}${_user}${Reset} to ${Bold}${_group}${Reset} "
     gpasswd -a ${_user} ${_group}
-} 
+}
 
 
 #no new line
@@ -269,8 +269,8 @@ progress() {
     ncecho "  ";
     start=$(date +%s.%N)
     while true; do
-      kill -0 $pid &> /dev/null;  
-      if [[ $? == 0 ]]; then   #Prozess still running?
+      kill -0 $pid &> /dev/null;
+                  if [[ $? == 0 ]]; then   #Prozess still running?
         spinny
         sleep 0.25
       else
@@ -292,8 +292,8 @@ progress() {
     done
 }
 
-invalid_option() { 
-    print_line
+invalid_option() {
+        print_line
     cecho "Invalid option. Try another one."
     pause_function
 }
@@ -304,15 +304,15 @@ pause_function() {
     read -p "Press enter to continue..."
 }
 
-# PROMPT 
+# PROMPT
 prompt1="Enter your option: "
 prompt2="Enter n° of options (ex: 1 2 3 or 1-3): "
 prompt3="You have to manually enter the following commands, then press ${BYellow}ctrl+d${Reset} or type ${BYellow}exit${Reset}:"
 
 
 XPINGS=0 # CONNECTION CHECK
-    
-check_connection(){
+
+      check_connection(){
     XPINGS=$(( $XPINGS + 1 ))
     connection_test() {
 	ping -q -w 1 -c 1 `ip r | grep default | awk 'NR==1 {print $3}'` &> /dev/null && return 1 || return 0
@@ -321,8 +321,8 @@ check_connection(){
     cecho "Detected wired device: $WIRED_DEV"
     WIRELESS_DEV=`ip link | grep wlp | awk '{print $2}'| sed 's/://' | sed '1!d'`
     cecho "Detected wireless device: $WIRELESS_DEV"
-    
-    if connection_test; then
+
+          if connection_test; then
 	print_warning "ERROR! Connection not Found."
 	print_info "Network Setup"
 	local _connection_opts=("Wired Automatic" "Wired Manual" "Wireless" "Configure Proxy" "Skip")
@@ -367,8 +367,8 @@ check_connection(){
 	done
 	if [[ $XPINGS -gt 2 ]]; then
             print_danger "Can't establish connection. exiting..."
-	    
-	    ping -c 2 google.com
+	
+                      	    ping -c 2 google.com
 
 	    cecho "Connect to wifi [https://wiki.archlinux.org/index.php/netctl]"
 	    cecho "Be sure to connect to Wifi with: wifi-menu"
@@ -376,8 +376,8 @@ check_connection(){
 	    cecho "Or Connect to ethernet [https://bbs.archlinux.org/viewtopic.php?id=210679]"
 	    cecho "Be sure to connect to Ethernet with: "
 	    cecho "ip link set enpxxxx up  "
-	    cecho "dhcpcd" 
-            exit 1
+	    cecho "dhcpcd"
+                    exit 1
 	fi
 	[[ $REPLY -ne 5 ]] && check_connection
     else
@@ -433,8 +433,8 @@ yn_question() {
 
 
 pls_enter(){
-    
-    sthEntered=0
+
+          sthEntered=0
     while [ $sthEntered -eq 0 ];
     do
 	read -p "$1 : " sthInsertion
@@ -462,7 +462,7 @@ include_file() {
 contains_element() {
     #check if an element exist in a string
     for e in "${@:2}"; do [[ $e == $1 ]] && break; done;
-} 
+}
 
 select_device(){
   devices_list=(`lsblk -d | awk '{print "/dev/" $1}' | grep 'sd\|hd\|vd\|nvme\|mmcblk'`);
@@ -470,18 +470,49 @@ select_device(){
   echo -e "Attached Devices:\n"
   lsblk -lnp -I 2,3,8,9,22,34,56,57,58,65,66,67,68,69,70,71,72,91,128,129,130,131,132,133,134,135,259 | awk '{print $1,$4,$6,$7}'| column -t
   echo -e "\n"
-  echo -e "Select device to partition:\n"
-  select device in "${devices_list[@]}"; do
-    if contains_element "${device}" "${devices_list[@]}"; then
-      break
-    else
-      invalid_option
-    fi
-  done
-  BOOT_MOUNTPOINT=$device
-  cecho "You selected $BOOT_MOUNTPOINT"
+
+
+  if [[ ${#devices_list[@]} -eq 1 ]]; then
+    BOOT_MOUNTPOINT="${devices_list[0]}"
+    echo "There is just one device"
+    echo "$BOOT_MOUNTPOINT is automatically selected"
+  else
+    echo -e "Select device to partition:\n"
+    select device in "${devices_list[@]}"; do
+      if contains_element "${device}" "${devices_list[@]}"; then
+        break
+      else
+        invalid_option
+      fi
+    done
+    BOOT_MOUNTPOINT=$device
+    cecho "You selected $BOOT_MOUNTPOINT"
+  fi
 }
 
+warn_erasing(){
+  print_danger "The device $BOOT_MOUNTPOINT will get ERASED"
+  print_warning "Press any key except ENTER to cancel"
+  echo "Wait 10 seconds or speed up with ENTER to continue"
+
+  IFSbak="$IFS"
+  IFS=
+  total=10
+  i=0
+  while [ ${i} -lt ${total} ] ; do
+    tlimit=$(( $total - $i ))
+    echo -e "\rYou have ${tlimit} seconds to cancel: \c"
+    read -t 1 -n 1 -s key
+    test ! -z "$key" && { break ; }
+    i=$((i+1))
+  done
+  if [ ! -z "$key" ] ; then
+    error_msg "You cancelled"
+  else
+    echo -e "\nContinue..."
+  fi
+  IFS="$IFSbak"
+}
 
 
 
