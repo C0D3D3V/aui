@@ -180,7 +180,7 @@ sed -i "s/#en_US.UTF-8 UTF-8/en_US.UTF-8 UTF-8/" /mnt/etc/locale.gen
 arch_chroot "locale-gen"
 
 cecho "Set locale [https://wiki.archlinux.org/index.php/locale]"
-echo "LANG=de_DE.UTF-8" >/mnt/etc/locale.config
+echo "LANG=de_DE.UTF-8" >/mnt/etc/locale.conf
 
 
 print_info "Set hostname [https://wiki.archlinux.org/index.php/Network_configuration#Set_the_hostname]"
