@@ -271,6 +271,9 @@ fi
 
 print_line
 
+cecho "Copying aui directory"
+cp -r "~/aui" "/mnt/home/$NEWUSER"
+
 cecho "\n\nInstallation finished"
 umount -R /mnt
 

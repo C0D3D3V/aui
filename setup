@@ -5,5 +5,5 @@ git clone https://github.com/c0d3d3v/aui
 cd aui || exit
 
 git checkout automation
-echo "Starting liveinstall. Logging to $PWD/aui.log"
-bash -c "./liveinstall | tee -a aui.log"
+echo "Starting liveinstall. Logging everything to $PWD/aui-all.log and in addition just errors to $PWD/aui-err.log"
+{ ./liveinstall 2>&1 >&3 3>&- | tee aui-err.log 3>&-; } > aui-all.log 3>&1
