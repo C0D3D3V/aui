@@ -6,4 +6,4 @@ cd aui || exit
 
 git checkout automation
 echo "Starting liveinstall. Logging everything to $PWD/aui-all.log and in addition just errors to $PWD/aui-err.log"
-{ ./liveinstall 2>&1 >&3 3>&- | tee aui-err.log 3>&-; } > aui-all.log 3>&1
+(./liveinstall 3>&1 1>&2 2>&3 | tee aui-err.log) |& tee aui-all.log

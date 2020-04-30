@@ -27,7 +27,8 @@ Die Skripte müssen auf das [Live-System](https://www.archlinux.de/download) geb
 * Zum Herunterladen muss zunächst eine Internetverbindung hergestellt werden. Wenn nur [LAN](https://de.wikipedia.org/wiki/Local_Area_Network) verfügbar ist dann reicht das ausführen von `dhcpcd`, wenn jedoch eine Verbindung mit einem [WLAN](https://de.wikipedia.org/wiki/Wireless_Local_Area_Network) hergestellt werden muss, dann muss `wifi-menu` gestartet werden.
 ```
 dhcpcd
-curl -L https://git.io/Aui | bash
+curl -LO git.io/Aui
+bash Aui
 ```
 
 * Um ein [USB-Stick einzubinden](https://wiki.archlinux.org/index.php/USB_storage_devices) muss mit `lsblk` der Pfad des USB-Sticks ermittelt werden. Anschließend kann dieser in ein erstellten Ordner eingebunden werden.
