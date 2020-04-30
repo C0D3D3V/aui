@@ -233,7 +233,7 @@ print_info "Create new user [https://wiki.archlinux.de/title/Sudo#sudo_f.C3.BCr_
 arch_chroot "useradd -m -g users -G wheel,storage,power,network,uucp -s /bin/zsh ${NEWUSER}"
 arch_chroot "echo -e \"${NEWUSER_PW}\n${NEWUSER_PW}\" | passwd ${NEWUSER}"
 
-sed -i 's/# %wheel   ALL=(ALL) ALL/%wheel   ALL=(ALL) ALL/' /mnt/etc/sudoers
+sed -i 's/# %wheel ALL=(ALL) ALL/%wheel ALL=(ALL) ALL/' /mnt/etc/sudoers
 
 
 print_line
