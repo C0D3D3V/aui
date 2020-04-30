@@ -285,7 +285,7 @@ check_boot_system() {
   fi
   if [[ -d "/sys/firmware/efi/" ]]; then
     ## Mount efivarfs if it is not already mounted
-    if mount | grep -q /sys/firmware/efi/efivars; then
+    if ! mount | grep -q /sys/firmware/efi/efivars; then
       mount -t efivarfs efivarfs /sys/firmware/efi/efivars
     fi
     export UEFI=1

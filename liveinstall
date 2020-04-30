@@ -27,7 +27,7 @@ DM_NAME="cryptroot"
 
 #######################################
 
-if [[ -f $(pwd)/sharedfuncs ]]; then
+if [[ -f $PWD/sharedfuncs ]]; then
   source sharedfuncs
 else
   echo "Missing file: sharedfuncs"
@@ -136,7 +136,7 @@ mount "$BOOT_DISK" /mnt/boot
 
 
 print_title "Install system [https://wiki.archlinux.org/index.php/Install_from_existing_Linux]"
-pacstrap /mnt base base-devel linux-firmware linux gvim zsh efibootmgr intel-ucode git dhcpcd netctl dialog wpa_supplicant
+pacstrap /mnt base base-devel linux-firmware linux gvim zsh grml-zsh-config efibootmgr intel-ucode git networkmanager
 
 print_info "Activate swap [https://wiki.archlinux.org/index.php/Swap]"
 
@@ -273,6 +273,7 @@ print_line
 
 cecho "Copying aui directory"
 cp -r ~/aui "/mnt/home/$NEWUSER"
+touch "/mnt/home/$NEWUSER/.zshrc"
 
 cecho "\n\nInstallation finished"
 umount -R /mnt
