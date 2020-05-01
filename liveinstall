@@ -137,6 +137,7 @@ mount "$BOOT_DISK" /mnt/boot
 
 print_title "Install system [https://wiki.archlinux.org/index.php/Install_from_existing_Linux]"
 pacstrap /mnt base base-devel linux-firmware linux gvim zsh grml-zsh-config efibootmgr intel-ucode git networkmanager
+arch_chroot "systemctl enable NetworkManager"
 
 print_info "Activate swap [https://wiki.archlinux.org/index.php/Swap]"
 
