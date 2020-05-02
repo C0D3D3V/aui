@@ -246,8 +246,8 @@ fi
 if [[ "$SSH_PUBKEY" ]]; then
   mkdir "/mnt/home/$NEWUSER/.ssh"
   curl -L --output /mnt/home/$NEWUSER/.ssh/authorized_keys "$SSH_PUBKEY"
-  chown -R $NEWUSER:$NEWUSER /home/$NEWUSER/.ssh
-  chmod 0600 /mnt/home/$NEWUSER/.ssh/authorized_keys
+  chown -R "$NEWUSER:users" "/home/$NEWUSER/.ssh"
+  chmod 0600 "/mnt/home/$NEWUSER/.ssh/authorized_keys"
   sed -i "s/#PasswordAuthentication yes/PasswordAuthentication no/" /mnt/etc/ssh/sshd_config
 fi
 
@@ -288,7 +288,7 @@ print_line
 
 cecho "Copying aui directory"
 cp -r ~/aui "/mnt/home/$NEWUSER"
-touch "/mnt/home/$NEWUSER/.zshrc"
+chown -R "$NEWUSER:users" "/home/$NEWUSER/aui"
 
 cecho "\n\nInstallation finished"
 umount -R /mnt
