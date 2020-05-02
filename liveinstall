@@ -4,16 +4,16 @@
 # VARIABLES:
 # Change them to your wishes
 
-# Country (for mirror servers)
+# Country for mirror servers
 COUNTRY="Germany"
-
-# /etc/hostname
-HOSTNAME="archlinux"
 
 # keyboard layout
 KEYMAP="de-latin1"
 
-# "How should the new user be named? [Recomended: yourName]"
+# /etc/hostname
+HOSTNAME="archlinux"
+
+# How should the new user be named? [Recomended: yourName]
 NEWUSER="arch"
 
 # Password for new user [Default: same as the name]
@@ -21,6 +21,15 @@ NEWUSER_PW="${NEWUSER}"
 
 # root password [Default: same as new user]
 ROOT_PW="${NEWUSER}"
+
+# enable ssh server [true/false]
+ENABLE_SSHD="true"
+
+# Link to your public key that gets added to the authorized_keys.
+SSH_PUBKEY=""
+
+# [Default if run in VirtualBox: Insecure vagrant key]
+[[ $(cat /sys/class/dmi/id/product_name) == "VirtualBox" ]] && SSH_PUBKEY="https://raw.github.com/mitchellh/vagrant/master/keys/vagrant.pub"
 
 # name of device mapper
 DM_NAME="cryptroot"
@@ -37,7 +46,7 @@ fi
 check_root
 check_boot_system
 
-print_info "Load german keymap [https://wiki.archlinux.org/index.php/Keyboard_configuration_in_console]"
+print_info "Load $KEYMAP keymap [https://wiki.archlinux.org/index.php/Keyboard_configuration_in_console]"
 loadkeys "$KEYMAP"
 
 print_info "Set font to sun12x22"
@@ -136,7 +145,7 @@ mount "$BOOT_DISK" /mnt/boot
 
 
 print_title "Install system [https://wiki.archlinux.org/index.php/Install_from_existing_Linux]"
-pacstrap /mnt base base-devel linux-firmware linux gvim zsh grml-zsh-config efibootmgr intel-ucode git networkmanager
+pacstrap /mnt base base-devel linux-firmware linux gvim zsh grml-zsh-config efibootmgr intel-ucode git networkmanager openssh
 arch_chroot "systemctl enable NetworkManager"
 
 print_info "Activate swap [https://wiki.archlinux.org/index.php/Swap]"
@@ -208,13 +217,6 @@ sed -i "/\[multilib\]/,/Include/"'s/^#//' /mnt/etc/pacman.conf
 sed -i 's/#Color/Color/' /mnt/etc/pacman.conf
 
 
-print_info "Copy mirrorlist"
-
-cp /etc/pacman.d/mirrorlist /mnt/etc/pacman.d/mirrorlist
-cp /etc/pacman.d/mirrorlist.orig /mnt/etc/pacman.d/mirrorlist.orig
-arch_chroot "pacman -Sy"
-
-
 print_info "Change kernel modules  [https://wiki.archlinux.org/index.php/mkinitcpio]"
 
 sed -i 's/^HOOKS=(.*)/HOOKS=(base udev keyboard keymap autodetect consolefont modconf block encrypt filesystems resume fsck)/' /mnt/etc/mkinitcpio.conf
@@ -236,6 +238,18 @@ arch_chroot "echo -e \"${NEWUSER_PW}\n${NEWUSER_PW}\" | passwd ${NEWUSER}"
 
 sed -i 's/# %wheel ALL=(ALL) ALL/%wheel ALL=(ALL) ALL/' /mnt/etc/sudoers
 
+if "$ENABLE_SSHD"; then
+  print_info "Setup SSH [https://wiki.archlinux.org/index.php/OpenSSH]"
+  arch_chroot "systemctl enable sshd"
+fi
+
+if [[ "$SSH_PUBKEY" ]]; then
+  mkdir "/mnt/home/$NEWUSER/.ssh"
+  curl -L --output /mnt/home/$NEWUSER/.ssh/authorized_keys "$SSH_PUBKEY"
+  chown -R $NEWUSER:$NEWUSER /home/$NEWUSER/.ssh
+  chmod 0600 /mnt/home/$NEWUSER/.ssh/authorized_keys
+  sed -i "s/#PasswordAuthentication yes/PasswordAuthentication no/" /mnt/etc/ssh/sshd_config
+fi
 
 print_line
 

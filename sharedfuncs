@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# COLORS {{{
+# COLORS
 Bold=$(tput bold)
 Underline=$(tput sgr 0 1)
 Reset=$(tput sgr0)

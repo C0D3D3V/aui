@@ -1,0 +1,10 @@
+#!/usr/bin/env bash
+
+pacman -Sy git --needed --noconfirm
+git clone https://github.com/c0d3d3v/aui
+cd aui || exit
+
+git checkout automation
+sed -i 's/SSH_PUBKEY=""/SSH_PUBKEY="https://raw.github.com/mitchellh/vagrant/master/keys/vagrant.pub"/' liveinstall
+echo "Starting liveinstall. Logging everything to $PWD/aui-all.log and in addition just errors to $PWD/aui-err.log"
+(./liveinstall 3>&1 1>&2 2>&3 | tee aui-err.log) |& tee aui-all.log
