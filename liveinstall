@@ -23,13 +23,10 @@ NEWUSER_PW="${NEWUSER}"
 ROOT_PW="${NEWUSER}"
 
 # enable ssh server [true/false]
-ENABLE_SSHD="true"
+ENABLE_SSHD="false"
 
-# Link to your public key that gets added to the authorized_keys.
+# Link to your public key that gets added to the authorized_keys. If non-empty, then password auth gets disabled
 SSH_PUBKEY=""
-
-# [Default if run in VirtualBox: Insecure vagrant key]
-[[ $(cat /sys/class/dmi/id/product_name) == "VirtualBox" ]] && SSH_PUBKEY="https://raw.github.com/mitchellh/vagrant/master/keys/vagrant.pub"
 
 # name of device mapper
 DM_NAME="cryptroot"
