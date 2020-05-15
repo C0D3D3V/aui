@@ -75,7 +75,7 @@ arch_chroot() {
 add_line() {
   local _add_line=${1}
   local _filepath=${2}
-  
+
   local _has_line
   _has_line=$(grep -ci "${_add_line}" "${_filepath}" 2>&1)
   [[ $_has_line -eq 0 ]] && echo "${_add_line}" >>"${_filepath}"
@@ -96,17 +96,17 @@ package_install() {
       local _pkg_repo
       _pkg_repo=$(pacman -Sp --print-format %r "${PKG}" 2>/dev/null | uniq | sed '1!d')
       case $_pkg_repo in
-        "core")
-          _pkg_repo="${BRed}${_pkg_repo}${Reset}"
+      "core")
+        _pkg_repo="${BRed}${_pkg_repo}${Reset}"
         ;;
-        "extra")
-          _pkg_repo="${BYellow}${_pkg_repo}${Reset}"
+      "extra")
+        _pkg_repo="${BYellow}${_pkg_repo}${Reset}"
         ;;
-        "community")
-          _pkg_repo="${BGreen}${_pkg_repo}${Reset}"
+      "community")
+        _pkg_repo="${BGreen}${_pkg_repo}${Reset}"
         ;;
-        "multilib")
-          _pkg_repo="${BCyan}${_pkg_repo}${Reset}"
+      "multilib")
+        _pkg_repo="${BCyan}${_pkg_repo}${Reset}"
         ;;
       esac
       ncecho " ${BBlue}[${Reset}${Bold}X${BBlue}]${Reset} Installing \(${_pkg_repo}\) ${Bold}${PKG}${Reset} "
@@ -149,57 +149,58 @@ check_connection() {
   cecho "Detected wired device: $WIRED_DEV"
   WIRELESS_DEV=$(ip link | grep wlp | awk '{print $2}' | sed 's/://' | sed '1!d')
   cecho "Detected wireless device: $WIRELESS_DEV"
-  
+
   if connection_test; then
     print_warning "ERROR! Connection not Found."
     print_info "Network Setup"
     local _connection_opts=("Wired Automatic" "Wired Manual" "Wireless" "Configure Proxy" "Skip")
     PS3="$prompt1" #message for select
-    
+
     select CONNECTION_TYPE in "${_connection_opts[@]}"; do
       echo "$CONNECTION_TYPE"
       case "$REPLY" in
-        1)
-          systemctl start "dhcpcd@${WIRED_DEV}.service"
-          break
+      1)
+        systemctl start "dhcpcd@${WIRED_DEV}.service"
+        break
         ;;
-        2)
-          systemctl stop "dhcpcd@${WIRED_DEV}.service"
-          read -pr "IP Address: " IP_ADDR
-          read -pr "Submask: " SUBMASK
-          read -pr "Gateway: " GATEWAY
-          ip link set "${WIRED_DEV}" up
-          ip addr add "${IP_ADDR}/${SUBMASK}" dev "${WIRED_DEV}"
-          ip route add default via "${GATEWAY}"
-          nano /etc/resolv.conf
-          break
+      2)
+        systemctl stop "dhcpcd@${WIRED_DEV}.service"
+        read -pr "IP Address: " IP_ADDR
+        read -pr "Submask: " SUBMASK
+        read -pr "Gateway: " GATEWAY
+        ip link set "${WIRED_DEV}" up
+        ip addr add "${IP_ADDR}/${SUBMASK}" dev "${WIRED_DEV}"
+        ip route add default via "${GATEWAY}"
+        nano /etc/resolv.conf
+        break
         ;;
-        3)
-          wifi-menu "${WIRELESS_DEV}"
-          break
+      3)
+        nmtui
+        # wifi-menu "${WIRELESS_DEV}"
+        break
         ;;
-        4)
-          read -pr "Enter your proxy e.g. protocol://adress:port: " OPTION
-          export http_proxy=$OPTION
-          export https_proxy=$OPTION
-          export ftp_proxy=$OPTION
-          echo "proxy = $OPTION" >~/.curlrc
-          break
+      4)
+        read -pr "Enter your proxy e.g. protocol://adress:port: " OPTION
+        export http_proxy=$OPTION
+        export https_proxy=$OPTION
+        export ftp_proxy=$OPTION
+        echo "proxy = $OPTION" >~/.curlrc
+        break
         ;;
-        5)
-          break
+      5)
+        break
         ;;
-        *)
-          invalid_option
+      *)
+        invalid_option
         ;;
       esac
     done
     if [[ $XPINGS -gt 2 ]]; then
       print_danger "Can't establish connection. exiting..."
-      
+
       cecho "Connect to wifi [https://wiki.archlinux.org/index.php/netctl]"
       cecho "Be sure to connect to wifi with: wifi-menu"
-      
+
       cecho "Or Connect to ethernet [https://bbs.archlinux.org/viewtopic.php?id=210679]"
       cecho "Be sure to connect to ethernet with: "
       cecho "ip link set enpxxxx up  "
@@ -229,12 +230,12 @@ contains_element() {
 
 select_device() {
   mapfile -t devices_list < <(lsblk -d | awk '{print "/dev/" $1}' | grep 'sd\|hd\|vd\|nvme\|mmcblk')
-  
+
   PS3="$prompt1"
   echo -e "Attached devices:\n"
   lsblk -lnp -I 2,3,8,9,22,34,56,57,58,65,66,67,68,69,70,71,72,91,128,129,130,131,132,133,134,135,259 | awk '{print $1,$4,$6,$7}' | column -t
   echo -e "\n"
-  
+
   if [[ ${#devices_list[@]} -eq 1 ]]; then
     BOOT_MOUNTPOINT="${devices_list[0]}"
     echo "There is just one device"
@@ -257,7 +258,7 @@ warn_erasing() {
   print_danger "The device $BOOT_MOUNTPOINT will get ERASED"
   print_warning "Press any key except ENTER to cancel"
   echo "Wait 10 seconds or speed up with ENTER to continue"
-  
+
   IFSbak="$IFS"
   IFS=
   total=10
