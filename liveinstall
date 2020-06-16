@@ -43,11 +43,11 @@ fi
 check_root
 check_boot_system
 
-print_info "Load $KEYMAP keymap [https://wiki.archlinux.org/index.php/Keyboard_configuration_in_console]"
-loadkeys "$KEYMAP"
-
 print_info "Set font to sun12x22"
 setfont sun12x22
+
+print_info "Load $KEYMAP keymap [https://wiki.archlinux.org/index.php/Keyboard_configuration_in_console]"
+loadkeys "$KEYMAP"
 
 check_connection
 
@@ -122,20 +122,22 @@ print_line
 print_title "Create file system [https://wiki.archlinux.org/index.php/file_systems]"
 
 mkfs.ext4 -L root /dev/mapper/${DM_NAME}
-
 mkfs.fat -F32 -n boot "$BOOT_DISK"
 
 print_info "Mount file system [https://wiki.archlinux.de/title/Mounten]"
 
 mount /dev/mapper/${DM_NAME} /mnt
 
-cp crypto_keyfile.bin /mnt/crypto_keyfile.bin
 mkdir /mnt/boot
-
 mount "$BOOT_DISK" /mnt/boot
 
+print_info "Copy crypto_keyfile"
+
+cp crypto_keyfile.bin /mnt/crypto_keyfile.bin
+
 print_title "Install system [https://wiki.archlinux.org/index.php/Install_from_existing_Linux]"
-pacstrap /mnt base base-devel linux-firmware linux gvim zsh grml-zsh-config efibootmgr intel-ucode git networkmanager openssh
+pacstrap /mnt base base-devel linux-firmware linux gvim zsh efibootmgr intel-ucode git networkmanager openssh
+
 arch_chroot "systemctl enable NetworkManager"
 
 print_info "Activate swap [https://wiki.archlinux.org/index.php/Swap]"
@@ -144,7 +146,7 @@ swapSize=$(($(free --byte | awk 'FNR==2{print $2}') / 2))
 
 fallocate -l ${swapSize} /mnt/swapfile
 chmod 600 /mnt/swapfile
-mkswap /mnt/swapfile
+mkswap -L swap /mnt/swapfile
 swapon /mnt/swapfile
 
 echo vm.swappiness=5 | tee -a /mnt/etc/sysctl.d/99-sysctl.conf
@@ -158,17 +160,17 @@ add_line "none /tmp tmpfs defaults,noatime,mode=1777 0 0" "/mnt/etc/fstab"
 
 swapoff -a
 
+print_info "Activate multilib  [https://wiki.archlinux.org/index.php/multilib]"
+
+sed -i "/\[multilib\]/,/Include/"'s/^#//' /mnt/etc/pacman.conf
+sed -i 's/#Color/Color/' /mnt/etc/pacman.conf
+
 print_info "Edit makepkg.conf [https://wiki.archlinux.org/index.php/makepkg#tmpfs]"
 
 sed -i "s|#BUILDDIR=/tmp/makepkg|BUILDDIR=/tmp/makepkg|" /mnt/etc/makepkg.conf
 sed -i "s|PKGEXT='.pkg.tar.xz'|PKGEXT='.pkg.tar.zst'|" /mnt/etc/makepkg.conf
 sed -i "s|COMPRESSZST=(zstd -c -z -q -)|COMPRESSZST=(zstd -c -q -T0 -18 -)|" /mnt/etc/makepkg.conf
-
 echo "MAKEFLAGS='-j$(nproc)'" >>/mnt/etc/makepkg.conf
-print_info "Generate vconsole [https://wiki.archlinux.org/index.php/Keyboard_configuration_in_console]"
-
-echo "KEYMAP=$KEYMAP" >/mnt/etc/vconsole.conf
-echo "FONT=sun12x22" >>/mnt/etc/vconsole.conf
 
 print_info "Generate locales [https://wiki.archlinux.org/index.php/Locale]"
 
@@ -178,6 +180,11 @@ arch_chroot "locale-gen"
 
 cecho "Set locale [https://wiki.archlinux.org/index.php/locale]"
 echo "LANG=de_DE.UTF-8" >/mnt/etc/locale.conf
+
+print_info "Generate vconsole [https://wiki.archlinux.org/index.php/Keyboard_configuration_in_console]"
+
+echo "KEYMAP=$KEYMAP" >/mnt/etc/vconsole.conf
+echo "FONT=sun12x22" >>/mnt/etc/vconsole.conf
 
 print_info "Set hostname [https://wiki.archlinux.org/index.php/Network_configuration#Set_the_hostname]"
 echo $HOSTNAME >/mnt/etc/hostname
@@ -195,11 +202,6 @@ arch_chroot "hwclock --systohc --utc"
 
 print_info "Deaktivate beep"
 echo "blacklist pcspkr" >/mnt/etc/modprobe.d/nobeep.conf
-
-print_info "Activate multilib  [https://wiki.archlinux.org/index.php/multilib]"
-
-sed -i "/\[multilib\]/,/Include/"'s/^#//' /mnt/etc/pacman.conf
-sed -i 's/#Color/Color/' /mnt/etc/pacman.conf
 
 print_info "Change kernel modules  [https://wiki.archlinux.org/index.php/mkinitcpio]"
 
