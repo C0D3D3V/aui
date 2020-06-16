@@ -230,7 +230,7 @@ fi
 if [[ "$SSH_PUBKEY" ]]; then
   mkdir "/mnt/home/$NEWUSER/.ssh"
   curl -L --output /mnt/home/$NEWUSER/.ssh/authorized_keys "$SSH_PUBKEY"
-  chown -R "$NEWUSER:users" "/home/$NEWUSER/.ssh"
+  chown -R "$NEWUSER:users" "/mnt/home/$NEWUSER/.ssh"
   chmod 0600 "/mnt/home/$NEWUSER/.ssh/authorized_keys"
   sed -i "s/#PasswordAuthentication yes/PasswordAuthentication no/" /mnt/etc/ssh/sshd_config
 fi
