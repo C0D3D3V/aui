@@ -53,7 +53,6 @@ check_connection
 
 print_title "This script will install Arch Linux"
 
-
 print_line
 package_install "pacman-contrib reflector"
 
@@ -62,10 +61,8 @@ print_title "Backup pacman mirrorlist and filter for $COUNTRY servers [https://w
 mv -i /etc/pacman.d/mirrorlist /etc/pacman.d/mirrorlist.orig
 reflector --country "$COUNTRY" --age 12 --completion-percent 70 --protocol https --sort rate --verbose --save /etc/pacman.d/mirrorlist
 
-
 grep "^[^#]" /etc/pacman.d/mirrorlist | head -10
 ls /etc/pacman.d/ -la
-
 
 print_line
 print_title "Create boot device"
@@ -110,7 +107,6 @@ else
   LUKS_DISK=${BOOT_MOUNTPOINT}3
 fi
 
-
 print_title "Setup LUKS [https://wiki.archlinux.org/index.php/Dm-crypt]"
 print_title "Using a keyfile in initramfs [https://wiki.archlinux.org/index.php/Dm-crypt/Device_encryption#With_a_keyfile_embedded_in_the_initramfs]"
 
@@ -122,14 +118,12 @@ chmod 600 crypto_keyfile.bin
 cryptsetup -c aes-xts-plain64 -y -s 512 --use-random --batch-mode luksFormat "$LUKS_DISK" crypto_keyfile.bin
 cryptsetup open --type luks "$LUKS_DISK" "$DM_NAME" --key-file crypto_keyfile.bin
 
-
 print_line
 print_title "Create file system [https://wiki.archlinux.org/index.php/file_systems]"
 
 mkfs.ext4 -L root /dev/mapper/${DM_NAME}
 
 mkfs.fat -F32 -n boot "$BOOT_DISK"
-
 
 print_info "Mount file system [https://wiki.archlinux.de/title/Mounten]"
 
@@ -139,7 +133,6 @@ cp crypto_keyfile.bin /mnt/crypto_keyfile.bin
 mkdir /mnt/boot
 
 mount "$BOOT_DISK" /mnt/boot
-
 
 print_title "Install system [https://wiki.archlinux.org/index.php/Install_from_existing_Linux]"
 pacstrap /mnt base base-devel linux-firmware linux gvim zsh grml-zsh-config efibootmgr intel-ucode git networkmanager openssh
@@ -154,10 +147,8 @@ chmod 600 /mnt/swapfile
 mkswap /mnt/swapfile
 swapon /mnt/swapfile
 
-
 echo vm.swappiness=5 | tee -a /mnt/etc/sysctl.d/99-sysctl.conf
 echo vm.vfs_cache_pressure=50 | tee -a /mnt/etc/sysctl.d/99-sysctl.conf
-
 
 print_info "Generate fstab [https://wiki.archlinux.org/index.php/fstab]"
 
@@ -176,9 +167,8 @@ sed -i "s|COMPRESSZST=(zstd -c -z -q -)|COMPRESSZST=(zstd -c -q -T0 -18 -)|" /mn
 echo "MAKEFLAGS='-j$(nproc)'" >>/mnt/etc/makepkg.conf
 print_info "Generate vconsole [https://wiki.archlinux.org/index.php/Keyboard_configuration_in_console]"
 
-echo "KEYMAP=de-latin1" >/mnt/etc/vconsole.conf
+echo "KEYMAP=$KEYMAP" >/mnt/etc/vconsole.conf
 echo "FONT=sun12x22" >>/mnt/etc/vconsole.conf
-
 
 print_info "Generate locales [https://wiki.archlinux.org/index.php/Locale]"
 
@@ -189,7 +179,6 @@ arch_chroot "locale-gen"
 cecho "Set locale [https://wiki.archlinux.org/index.php/locale]"
 echo "LANG=de_DE.UTF-8" >/mnt/etc/locale.conf
 
-
 print_info "Set hostname [https://wiki.archlinux.org/index.php/Network_configuration#Set_the_hostname]"
 echo $HOSTNAME >/mnt/etc/hostname
 
@@ -197,7 +186,6 @@ print_info "Generate journalctrl config [https://wiki.archlinux.org/index.php/Sy
 
 sed -i "s/#Storage=auto/Storage=persistent/" /mnt/etc/systemd/journald.conf
 sed -i "s/#SystemMaxUse=/SystemMaxUse=1G/" /mnt/etc/systemd/journald.conf
-
 
 print_info "Generate time zone [https://wiki.archlinux.org/index.php/Time#Time_zone]"
 arch_chroot "ln -sf /usr/share/zoneinfo/Europe/Berlin /etc/localtime"
@@ -213,7 +201,6 @@ print_info "Activate multilib  [https://wiki.archlinux.org/index.php/multilib]"
 sed -i "/\[multilib\]/,/Include/"'s/^#//' /mnt/etc/pacman.conf
 sed -i 's/#Color/Color/' /mnt/etc/pacman.conf
 
-
 print_info "Change kernel modules  [https://wiki.archlinux.org/index.php/mkinitcpio]"
 
 sed -i 's/^HOOKS=(.*)/HOOKS=(base udev keyboard keymap autodetect consolefont modconf block encrypt filesystems resume fsck)/' /mnt/etc/mkinitcpio.conf
@@ -223,10 +210,8 @@ sed -i 's/FILES=()/FILES=(\/crypto_keyfile.bin)/' /mnt/etc/mkinitcpio.conf
 arch_chroot "mkinitcpio -P"
 arch_chroot "chmod 600 /boot/initramfs-linux*"
 
-
 print_info "Set root password  [https://wiki.archlinux.org/index.php/users_and_groups]"
 arch_chroot "echo -e \"${ROOT_PW}\n${ROOT_PW}\" | passwd"
-
 
 print_info "Create new user [https://wiki.archlinux.de/title/Sudo#sudo_f.C3.BCr_Benutzer_einrichten]"
 
@@ -254,7 +239,6 @@ LuksUUID=$(blkid -s UUID -o value "${LUKS_DISK}")
 
 swap_file_offset=$(filefrag -v /mnt/swapfile | awk '{ if($1=="0:"){print $4} }')
 
-
 if [[ "$UEFI" == 1 ]]; then
   print_info "Installing EFI Boot-Manager  [https://wiki.archlinux.org/index.php/Systemd-boot#Installing_the_EFI_boot_manager]"
   arch_chroot "bootctl --path=/boot install"
@@ -279,7 +263,6 @@ else
   arch_chroot "grub-install $BOOT_MOUNTPOINT"
   arch_chroot "grub-mkconfig -o /boot/grub/grub.cfg"
 fi
-
 
 print_line
 

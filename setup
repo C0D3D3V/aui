@@ -2,13 +2,19 @@
 
 yn_question() {
   while true; do
-  read -p "$1 [y/N]: " ynAnswer
+    read -p "$1 [y/N]: " ynAnswer
 
-  case $ynAnswer in
-    [yY]* ) ynAnswer="y"; break;;
-    [nN]* ) ynAnswer="n"; break;;
-    * ) echo "Dude, just enter Y or N, please.";;
-  esac
+    case $ynAnswer in
+    [yY]*)
+      ynAnswer="y"
+      break
+      ;;
+    [nN]*)
+      ynAnswer="n"
+      break
+      ;;
+    *) echo "Dude, just enter Y or N, please." ;;
+    esac
   done
 }
 
@@ -18,7 +24,7 @@ print_info() {
   echo -e "$(tput bold)$1$(tput sgr0)\n" | fold -sw $((T_COLS - 18)) | sed 's/^/\t/'
 }
 
-startinstall(){
+startinstall() {
   print_info "Please edit the variables at the beginning of the liveinstall file"
   read -p "Press enter to open the editor. After editing type :x to save and exit"
   ynAnswer="n"
@@ -30,23 +36,22 @@ startinstall(){
   (./liveinstall 3>&1 1>&2 2>&3 | tee aui-err.log) |& tee aui-all.log
 }
 
+ynAnswer="n"
+yn_question "Do you want to change the keyboard layout to german (de-latin1)?"
+if [ $ynAnswer == "y" ]; then
+  loadkeys de-latin1
+  echo "done"
+fi
+
+ynAnswer="n"
+yn_question "Do you want to change the font to a big font (sun12x22)?"
+if [ $ynAnswer == "y" ]; then
+  print_info "Setting font to sun12x22"
+  setfont sun12x22
+  echo "done"
+fi
 
 if [[ ! -f liveinstall ]]; then
-  
-  ynAnswer="n"
-  yn_question "Do you want to change the keyboard layout to german (de-latin1)?"
-  if [ $ynAnswer == "y" ]; then
-    loadkeys de-latin1
-    echo "done"
-  fi
-
-  ynAnswer="n"
-  yn_question "Do you want to change the font to a big font (sun12x22)?"
-  if [ $ynAnswer == "y" ]; then
-    print_info "Setting font to sun12x22"
-    setfont sun12x22
-    echo "done"
-  fi
 
   echo "liveinstall not found. Installing git and cloning aui..."
   pacman -Sy git --needed --noconfirm
