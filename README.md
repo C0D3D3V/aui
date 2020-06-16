@@ -50,13 +50,13 @@ werden. Das Skript frägt bei kritischen Schritten ob diese erfolgreich waren.
 ./setup
 ```
 
-Um die Installation abzuschließen mit [meiner Liste an empfohlenen Programmen](https://github.com/C0D3D3V/arch/packages) muss nach dem Ausführen des `liveinstall`-Skript auch das `postinstall`-Skript ausgeführt werden. Dieses wird als Nutzer mit sudo im neu installierten Betriebsystem ausgeführt.
+Um die Installation abzuschließen mit [meiner Liste an empfohlenen Programmen](https://github.com/C0D3D3V/arch/packages) muss nach dem Ausführen des `setup`-Skript auch das `postinstall`-Skript ausgeführt werden. Dieses wird als Nutzer mit sudo im neu installierten Betriebsystem ausgeführt.
 
 ```
 ./postinstall
 ```
 
-## Was macht das `liveinstall` Skript?
+## Was macht das `setup` Skript?
 
 Die Schritte des Skriptes sind unter [https://github.com/C0D3D3V/arch/blob/master/install_arch.md](https://github.com/C0D3D3V/arch/blob/master/install_arch.md) dokumentiert.
 
