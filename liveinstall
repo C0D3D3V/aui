@@ -220,7 +220,7 @@ print_info "Create new user [https://wiki.archlinux.de/title/Sudo#sudo_f.C3.BCr_
 arch_chroot "useradd -m -g users -G wheel,storage,power,network,uucp -s /bin/zsh ${NEWUSER}"
 arch_chroot "echo -e \"${NEWUSER_PW}\n${NEWUSER_PW}\" | passwd ${NEWUSER}"
 
-sed -i 's/# %wheel ALL=(ALL) ALL/%wheel ALL=(ALL) ALL/' /mnt/etc/sudoers
+sed -i 's/# %wheel ALL=(ALL:ALL) ALL/%wheel ALL=(ALL:ALL) ALL/' /mnt/etc/sudoers
 
 if "$ENABLE_SSHD"; then
   print_info "Setup SSH [https://wiki.archlinux.org/index.php/OpenSSH]"
@@ -230,8 +230,8 @@ fi
 if [[ "$SSH_PUBKEY" ]]; then
   mkdir "/mnt/home/$NEWUSER/.ssh"
   curl -L --output /mnt/home/$NEWUSER/.ssh/authorized_keys "$SSH_PUBKEY"
-  chown -R "$NEWUSER:users" "/mnt/home/$NEWUSER/.ssh"
-  chmod 0600 "/mnt/home/$NEWUSER/.ssh/authorized_keys"
+  arch_chroot "chown -R \"$NEWUSER:users\" \"/home/$NEWUSER/.ssh\""
+  arch_chroot "chmod 0600 \"/home/$NEWUSER/.ssh/authorized_keys\""
   sed -i "s/#PasswordAuthentication yes/PasswordAuthentication no/" /mnt/etc/ssh/sshd_config
 fi
 
@@ -270,7 +270,7 @@ print_line
 
 cecho "Copying aui directory"
 cp -r ~/aui "/mnt/home/$NEWUSER"
-chown -R "$NEWUSER:users" "/home/$NEWUSER/aui"
+arch_chroot "chown -R \"$NEWUSER:users\" \"/home/$NEWUSER/aui\""
 
 cecho "\n\nInstallation finished"
 umount -R /mnt
