@@ -60,8 +60,14 @@ activate_services() {
 ##         Common
 ## -------------------------------------------------------
 
+# systemd-boot tools
+install_packages ${arch_dir}/packages/Boot.md
+
 # package management tools
 install_packages ${arch_dir}/packages/Paketverwaltung.md
+
+# core utils
+install_packages ${arch_dir}/packages/Kern-Werkzeuge.md
 
 
 sudo systemctl daemon-reload
