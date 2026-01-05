@@ -35,7 +35,7 @@ include_file "post_subitems/000_aui_paketverwaltung"
 # Install all packages
 
 install_packages() {
-  comm -13 <(pacman -Qq | sort) <(awk 1 "$1" | sed -n -e "s/^[ \t]*+[ \t]*\([^ \t]*\)[ \t]*$/\1/gp" | sort) | yay -Sy --needed --noconfirm -
+  comm -13 <(pacman -Qq | sort) <(awk 1 "$@" | sed -n -e "s/^[ \t]*+[ \t]*\([^ \t]*\)[ \t]*$/\1/gp" | sort) | yay -Sy --needed --noconfirm -
 }
 
 activate_services() {
@@ -46,8 +46,11 @@ activate_services() {
 #install_packages "${arch_dir}/extra_packages/*"
 #install_packages "${arch_dir}/post_install/020*"
 
-# Install some default fonts
-install_packages "${arch_dir}/post_install/050*"
+# default fonts
+install_packages ${arch_dir}/post_install/050*
+# package management tools
+install_packages ${arch_dir}/packages/Paketverwaltung.md
+
 
 
 sudo systemctl daemon-reload
@@ -66,10 +69,10 @@ include_file "post_subitems/050_Schriftarten"
 
 cecho "CLEAN ORPHAN PACKAGES - https://wiki.archlinux.org/index.php/Pacman/Tips_and_tricks#Removing_unused_packages_.28orphans.29"
 
-pacman -Rcns --noconfirm "$(pacman -Qtdq)"
+sudo pacman -Rcns --noconfirm "$(pacman -Qtdq)"
 
 paccache -r -k 0
-pacman -Scc --noconfirm
+sudo pacman -Scc --noconfirm
 
 rm -rf "$arch_dir"
 
