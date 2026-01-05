@@ -3,7 +3,7 @@
 # create Font configuration
 print_info "Generate font configuration"
 
-sudo tee -a /etc/fonts/local.conf > /dev/null <<EOT
+sudo tee /etc/fonts/local.conf > /dev/null <<EOT
 <?xml version="1.0"?>
 <!DOCTYPE fontconfig SYSTEM "fonts.dtd">
 <fontconfig>

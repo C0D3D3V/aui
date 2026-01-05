@@ -43,6 +43,7 @@ git clone https://github.com/C0D3D3V/arch "$arch_dir"
 
 # Install AUR helper
 include_file "post_subitems/000_aui_paketverwaltung"
+include_file "post_subitems/001_chaotic_aui"
 
 
 # Install all packages

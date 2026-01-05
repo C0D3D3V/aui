@@ -1,0 +1,30 @@
+#!/bin/bash
+
+
+if ! grep -Fq "[chaotic-aur]" "/etc/pacman.conf"; then
+
+  print_title "Setup Chaotic AUR"
+  
+  print_info "Installing GPG Keys"
+
+  sudo pacman-key --recv-key 3056513887B78AEB --keyserver keyserver.ubuntu.com
+  sudo pacman-key --lsign-key 3056513887B78AEB
+
+  print_info "Install chaotic keyring"
+
+  sudo pacman -U 'https://cdn-mirror.chaotic.cx/chaotic-aur/chaotic-keyring.pkg.tar.zst'
+  sudo pacman -U 'https://cdn-mirror.chaotic.cx/chaotic-aur/chaotic-mirrorlist.pkg.tar.zst'
+
+  print_info "Install chaotic AUR - https://aur.chaotic.cx/docs"
+    
+    sudo tee -a /etc/pacman.conf > /dev/null <<EOT
+[chaotic-aur]
+Include = /etc/pacman.d/chaotic-mirrorlist
+EOT
+
+  print_info "Syncing chaotic AUR"
+  sudo pacman -Sy
+
+  print_line
+
+fi
