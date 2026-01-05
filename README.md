@@ -21,7 +21,7 @@ Ich empfehle diese Skripte erst in Virtualbox zu testen, um sich damit vertraut 
 
 # Einsetzung 
 
-## Erste-Schritte (Vorraussetzung)
+## Erste-Schritte (Voraussetzung)
 
 Die Skripte müssen auf das [Live-System](https://www.archlinux.de/download) gebracht werden. Entweder durch das Herunterladen des Repositories oder über ein extra USB-Stick.
 
@@ -43,14 +43,14 @@ cd usb/aui
 
 ## Wie diese Skripte verwendet werden 
 
-Um die absolute **Basis** des Arch-Linux Betriebsystems zu installieren reicht das Ausführen des `setup`-Skripts im Live-System. Das Skript führt dich durch eine Auswahl von Optionen, bleib wachsam während des gesamten Prozesses. Fehler sind hier kritisch aber können gegebenfalls behoben 
+Um die absolute **Basis** des Arch-Linux Betriebssystems zu installieren reicht das Ausführen des `setup`-Skripts im Live-System. Das Skript führt dich durch eine Auswahl von Optionen, bleib wachsam während des gesamten Prozesses. Fehler sind hier kritisch aber können gegebenenfalls behoben 
 werden. Das Skript frägt bei kritischen Schritten ob diese erfolgreich waren.
 
 ```
 ./setup
 ```
 
-Um die Installation abzuschließen mit [meiner Liste an empfohlenen Programmen](https://github.com/C0D3D3V/arch/packages) muss nach dem Ausführen des `setup`-Skript auch das `postinstall`-Skript ausgeführt werden. Dieses wird als Nutzer mit sudo im neu installierten Betriebsystem ausgeführt.
+Um die Installation abzuschließen mit [meiner Liste an empfohlenen Programmen](https://github.com/C0D3D3V/arch/packages) muss nach dem Ausführen des `setup`-Skript auch das `postinstall`-Skript ausgeführt werden. Dieses wird als Nutzer im neu installierten Betriebssystem ausgeführt.
 
 ```
 ./postinstall
@@ -64,3 +64,17 @@ Die Schritte des Skriptes sind unter [https://github.com/C0D3D3V/arch/blob/maste
 ## Was macht das `postinstall` Skript?
 
 Das Skript führt die *post-Installations*-Schritte aus die in der [Dokumentation](https://github.com/C0D3D3V/arch/tree/master/post_install) beschrieben sind. Des weiteren werden alle [hier beschriebenen Pakete](https://github.com/C0D3D3V/arch/tree/master/packages) installiert.
+
+## Wie ändere ich das Luks-Keyfile zu einer Passphrase?
+
+Nach der Installation ist die Festplatte verschlüsselt und zum öffnen wird ein Keyfile, das in der Ram-Disk gespeichert ist, verwendet. Das Keyfile zudem befindet sich im `aui` Ordner und im Rootverzeichnis. Um dies zu einer normalen Passphrase zu wechseln, nutze das `tools/replace_keyfile` Skript oder:
+
+Zunächst muss ein neuer Schlüssel hinzugefügt werden: 
+
+    # cryptsetup luksAddKey /dev/sda2 --key-file /crypto_keyfile.bin
+
+Anschließend kann die Schlüsseldatei als valider Schlüssel entfernt werden
+
+    # cryptsetup luksRemoveKey /dev/sda2  /crypto_keyfile.bin
+
+In `/etc/mkinitcpio.conf` kann nun das keyfile aus der `FILES` Variable entfernt werden. Abschließend muss die RAM-Disk neu gebaut werden mit: `sudo mkinitcpio -P` 

@@ -1,0 +1,18 @@
+#!/bin/bash
+set -Eeuxo pipefail
+trap 'echo "Error on line $LINENO: $BASH_COMMAND" >&2' ERR
+
+# add a new Key
+sudo cryptsetup luksAddKey /dev/sda2 --key-file /crypto_keyfile.bin
+
+# remove the key file from valid keys
+sudo cryptsetup luksRemoveKey /dev/sda2  /crypto_keyfile.bin
+
+# change ram disk
+sudo sed -i 's/FILES=(\/crypto_keyfile.bin)/FILES=()/' /etc/mkinitcpio.conf
+
+# rebuild ram disk
+sudo mkinitcpio -P
+
+# remove the key file
+sudo rm -f /crypto_keyfile.bin
