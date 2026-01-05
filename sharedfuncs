@@ -296,3 +296,21 @@ check_boot_system() {
     cecho "BIOS Mode detected"
   fi
 }
+
+yn_question() {
+  while true; do
+    read -p "$1 [y/N]: " ynAnswer
+
+    case $ynAnswer in
+    [yY]*)
+      ynAnswer="y"
+      break
+      ;;
+    [nN]*)
+      ynAnswer="n"
+      break
+      ;;
+    *) echo "Dude, just enter Y or N, please." ;;
+    esac
+  done
+}
