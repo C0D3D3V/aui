@@ -69,6 +69,9 @@ install_packages ${arch_dir}/packages/Paketverwaltung.md
 # core utils
 install_packages ${arch_dir}/packages/Kern-Werkzeuge.md
 
+# archive utils
+install_packages ${arch_dir}/packages/Archive.md
+
 
 sudo systemctl daemon-reload
 
