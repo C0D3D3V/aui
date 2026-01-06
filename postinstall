@@ -1,6 +1,6 @@
 #!/bin/bash
 
-set -Eeuxo pipefail
+set -Euxo pipefail
 trap 'echo "Error on line $LINENO: $BASH_COMMAND" >&2' ERR
 
 if [[ -f $PWD/sharedfuncs ]]; then
