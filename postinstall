@@ -1,24 +1,26 @@
 #!/bin/bash
 
+set -Eeuxo pipefail
+trap 'echo "Error on line $LINENO: $BASH_COMMAND" >&2' ERR
+
 if [[ -f $PWD/sharedfuncs ]]; then
-  source sharedfuncs
+	source sharedfuncs
 else
-  echo "missing file: sharedfuncs"
-  exit 1
+	echo "missing file: sharedfuncs"
+	exit 1
 fi
 
 if [[ "$(id -u)" == "0" ]]; then
-  error_msg "ERROR! You should not execute the script as the root user."
+	error_msg "ERROR! You should not execute the script as the root user."
 fi
 prompt=$(sudo -nv 2>&1)
 if [ $? -eq 0 ]; then
-  print_info "Stay alert!"
+	print_info "Stay alert!"
 elif echo "$prompt" | grep -q '^sudo:'; then
-  print_warning "Stay alert and enter your password if necessary."
+	print_warning "Stay alert and enter your password if necessary."
 else
-  error_msg "ERROR! You must execute the script as a sudo user."
+	error_msg "ERROR! You must execute the script as a sudo user."
 fi
-
 
 check_connection
 
@@ -29,19 +31,18 @@ print_info "If you do not want to install desktop components, only common non de
 ynAnswer="n"
 yn_question "Do you want to install i3 desktop and common desktop applications?"
 if [ $ynAnswer == "y" ]; then
-  i3_desktop="y"
-  echo "i3 desktop and common desktop applications will be installed"
+	i3_desktop="y"
+	echo "i3 desktop and common desktop applications will be installed"
 fi
 
 if [[ -v i3_desktop ]]; then
-  ynAnswer="n"
-  yn_question "Do you want to install extra desktop applications?"
-  if [ $ynAnswer == "y" ]; then
-    extra_desktop="y"
-    echo "extra applications will be installed"
-  fi
+	ynAnswer="n"
+	yn_question "Do you want to install extra desktop applications?"
+	if [ $ynAnswer == "y" ]; then
+		extra_desktop="y"
+		echo "extra applications will be installed"
+	fi
 fi
-
 
 print_line
 
@@ -55,15 +56,14 @@ git clone https://github.com/C0D3D3V/arch "$arch_dir"
 include_file "post_subitems/000_aui_paketverwaltung"
 include_file "post_subitems/001_chaotic_aui"
 
-
 # Install all packages
 
 install_packages() {
-  comm -13 <(pacman -Qq | sort) <(awk 1 "$@" | sed -n -e "s/^[ \t]*+[ \t]*\([^ \t]*\)[ \t]*$/\1/gp" | sort) | yay -Sy --needed --noconfirm -
+	comm -13 <(pacman -Qq | sort) <(awk 1 "$@" | sed -n -e "s/^[ \t]*+[ \t]*\([^ \t]*\)[ \t]*$/\1/gp" | sort) | yay -Sy --needed --noconfirm -
 }
 
 activate_services() {
-  awk 1 "$1" | sed -n -e "s/^[ \t]*systemctl enable --now[ \t]*\([^ \t]*\)[ \t]*$/\1/gp" | xargs sudo systemctl enable
+	awk 1 "$1" | sed -n -e "s/^[ \t]*systemctl enable --now[ \t]*\([^ \t]*\)[ \t]*$/\1/gp" | xargs sudo systemctl enable
 }
 
 ## -------------------------------------------------------
@@ -86,13 +86,12 @@ install_packages ${arch_dir}/packages/Archive.md
 # filesystems and fs utils
 install_packages ${arch_dir}/packages/Dateisysteme.md
 
+# GPU drivers
+include_file "post_subitems/030_Grafiktreiber"
 
 sudo systemctl daemon-reload
 
 # Here all configuration steps
-
-
-
 
 ## -------------------------------------------------------
 ##         Desktop
@@ -100,32 +99,31 @@ sudo systemctl daemon-reload
 
 if [[ -v i3_desktop ]]; then
 
-  # default fonts
-  install_packages ${arch_dir}/post_install/050_Schriftarten.md
-  # loading screen and display manager
-  install_packages ${arch_dir}/post_install/020_Ladebildschirm.md
+	# default fonts
+	install_packages ${arch_dir}/post_install/050_Schriftarten.md
+	# loading screen and display manager
+	install_packages ${arch_dir}/post_install/020_Ladebildschirm.md
 
+	# Activate all packages listed in the documentation
+	# install_packages ${arch_dir}/packages/*
 
-  # Activate all packages listed in the documentation
-  # install_packages ${arch_dir}/packages/*
+	sudo systemctl daemon-reload
 
-  sudo systemctl daemon-reload
+	# Here all configuration steps
 
-  # Here all configuration steps
+	# Configure default fonts
+	include_file "post_subitems/050_Schriftarten"
+	# Configure loading screen and display manager
+	include_file "post_subitems/020_Ladebildschirm"
 
-  # Configure default fonts
-  include_file "post_subitems/050_Schriftarten"
-  # Configure loading screen and display manager
-  include_file "post_subitems/020_Ladebildschirm"
+	# Activate all services listed in the documentation
+	# activate_services ${arch_dir}/packages/*
 
-  # Activate all services listed in the documentation
-  # activate_services ${arch_dir}/packages/*
+	# Activate display manager
+	activate_services ${arch_dir}/post_install/020_Ladebildschirm.md
 
-  # Activate display manager
-  activate_services ${arch_dir}/post_install/020_Ladebildschirm.md
-
-  # TODO: Add user to groups. For example need to add user to group vboxusers
-  # sudo usermod -aG group1,group2,group3 username
+	# TODO: Add user to groups. For example need to add user to group vboxusers
+	# sudo usermod -aG group1,group2,group3 username
 fi
 
 ## -------------------------------------------------------
@@ -134,21 +132,19 @@ fi
 
 if [[ -v extra_desktop ]]; then
 
-  # Activate all packages listed in the documentation
-  install_packages ${arch_dir}/extra_packages/*
+	# Activate all packages listed in the documentation
+	#install_packages ${arch_dir}/extra_packages/*
 
-  sudo systemctl daemon-reload
+	sudo systemctl daemon-reload
 
-  # Here all configuration steps
+	# Here all configuration steps
 
-
-  # Activate all services listed in the documentation
-  # activate_services ${arch_dir}/extra_packages/*
+	# Activate all services listed in the documentation
+	# activate_services ${arch_dir}/extra_packages/*
 fi
 
 # Activate NTP
 activate_services ${arch_dir}/post_install/070_System.md
-
 
 cecho "CLEAN ORPHAN PACKAGES - https://wiki.archlinux.org/index.php/Pacman/Tips_and_tricks#Removing_unused_packages_.28orphans.29"
 
