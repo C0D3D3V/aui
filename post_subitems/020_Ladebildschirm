@@ -1,0 +1,53 @@
+#!/bin/bash
+
+print_title "Setup Loading Screen and Display manager"
+
+if [ -f /boot/loader/entries/arch.conf ]; then
+
+	if ! grep -Fq "splash" "/boot/loader/entries/arch.conf"; then
+
+		print_info "Activating plymouth splash screen"
+		sudo sed -i "s/quiet rw/quiet splash loglevel=3 rd.udev.log_priority=3 rw/" /boot/loader/entries/arch.conf
+
+	fi
+else
+	if ! grep -Fq "splash" "/etc/default/grub"; then
+
+		print_info "Activating plymouth splash screen"
+		sudo sed -i "s/quiet rw/quiet splash loglevel=3 rd.udev.log_priority=3 rw/" /etc/default/grub
+		print_info "Regenerating grub config"
+		sudo grub-mkconfig -o /boot/grub/grub.cfg
+
+	fi
+fi
+
+if ! grep -Fq "abstract-ring" "/etc/plymouth/plymouthd.conf"; then
+
+	print_info "Activating plymouth abstract-ring theme"
+	sudo tee /etc/plymouth/plymouthd.conf >/dev/null <<EOT
+[Daemon]
+Theme=angular
+ShowDelay=0
+DeviceTimeout=8
+EOT
+
+fi
+
+if ! grep -Fq "plymouth" "/etc/mkinitcpio.conf"; then
+
+	print_info "Activating Kernel plymouth hook"
+	sudo sed -i "s/keymap/keymap plymouth/" /etc/mkinitcpio.conf
+
+	print_info "Rebuild init-RAM-Disk"
+	sudo mkinitcpio -P
+fi
+
+if ! grep -Fq "Current=astronaut" "/etc/sddm.conf"; then
+
+	print_info "Activating SDDM Astronaut Theme"
+
+	sudo sed -i 's/Current=/Current=astronaut/' /etc/sddm.conf
+
+	print_line
+
+fi

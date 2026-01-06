@@ -259,7 +259,7 @@ else
   print_info "Installing GRUB  [https://wiki.archlinux.org/index.php/GRUB]"
   pacstrap /mnt grub os-prober
 
-  sed -i -e "s|GRUB_CMDLINE_LINUX=\"\(.\+\)\"|GRUB_CMDLINE_LINUX=\"cryptdevice=UUID=${LuksUUID}:${DM_NAME} root=/dev/mapper/${DM_NAME} resume=/dev/mapper/${DM_NAME} resume_offset=${swap_file_offset}\"|g" -e "s|GRUB_CMDLINE_LINUX=\"\"|GRUB_CMDLINE_LINUX=\"cryptdevice=UUID=${LuksUUID}:${DM_NAME} root=/dev/mapper/${DM_NAME} resume=/dev/mapper/${DM_NAME} resume_offset=${swap_file_offset}\"|g" /mnt/etc/default/grub
+  sed -i -e "s|GRUB_CMDLINE_LINUX=\"\(.\+\)\"|GRUB_CMDLINE_LINUX=\"cryptdevice=UUID=${LuksUUID}:${DM_NAME} root=/dev/mapper/${DM_NAME} resume=/dev/mapper/${DM_NAME} resume_offset=${swap_file_offset}\"|g" -e "s|GRUB_CMDLINE_LINUX=\"\"|GRUB_CMDLINE_LINUX=\"cryptdevice=UUID=${LuksUUID}:${DM_NAME} root=/dev/mapper/${DM_NAME} resume=/dev/mapper/${DM_NAME} resume_offset=${swap_file_offset} quiet rw\"|g" /mnt/etc/default/grub
   sed -i 's/#GRUB_ENABLE_CRYPTODISK=y/GRUB_ENABLE_CRYPTODISK=y/' /mnt/etc/default/grub
 
   arch_chroot "grub-install $BOOT_MOUNTPOINT"
