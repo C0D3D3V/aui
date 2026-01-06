@@ -67,7 +67,7 @@ activate_services() {
 }
 
 add_groups() {
-	awk 1 "$@" | sed -n -e "s/^[ \t]*gpasswd -a USERNAME[ \t]*\([^ \t]*\)[ \t]*$/\1/gp" | xargs gpasswd -a "${USER}"
+	awk 1 "$@" | sed -n -e "s/^[ \t]*gpasswd -a USERNAME[ \t]*\([^ \t]*\)[ \t]*$/\1/gp" | xargs sudo gpasswd -a "${USER}"
 }
 
 ## -------------------------------------------------------
@@ -126,8 +126,8 @@ if [[ -v i3_desktop ]]; then
 	# Activate display manager
 	activate_services ${arch_dir}/post_install/020_Ladebildschirm.md
 
-	# TODO: Add user to groups. For example need to add user to group vboxusers
-	# sudo usermod -aG group1,group2,group3 username
+	# Add current user to groups
+	add_groups ${arch_dir}/packages/*
 fi
 
 ## -------------------------------------------------------
