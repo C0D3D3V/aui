@@ -42,11 +42,15 @@ if ! grep -Fq "plymouth" "/etc/mkinitcpio.conf"; then
 	sudo mkinitcpio -P
 fi
 
-if ! grep -Fq "Current=astronaut" "/etc/sddm.conf"; then
+if [ ! -f /etc/sddm.conf.d/theme.conf ]; then
 
 	print_info "Activating SDDM Astronaut Theme"
+	sudo mkdir -p /etc/sddm.conf.d
 
-	sudo sed -i 's/Current=/Current=astronaut/' /etc/sddm.conf
+	sudo tee /etc/sddm.conf.d/theme.conf >/dev/null <<EOT
+[Theme]
+Current=astronaut
+EOT
 
 	print_line
 
