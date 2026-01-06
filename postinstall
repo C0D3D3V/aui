@@ -63,7 +63,11 @@ install_packages() {
 }
 
 activate_services() {
-	awk 1 "$1" | sed -n -e "s/^[ \t]*systemctl enable --now[ \t]*\([^ \t]*\)[ \t]*$/\1/gp" | xargs sudo systemctl enable
+	awk 1 "$@" | sed -n -e "s/^[ \t]*systemctl enable --now[ \t]*\([^ \t]*\)[ \t]*$/\1/gp" | xargs sudo systemctl enable
+}
+
+add_groups() {
+	awk 1 "$@" | sed -n -e "s/^[ \t]*gpasswd -a USERNAME[ \t]*\([^ \t]*\)[ \t]*$/\1/gp" | xargs gpasswd -a "${USER}"
 }
 
 ## -------------------------------------------------------
@@ -105,7 +109,7 @@ if [[ -v i3_desktop ]]; then
 	install_packages ${arch_dir}/post_install/020_Ladebildschirm.md
 
 	# Activate all packages listed in the documentation
-	# install_packages ${arch_dir}/packages/*
+	install_packages ${arch_dir}/packages/*
 
 	sudo systemctl daemon-reload
 
@@ -117,7 +121,7 @@ if [[ -v i3_desktop ]]; then
 	include_file "post_subitems/020_Ladebildschirm"
 
 	# Activate all services listed in the documentation
-	# activate_services ${arch_dir}/packages/*
+	activate_services ${arch_dir}/packages/*
 
 	# Activate display manager
 	activate_services ${arch_dir}/post_install/020_Ladebildschirm.md
@@ -133,14 +137,14 @@ fi
 if [[ -v extra_desktop ]]; then
 
 	# Activate all packages listed in the documentation
-	#install_packages ${arch_dir}/extra_packages/*
+	install_packages ${arch_dir}/extra_packages/*
 
 	sudo systemctl daemon-reload
 
 	# Here all configuration steps
 
 	# Activate all services listed in the documentation
-	# activate_services ${arch_dir}/extra_packages/*
+	activate_services ${arch_dir}/extra_packages/*
 fi
 
 # Activate NTP
