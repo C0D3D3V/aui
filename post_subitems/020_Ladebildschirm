@@ -1,6 +1,6 @@
 #!/bin/bash
 
-print_title "Setup Loading Screen and Display manager"
+print_info "Setup Loading Screen and Display manager"
 
 if [ -f /boot/loader/entries/arch.conf ]; then
 

@@ -1,6 +1,6 @@
 #!/bin/bash
 
-print_title "Installing GPU drivers"
+print_info "Installing GPU drivers"
 
 GPU_INFO=$(lspci -nn | grep -Ei 'vga|3d|display')
 

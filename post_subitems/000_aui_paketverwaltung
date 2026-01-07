@@ -1,30 +1,27 @@
 #!/bin/bash
 
+if ! is_package_installed "yay"; then
 
-if ! is_package_installed "yay" ; then
+	print_info "Setup AUR helper"
+	print_info "Install yay - https://github.com/Jguer/yay"
 
-  print_title "Setup AUR helper"
-  print_info "Install yay - https://github.com/Jguer/yay"
+	yay_dir=$(mktemp -d -t arch-XXXXXXXXXX)
+	echo "Cloning https://aur.archlinux.org/yay.git to ${yay_dir}"
+	git clone https://aur.archlinux.org/yay.git "$yay_dir"
 
-  yay_dir=$(mktemp -d -t arch-XXXXXXXXXX)
-  echo "Cloning https://aur.archlinux.org/yay.git to ${yay_dir}"
-  git clone https://aur.archlinux.org/yay.git "$yay_dir"
+	print_info "Build and install yay"
+	current_dir="$PWD"
+	cd $yay_dir
 
+	# clean up earlier build
+	sudo rm -rf /tmp/makepkg
+	makepkg -si
 
+	# return to original directory
+	cd "$current_dir"
+	# clean up
+	rm -rf "$arch_dir"
 
-  print_info "Build and install yay"
-  current_dir="$PWD"
-  cd $yay_dir  
-  
-  # clean up earlier build
-  sudo rm -rf /tmp/makepkg
-  makepkg -si
-
-  # return to original directory
-  cd "$current_dir"     
-  # clean up
-  rm -rf "$arch_dir"
-    
-  print_line
+	print_line
 
 fi
