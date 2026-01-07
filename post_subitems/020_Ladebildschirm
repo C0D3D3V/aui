@@ -55,3 +55,8 @@ EOT
 	print_line
 
 fi
+
+if [ ! -f /etc/X11/xorg.conf.d/00-keyboard.conf ]; then
+	print_info "Setting keyboard layout for sddm"
+	localectl --no-convert set-x11-keymap de
+fi
