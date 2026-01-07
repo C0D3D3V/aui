@@ -63,11 +63,11 @@ install_packages() {
 }
 
 activate_services() {
-	awk 1 "$@" | sed -n -e "s/^[ \t]*systemctl enable --now[ \t]*\([^ \t]*\)[ \t]*$/\1/gp" | xargs sudo systemctl enable
+	awk 1 "$@" | sed -n -e "s/^[ \t]*systemctl enable --now[ \t]*\([^ \t]*\)[ \t]*$/\1/gp" | xargs -r -n1 -I{} sudo systemctl enable {}
 }
 
 add_groups() {
-	awk 1 "$@" | sed -n -e "s/^[ \t]*gpasswd -a USERNAME[ \t]*\([^ \t]*\)[ \t]*$/\1/gp" | xargs sudo gpasswd -a "${USER}"
+	awk 1 "$@" | sed -n -e "s/^[ \t]*gpasswd -a USERNAME[ \t]*\([^ \t]*\)[ \t]*$/\1/gp" | xargs -r -n1 -I{} sudo gpasswd -a "${USER}" {}
 }
 
 ## -------------------------------------------------------

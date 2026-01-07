@@ -8,7 +8,7 @@ if echo "$GPU_INFO" | grep -qi 'nvidia'; then
 	echo "NVIDIA GPU detected"
 	echo "Warning if you have an older model than Turing, you have to use an older driver [https://wiki.archlinux.org/title/NVIDIA]"
 
-	yay -Sy --needed --noconfirm nvidia-open-dkms nvidia-utils lib32-nvidia-utils nvidia-settings
+	yay -Sy --needed --noconfirm nvidia-open-dkms nvidia-utils lib32-nvidia-utils nvidia-settings linux-headers
 
 elif echo "$GPU_INFO" | grep -Eqi 'amd|ati'; then
 	echo "AMD GPU / iGPU detected"
