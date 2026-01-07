@@ -59,7 +59,18 @@ include_file "post_subitems/001_chaotic_aui"
 # Install all packages
 
 install_packages() {
-	comm -13 <(pacman -Qq | sort) <(awk 1 "$@" | sed -n -e "s/^[ \t]*+[ \t]*\([^ \t]*\)[ \t]*$/\1/gp" | sort) | yay -Sy --needed --noconfirm -
+	local pkgs
+	pkgs=$(comm -13 <(pacman -Qq | sort) <(awk 1 "$@" | sed -n -e "s/^[ \t]*+[ \t]*\([^ \t]*\)[ \t]*$/\1/gp" | sort -u))
+
+	[ -n "$pkgs" ] && printf '%s\n' "$pkgs" | yay -Sy --needed --noconfirm -
+}
+
+install_these_packages() {
+	local pkgs
+
+	pkgs=$(comm -13 <(pacman -Qq | sort) <(printf '%s\n' "$@" | tr ' ' '\n' | sed '/^$/d' | sort -u))
+
+	[ -n "$pkgs" ] && printf '%s\n' "$pkgs" | yay -Sy --needed --noconfirm -
 }
 
 activate_services() {
