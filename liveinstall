@@ -34,10 +34,10 @@ DM_NAME="cryptroot"
 #######################################
 
 if [[ -f $PWD/sharedfuncs ]]; then
-  source sharedfuncs
+	source sharedfuncs
 else
-  echo "Missing file: sharedfuncs"
-  exit 1
+	echo "Missing file: sharedfuncs"
+	exit 1
 fi
 
 check_root
@@ -75,22 +75,22 @@ sgdisk -Z "$BOOT_MOUNTPOINT"
 
 if [ "$UEFI" == 1 ]; then
 
-  cecho "Create efi partition: type EF00, size 500M"
-  sgdisk -n 0:0:+500M -t 0:ef00 -c 0:"efi" "$BOOT_MOUNTPOINT"
+	cecho "Create efi partition: type EF00, size 500M"
+	sgdisk -n 0:0:+500M -t 0:ef00 -c 0:"efi" "$BOOT_MOUNTPOINT"
 
-  cecho "Create root partition: type 8300"
-  sgdisk -n 0:0:0 -t 0:8300 -c 0:"main" "$BOOT_MOUNTPOINT"
+	cecho "Create root partition: type 8300"
+	sgdisk -n 0:0:0 -t 0:8300 -c 0:"main" "$BOOT_MOUNTPOINT"
 
 else
 
-  cecho "Create boot partition: type EF02, size 3M"
-  sgdisk -n 0:0:+3M -t 0:ef02 -c 0:"bios" "$BOOT_MOUNTPOINT"
+	cecho "Create boot partition: type EF02, size 3M"
+	sgdisk -n 0:0:+3M -t 0:ef02 -c 0:"bios" "$BOOT_MOUNTPOINT"
 
-  cecho "Create boot partition: type 8300, size 500M"
-  sgdisk -n 0:0:+500M -t 0:8300 -c 0:"boot" "$BOOT_MOUNTPOINT"
+	cecho "Create boot partition: type 8300, size 500M"
+	sgdisk -n 0:0:+500M -t 0:8300 -c 0:"boot" "$BOOT_MOUNTPOINT"
 
-  cecho "Create root partition: type 8300"
-  sgdisk -n 0:0:0 -t 0:8300 -c 0:"main" "$BOOT_MOUNTPOINT"
+	cecho "Create root partition: type 8300"
+	sgdisk -n 0:0:0 -t 0:8300 -c 0:"main" "$BOOT_MOUNTPOINT"
 
 fi
 
@@ -100,11 +100,11 @@ print_line
 
 # select boot and luks partitions
 if [[ $UEFI == 1 ]]; then
-  BOOT_DISK=${BOOT_MOUNTPOINT}1
-  LUKS_DISK=${BOOT_MOUNTPOINT}2
+	BOOT_DISK=${BOOT_MOUNTPOINT}1
+	LUKS_DISK=${BOOT_MOUNTPOINT}2
 else
-  BOOT_DISK=${BOOT_MOUNTPOINT}2
-  LUKS_DISK=${BOOT_MOUNTPOINT}3
+	BOOT_DISK=${BOOT_MOUNTPOINT}2
+	LUKS_DISK=${BOOT_MOUNTPOINT}3
 fi
 
 print_title "Setup LUKS [https://wiki.archlinux.org/index.php/Dm-crypt]"
@@ -223,31 +223,31 @@ arch_chroot "echo -e \"${NEWUSER_PW}\n${NEWUSER_PW}\" | passwd ${NEWUSER}"
 sed -i 's/# %wheel ALL=(ALL:ALL) ALL/%wheel ALL=(ALL:ALL) ALL/' /mnt/etc/sudoers
 
 if "$ENABLE_SSHD"; then
-  print_info "Setup SSH [https://wiki.archlinux.org/index.php/OpenSSH]"
-  arch_chroot "systemctl enable sshd"
+	print_info "Setup SSH [https://wiki.archlinux.org/index.php/OpenSSH]"
+	arch_chroot "systemctl enable sshd"
 fi
 
 if [[ "$SSH_PUBKEY" ]]; then
-  mkdir "/mnt/home/$NEWUSER/.ssh"
-  curl -L --output /mnt/home/$NEWUSER/.ssh/authorized_keys "$SSH_PUBKEY"
-  arch_chroot "chown -R \"$NEWUSER:users\" \"/home/$NEWUSER/.ssh\""
-  arch_chroot "chmod 0600 \"/home/$NEWUSER/.ssh/authorized_keys\""
-  sed -i "s/#PasswordAuthentication yes/PasswordAuthentication no/" /mnt/etc/ssh/sshd_config
+	mkdir "/mnt/home/$NEWUSER/.ssh"
+	curl -L --output /mnt/home/$NEWUSER/.ssh/authorized_keys "$SSH_PUBKEY"
+	arch_chroot "chown -R \"$NEWUSER:users\" \"/home/$NEWUSER/.ssh\""
+	arch_chroot "chmod 0600 \"/home/$NEWUSER/.ssh/authorized_keys\""
+	sed -i "s/#PasswordAuthentication yes/PasswordAuthentication no/" /mnt/etc/ssh/sshd_config
 fi
 
 print_line
 
 LuksUUID=$(blkid -s UUID -o value "${LUKS_DISK}")
 
-swap_file_offset=$(filefrag -v /mnt/swapfile | awk '{ if($1=="0:"){print $4} }')
+swap_file_offset=$(filefrag -v /mnt/swapfile | awk '$1=="0:" {print substr($4, 1, length($4)-2)}')
 
 if [[ "$UEFI" == 1 ]]; then
-  print_info "Installing EFI Boot-Manager  [https://wiki.archlinux.org/index.php/Systemd-boot#Installing_the_EFI_boot_manager]"
-  arch_chroot "bootctl --path=/boot install"
+	print_info "Installing EFI Boot-Manager  [https://wiki.archlinux.org/index.php/Systemd-boot#Installing_the_EFI_boot_manager]"
+	arch_chroot "bootctl --path=/boot install"
 
-  echo 'default arch' >/mnt/boot/loader/loader.conf
+	echo 'default arch' >/mnt/boot/loader/loader.conf
 
-  cat <<EOF >/mnt/boot/loader/entries/arch.conf
+	cat <<EOF >/mnt/boot/loader/entries/arch.conf
 title Arch Linux
 linux /vmlinuz-linux
 initrd /intel-ucode.img
@@ -256,14 +256,14 @@ options cryptdevice=UUID=${LuksUUID}:${DM_NAME} root=/dev/mapper/${DM_NAME} resu
 EOF
 
 else
-  print_info "Installing GRUB  [https://wiki.archlinux.org/index.php/GRUB]"
-  pacstrap /mnt grub os-prober
+	print_info "Installing GRUB  [https://wiki.archlinux.org/index.php/GRUB]"
+	pacstrap /mnt grub os-prober
 
-  sed -i -e "s|GRUB_CMDLINE_LINUX=\"\(.\+\)\"|GRUB_CMDLINE_LINUX=\"cryptdevice=UUID=${LuksUUID}:${DM_NAME} root=/dev/mapper/${DM_NAME} resume=/dev/mapper/${DM_NAME} resume_offset=${swap_file_offset}\"|g" -e "s|GRUB_CMDLINE_LINUX=\"\"|GRUB_CMDLINE_LINUX=\"cryptdevice=UUID=${LuksUUID}:${DM_NAME} root=/dev/mapper/${DM_NAME} resume=/dev/mapper/${DM_NAME} resume_offset=${swap_file_offset} quiet rw\"|g" /mnt/etc/default/grub
-  sed -i 's/#GRUB_ENABLE_CRYPTODISK=y/GRUB_ENABLE_CRYPTODISK=y/' /mnt/etc/default/grub
+	sed -i -e "s|GRUB_CMDLINE_LINUX=\"\(.\+\)\"|GRUB_CMDLINE_LINUX=\"cryptdevice=UUID=${LuksUUID}:${DM_NAME} root=/dev/mapper/${DM_NAME} resume=/dev/mapper/${DM_NAME} resume_offset=${swap_file_offset}\"|g" -e "s|GRUB_CMDLINE_LINUX=\"\"|GRUB_CMDLINE_LINUX=\"cryptdevice=UUID=${LuksUUID}:${DM_NAME} root=/dev/mapper/${DM_NAME} resume=/dev/mapper/${DM_NAME} resume_offset=${swap_file_offset} quiet rw\"|g" /mnt/etc/default/grub
+	sed -i 's/#GRUB_ENABLE_CRYPTODISK=y/GRUB_ENABLE_CRYPTODISK=y/' /mnt/etc/default/grub
 
-  arch_chroot "grub-install $BOOT_MOUNTPOINT"
-  arch_chroot "grub-mkconfig -o /boot/grub/grub.cfg"
+	arch_chroot "grub-install $BOOT_MOUNTPOINT"
+	arch_chroot "grub-mkconfig -o /boot/grub/grub.cfg"
 fi
 
 print_line
