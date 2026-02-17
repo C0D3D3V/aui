@@ -49,7 +49,7 @@ if [ ! -f /etc/sddm.conf.d/theme.conf ]; then
 
 	sudo tee /etc/sddm.conf.d/theme.conf >/dev/null <<EOT
 [Theme]
-Current=sdd-astronaut-theme
+Current=sddm-astronaut-theme
 EOT
 
 	print_line

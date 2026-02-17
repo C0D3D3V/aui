@@ -59,7 +59,7 @@ package_install "pacman-contrib reflector"
 # Mirrorlist
 print_title "Backup pacman mirrorlist and filter for $COUNTRY servers [https://wiki.archlinux.org/index.php/mirrors]"
 mv -i /etc/pacman.d/mirrorlist /etc/pacman.d/mirrorlist.orig
-reflector --country "$COUNTRY" --age 12 --completion-percent 70 --protocol https --sort rate --verbose --save /etc/pacman.d/mirrorlist
+reflector --country "$COUNTRY" --age 12 --completion-percent 70 --protocol https --threads 20 --number 20 --sort score --verbose --save /etc/pacman.d/mirrorlist
 
 grep "^[^#]" /etc/pacman.d/mirrorlist | head -10
 ls /etc/pacman.d/ -la
@@ -107,6 +107,14 @@ else
 	LUKS_DISK=${BOOT_MOUNTPOINT}3
 fi
 
+# if [[ "$UEFI" == 1 ]]; then
+#     BOOT_DISK=$(lsblk -rpno NAME,LABEL "$BOOT_MOUNTPOINT" | awk '$2=="efi"{print $1}')
+#     LUKS_DISK=$(lsblk -rpno NAME,LABEL "$BOOT_MOUNTPOINT" | awk '$2=="main"{print $1}')
+# else
+#     BOOT_DISK=$(lsblk -rpno NAME,LABEL "$BOOT_MOUNTPOINT" | awk '$2=="boot"{print $1}')
+#     LUKS_DISK=$(lsblk -rpno NAME,LABEL "$BOOT_MOUNTPOINT" | awk '$2=="main"{print $1}')
+# fi
+
 print_title "Setup LUKS [https://wiki.archlinux.org/index.php/Dm-crypt]"
 print_title "Using a keyfile in initramfs [https://wiki.archlinux.org/index.php/Dm-crypt/Device_encryption#With_a_keyfile_embedded_in_the_initramfs]"
 
@@ -127,6 +135,11 @@ mkfs.fat -F32 -n boot "$BOOT_DISK"
 print_info "Mount file system [https://wiki.archlinux.de/title/Mounten]"
 
 mount /dev/mapper/${DM_NAME} /mnt
+
+if ! mountpoint -q /mnt; then
+	print_danger "WARNING: /mnt is not a mountpoint. Exiting."
+	exit 1
+fi
 
 mkdir /mnt/boot
 mount "$BOOT_DISK" /mnt/boot

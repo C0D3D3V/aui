@@ -46,7 +46,7 @@ fi
 
 print_line
 
-package_install git
+package_install "git"
 arch_dir=$(mktemp -d -t arch-XXXXXXXXXX)
 print_info "Cloning https://github.com/C0D3D3V/arch to ${arch_dir}"
 
